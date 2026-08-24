@@ -266,6 +266,18 @@ export const Navbar = ({ onToggleMobileMenu }) => {
                     <span>Account Settings</span>
                   </Link>
 
+                  <Link
+                    to="/admin/login"
+                    onClick={() => setShowUserMenu(false)}
+                    className="flex items-center justify-between px-3 py-2 rounded-xl text-volt hover:bg-volt/10 transition-colors"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <ShieldCheck className="w-4 h-4 text-volt" />
+                      <span className="font-semibold">Admin Console</span>
+                    </div>
+                    <Badge variant="volt" size="xs">Gov</Badge>
+                  </Link>
+
                   <div className="border-t border-dark-border/60 my-1" />
 
                   <button

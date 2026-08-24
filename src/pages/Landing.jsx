@@ -106,6 +106,11 @@ export const Landing = () => {
           </Link>
 
           <div className="flex items-center gap-2 sm:gap-3">
+            <Link to="/admin/login">
+              <Button variant="outline" size="sm" icon={ShieldCheck} className="text-xs text-volt border-volt/40 hover:bg-volt/10 hidden sm:inline-flex">
+                Admin Portal
+              </Button>
+            </Link>
             <Link to="/login">
               <Button variant="ghost" size="sm">
                 Log In

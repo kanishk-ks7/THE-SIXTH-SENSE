@@ -105,7 +105,7 @@ export const Sidebar = () => {
         })}
 
         <div className="pt-4 pb-2 px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-          Preferences & Auth
+          Preferences & Governance
         </div>
         <NavLink
           to="/settings"
@@ -120,6 +120,18 @@ export const Sidebar = () => {
           <Settings className="w-4 h-4 text-slate-400 group-hover:text-volt transition-colors" />
           <span>Settings</span>
         </NavLink>
+        <Link
+          to="/admin/dashboard"
+          className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:text-volt hover:bg-volt/10 transition-all duration-200 group"
+        >
+          <div className="flex items-center gap-3">
+            <ShieldCheck className="w-4 h-4 text-volt group-hover:scale-110 transition-transform" />
+            <span>Admin Portal</span>
+          </div>
+          <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-volt/20 text-volt border border-volt/30">
+            Gov
+          </span>
+        </Link>
       </nav>
 
       {/* Bottom Athlete Readiness Widget & User Tag */}
