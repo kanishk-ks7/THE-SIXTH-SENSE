@@ -19,14 +19,15 @@ import ProgressBar from '../../components/ui/ProgressBar';
 import Badge from '../../components/ui/Badge';
 import ModuleContainer from '../../components/ui/ModuleContainer';
 import { getProgressData } from '../../data/mockData';
+import { progressService } from '../../services/progressService';
 import { useAthlete } from '../../context/AthleteContext';
 
 /* =====================================================================
- * TEAMMATE INTEGRATION MODULE: ProgressModule (v2 — Dynamic + Chart)
+ * TEAMMATE INTEGRATION MODULE: ProgressModule (v2 — Dynamic + Database-Backed)
  * =====================================================================
- * Reads athlete.sport + athlete.level from AthleteContext.
+ * Reads athlete.sport + athlete.level from AthleteContext & Backend API.
  * Resolves pillar scores, trajectory data, assessment summary, and
- * training info via getProgressData(sport, level).
+ * training info via progressService and getProgressData(sport, level).
  * Renders a pure-SVG performance trajectory chart (no external libs).
  * Assessment cycle: Every 2 Weeks (bi-weekly).
  * ===================================================================== */
@@ -299,8 +300,29 @@ export const ProgressModule = () => {
   const sport = athlete.sport || 'Football';
   const level = athlete.level || 'Beginner';
 
-  // Resolve dynamic data from centralized lookup
-  const data = useMemo(() => getProgressData(sport, level), [sport, level]);
+  // Local fallback baseline
+  const baselineData = useMemo(() => getProgressData(sport, level), [sport, level]);
+  const [data, setData] = useState(baselineData);
+
+  // Sync when sport/level changes or load from backend
+  useEffect(() => {
+    let isMounted = true;
+    setData(baselineData);
+
+    const fetchLiveTelemetry = async () => {
+      try {
+        const response = await progressService.getProgressTelemetry(sport, level);
+        if (isMounted && response?.data) {
+          setData(response.data);
+        }
+      } catch (err) {
+        // Retain baseline data
+      }
+    };
+
+    fetchLiveTelemetry();
+    return () => { isMounted = false; };
+  }, [sport, level, baselineData]);
 
   const metrics = [
     { label: 'Overall Readiness',          value: data.overallReadiness,              delta: null, icon: TrendingUp, color: 'brand' },

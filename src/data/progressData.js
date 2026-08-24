@@ -1,5 +1,5 @@
 /**
- * SportPath AI - Dynamic Progress & Performance Telemetry Data Engine
+ * Athletex - Dynamic Progress & Performance Telemetry Data Engine
  * Computes dynamic metrics, bi-weekly assessment cycles, and trajectory charts
  * based on selected Sport and Difficulty Level.
  */

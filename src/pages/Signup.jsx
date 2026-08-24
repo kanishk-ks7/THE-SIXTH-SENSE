@@ -131,7 +131,7 @@ export const Signup = () => {
               </div>
             </div>
             <span className="font-display font-black text-lg tracking-tight text-white">
-              SportPath<span className="text-volt">.AI</span>
+              Athletex<span className="text-volt">.AI</span>
             </span>
           </Link>
 
@@ -354,7 +354,7 @@ export const Signup = () => {
 
       {/* Footer */}
       <footer className="py-4 text-center text-xs text-slate-600 border-t border-dark-border/40">
-        SportPath AI • Athlete Registration
+        Athletex • Athlete Registration
       </footer>
 
     </div>

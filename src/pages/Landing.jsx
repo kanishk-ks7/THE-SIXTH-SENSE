@@ -101,7 +101,7 @@ export const Landing = () => {
               </div>
             </div>
             <span className="font-display font-extrabold text-xl tracking-tight text-white">
-              SportPath<span className="text-brand-accent">.AI</span>
+              Athletex<span className="text-brand-accent">.AI</span>
             </span>
           </Link>
 
@@ -174,14 +174,14 @@ export const Landing = () => {
         </div>
       </section>
 
-      {/* How SportPath Works Section (5 Steps) */}
+      {/* How Athletex Works Section (5 Steps) */}
       <section className="py-20 px-4 sm:px-8 bg-dark-surface/40 border-y border-dark-border/80 relative">
         <div className="max-w-7xl mx-auto space-y-12">
           
           <div className="text-center space-y-3 max-w-2xl mx-auto">
             <Badge variant="volt" size="md">Step-by-Step Trajectory</Badge>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white font-display">
-              How SportPath Works
+              How Athletex Works
             </h2>
             <p className="text-sm text-slate-400">
               A continuous, structured cycle that turns raw athletic potential into certified competitive performance.
@@ -295,7 +295,7 @@ export const Landing = () => {
 
       {/* Footer */}
       <footer className="border-t border-dark-border/60 py-8 px-4 text-center text-xs text-slate-500">
-        <p>© 2026 SportPath AI — College Project Prototype. All rights reserved.</p>
+        <p>© 2026 Athletex — Sports Career & Athlete Development Platform. All rights reserved.</p>
       </footer>
 
     </div>

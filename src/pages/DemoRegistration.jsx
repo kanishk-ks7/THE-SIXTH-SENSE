@@ -36,7 +36,7 @@ export const DemoRegistration = () => {
   // Form State prefilled from athlete context
   const [formData, setFormData] = useState({
     fullName: athlete?.name || 'Alex Johnson',
-    email: athlete?.email || 'alex.athlete@sportpath.ai',
+    email: athlete?.email || 'alex.athlete@athletex.ai',
     phone: athlete?.phone || '+44 7911 123456',
     age: athlete?.age || 17,
     gender: athlete?.gender || 'Male',

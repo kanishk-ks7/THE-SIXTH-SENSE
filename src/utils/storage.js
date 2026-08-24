@@ -1,17 +1,17 @@
 import { DEFAULT_DEMO_ATHLETE } from '../data/mockData';
 
 const KEYS = {
-  USERS: 'sportpath_users',
-  SESSION: 'sportpath_session',
-  PROFILES: 'sportpath_profiles',
+  USERS: 'athletex_users',
+  SESSION: 'athletex_session',
+  PROFILES: 'athletex_profiles',
   ATHLETE_PROFILE: 'athleteProfile', // Legacy key for backward-compatibility
   ONBOARDING_COMPLETED: 'onboardingCompleted',
   SELECTED_SPORT: 'selectedSport',
   SELECTED_LEVEL: 'selectedLevel',
   SAVED_EVENTS: 'savedEvents',
-  REGISTERED_EVENTS: 'sportpath_registered_events',
-  COMPETITION_RESULTS: 'sportpath_competition_results',
-  THEME_MODE: 'sportpath_theme',
+  REGISTERED_EVENTS: 'athletex_registered_events',
+  COMPETITION_RESULTS: 'athletex_competition_results',
+  THEME_MODE: 'athletex_theme',
   COMPLETED_LESSONS: 'athletex_completed_lessons',
   IN_PROGRESS_LESSONS: 'athletex_inprogress_lessons',
   ATHLETE_WEAK_AREAS: 'athletex_weak_areas'
@@ -21,7 +21,7 @@ const KEYS = {
 const INITIAL_DEMO_USER = {
   id: 'demo-user-1',
   name: 'Alex Johnson',
-  email: 'alex.athlete@sportpath.ai',
+  email: 'alex.athlete@athletex.ai',
   password: 'password123', // In demo/client-side storage
   sport: 'Football',
   provider: 'local',
@@ -90,7 +90,7 @@ export const getCurrentSession = () => {
   // Default to demo user session if not set
   return {
     userId: 'demo-user-1',
-    email: 'alex.athlete@sportpath.ai',
+    email: 'alex.athlete@athletex.ai',
     token: 'demo-session-token-123'
   };
 };
@@ -267,7 +267,7 @@ export const authenticateUser = (email, password) => {
     const user = users.find(u => u.email.toLowerCase() === normalizedEmail);
     
     // Support demo credentials fallback
-    if (!user && (normalizedEmail === 'alex@sportpath.ai' || normalizedEmail === 'alex.athlete@sportpath.ai')) {
+    if (!user && (normalizedEmail === 'alex@athletex.ai' || normalizedEmail === 'alex.athlete@athletex.ai')) {
       const demoUser = INITIAL_DEMO_USER;
       const session = {
         userId: demoUser.id,
@@ -317,7 +317,7 @@ export const authenticateUser = (email, password) => {
 export const authenticateWithGoogle = (googleUserData) => {
   try {
     const users = getStoredUsers();
-    const normalizedEmail = (googleUserData.email || 'google.athlete@sportpath.ai').trim().toLowerCase();
+    const normalizedEmail = (googleUserData.email || 'google.athlete@athletex.ai').trim().toLowerCase();
     
     let user = users.find(u => u.email.toLowerCase() === normalizedEmail);
     let newUserId;

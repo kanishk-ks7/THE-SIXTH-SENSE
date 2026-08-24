@@ -129,7 +129,7 @@ export const Login = () => {
               </div>
             </div>
             <span className="font-display font-black text-lg tracking-tight text-white">
-              SportPath<span className="text-volt">.AI</span>
+              Athletex<span className="text-volt">.AI</span>
             </span>
           </Link>
 
@@ -186,7 +186,7 @@ export const Login = () => {
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="athlete@sportpath.ai"
+                    placeholder="athlete@athletex.ai"
                     autoComplete="email"
                     className="w-full bg-dark-bg border border-dark-border rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-volt focus:ring-1 focus:ring-volt transition-colors"
                     required
@@ -314,7 +314,7 @@ export const Login = () => {
           {/* Footer credentials reminder */}
           <div className="p-3.5 rounded-2xl bg-dark-surface/60 border border-dark-border/60 text-center text-xs text-slate-400">
             <p>
-              Demo credentials: <strong className="text-white">alex.athlete@sportpath.ai</strong> / <strong className="text-white">password123</strong>
+              Demo credentials: <strong className="text-white">alex.athlete@athletex.ai</strong> / <strong className="text-white">password123</strong>
             </p>
           </div>
 
@@ -359,7 +359,7 @@ export const Login = () => {
                   type="email"
                   value={forgotEmail}
                   onChange={(e) => setForgotEmail(e.target.value)}
-                  placeholder="athlete@sportpath.ai"
+                  placeholder="athlete@athletex.ai"
                   className="w-full bg-dark-bg border border-dark-border rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-volt"
                   required
                 />
@@ -374,7 +374,7 @@ export const Login = () => {
 
       {/* Footer */}
       <footer className="py-4 text-center text-xs text-slate-600 border-t border-dark-border/40">
-        SportPath AI • Identity & Authentication Engine
+        Athletex • Identity & Authentication Engine
       </footer>
 
     </div>

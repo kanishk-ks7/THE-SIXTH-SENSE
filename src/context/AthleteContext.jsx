@@ -1,34 +1,38 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { 
-   getAthleteProfile, 
-   saveAthleteProfile, 
-   resetDemoProfile, 
-   isOnboardingCompleted, 
-   getSavedEvents, 
-   toggleSaveEvent,
-   registerUser,
-   authenticateUser,
-   authenticateWithGoogle,
-   getCurrentSession,
-   clearCurrentSession,
-   changeUserPassword,
-   deleteUserAccount,
-   getThemeMode,
-   saveThemeMode,
-   getCompletedLessons,
-   saveCompletedLessons,
-   getInProgressLessons,
-   saveInProgressLessons,
-   getAthleteWeakAreas,
-   saveAthleteWeakAreas,
-   getRegisteredEvents,
-   registerForEvent as registerEventStorage,
-   unregisterFromEvent as unregisterEventStorage,
-   getCompetitionResults,
-   saveCompetitionResults,
-   addOrUpdateCompetitionResult
- } from '../utils/storage';
+  getAthleteProfile, 
+  saveAthleteProfile, 
+  resetDemoProfile, 
+  isOnboardingCompleted, 
+  getSavedEvents, 
+  toggleSaveEvent,
+  registerUser,
+  authenticateUser,
+  authenticateWithGoogle,
+  getCurrentSession,
+  setCurrentSession,
+  clearCurrentSession,
+  changeUserPassword,
+  deleteUserAccount,
+  getThemeMode,
+  saveThemeMode,
+  getCompletedLessons,
+  saveCompletedLessons,
+  getInProgressLessons,
+  saveInProgressLessons,
+  getAthleteWeakAreas,
+  saveAthleteWeakAreas,
+  getRegisteredEvents,
+  registerForEvent as registerEventStorage,
+  unregisterFromEvent as unregisterEventStorage,
+  getCompetitionResults,
+  saveCompetitionResults,
+  addOrUpdateCompetitionResult
+} from '../utils/storage';
 import { COMPETITION_EVENTS } from '../data/mockData';
+import { authService } from '../services/authService';
+import { athleteService } from '../services/athleteService';
+import { progressService } from '../services/progressService';
 
 const AthleteContext = createContext(null);
 
@@ -44,6 +48,7 @@ export const AthleteProvider = ({ children }) => {
   const [weakAreas, setWeakAreasState] = useState(() => getAthleteWeakAreas(session?.userId, athlete?.sport));
   const [theme, setTheme] = useState(() => getThemeMode());
   const [toastMessage, setToastMessage] = useState(null);
+  const [isLoadingBackend, setIsLoadingBackend] = useState(false);
 
   // Sync theme with DOM and localStorage
   useEffect(() => {
@@ -57,34 +62,118 @@ export const AthleteProvider = ({ children }) => {
     }
   }, [theme]);
 
-  // Sync profile when session changes
-  const refreshUserData = (userId) => {
-    const p = getAthleteProfile(userId);
-    setAthlete(p);
+  // Initial fetch from backend if token exists
+  useEffect(() => {
+    const fetchBackendUser = async () => {
+      if (session?.token) {
+        try {
+          setIsLoadingBackend(true);
+          const response = await authService.getMe();
+          if (response?.data?.profile) {
+            setAthlete(prev => ({ ...prev, ...response.data.profile }));
+          }
+        } catch (e) {
+          // Fallback to local profile
+        } finally {
+          setIsLoadingBackend(false);
+        }
+      }
+    };
+    fetchBackendUser();
+  }, [session?.token]);
+
+  /**
+   * Show toast notification
+   */
+  const showToast = (text, type = 'info') => {
+    setToastMessage({ text, type });
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 3500);
   };
 
   /**
    * Update current athlete profile
    */
-  const updateProfile = (newData) => {
-    const updated = saveAthleteProfile({ ...athlete, ...newData }, athlete?.userId || session?.userId);
+  const updateProfile = async (newData) => {
+    try {
+      // Attempt backend update
+      const backendRes = await athleteService.updateProfile(newData).catch(() => null);
+      const mergedData = backendRes?.data || { ...athlete, ...newData };
+      
+      const updated = saveAthleteProfile(mergedData, athlete?.userId || session?.userId);
+      setAthlete(updated);
+      setHasCompletedOnboarding(true);
+      showToast('Profile saved successfully!', 'success');
+      return updated;
+    } catch (err) {
+      const updated = saveAthleteProfile({ ...athlete, ...newData }, athlete?.userId || session?.userId);
+      setAthlete(updated);
+      setHasCompletedOnboarding(true);
+      showToast('Profile saved!', 'success');
+      return updated;
+    }
+  };
+
+  /**
+   * Switch sport and level dynamically
+   */
+  const switchSportAndLevel = async (sport, level) => {
+    try {
+      const res = await athleteService.switchSport(sport, level).catch(() => null);
+      if (res?.data) {
+        const updated = saveAthleteProfile({ ...athlete, sport, level, ...res.data }, session?.userId);
+        setAthlete(updated);
+        showToast(`Sport switched to ${sport} (${level})`, 'info');
+        return updated;
+      }
+    } catch (e) {
+      // Fallback
+    }
+
+    const updated = saveAthleteProfile({ ...athlete, sport, level }, session?.userId);
     setAthlete(updated);
-    setHasCompletedOnboarding(true);
-    showToast('Profile saved successfully!', 'success');
+    showToast(`Sport switched to ${sport} (${level})`, 'info');
     return updated;
   };
 
   /**
-   * Sign Up handler
+   * Sign Up handler (Backend REST API + Local fallback)
    */
-  const signup = async ({ name, email, password, sport }) => {
+  const signup = async ({ name, email, password, sport, level }) => {
+    try {
+      const res = await authService.signup({ name, email, password, sport, level });
+      if (res?.success && res?.data) {
+        const backendUser = res.data.user;
+        const newSession = {
+          userId: backendUser.id,
+          email: backendUser.email,
+          name: backendUser.name,
+          token: res.data.token
+        };
+        setCurrentSession(newSession);
+        setSession(newSession);
+
+        const profileData = res.data.profile || { ...athlete, name, email, sport: sport || 'Football', level: level || 'Beginner' };
+        saveAthleteProfile(profileData, backendUser.id);
+        setAthlete(profileData);
+        setHasCompletedOnboarding(true);
+
+        showToast(`Welcome to Athletex, ${backendUser.name}!`, 'success');
+        return { success: true, user: backendUser };
+      }
+    } catch (apiErr) {
+      console.warn('Backend signup API call note, falling back to local engine:', apiErr.message);
+    }
+
+    // Local engine fallback
     const res = registerUser({ name, email, password, sport });
     if (res.success) {
       const activeSession = getCurrentSession();
       setSession(activeSession);
       setAthlete(res.profile);
       setHasCompletedOnboarding(true);
-      showToast(`Welcome to SportPath AI, ${res.user.name}!`, 'success');
+      showToast(`Welcome to Athletex, ${res.user.name}!`, 'success');
       return { success: true, user: res.user };
     } else {
       showToast(res.error || 'Signup failed', 'error');
@@ -93,9 +182,35 @@ export const AthleteProvider = ({ children }) => {
   };
 
   /**
-   * Login handler
+   * Login handler (Backend REST API + Local fallback)
    */
   const login = async (email, password) => {
+    try {
+      const res = await authService.login(email, password);
+      if (res?.success && res?.data) {
+        const backendUser = res.data.user;
+        const newSession = {
+          userId: backendUser.id,
+          email: backendUser.email,
+          name: backendUser.name,
+          token: res.data.token
+        };
+        setCurrentSession(newSession);
+        setSession(newSession);
+
+        const profileData = res.data.profile || getAthleteProfile(backendUser.id);
+        saveAthleteProfile(profileData, backendUser.id);
+        setAthlete(profileData);
+        setHasCompletedOnboarding(true);
+
+        showToast(`Welcome back, ${backendUser.name || 'Athlete'}!`, 'success');
+        return { success: true, user: backendUser };
+      }
+    } catch (apiErr) {
+      console.warn('Backend login API call note, falling back to local engine:', apiErr.message);
+    }
+
+    // Local engine fallback
     const res = authenticateUser(email, password);
     if (res.success) {
       const activeSession = getCurrentSession();
@@ -131,7 +246,23 @@ export const AthleteProvider = ({ children }) => {
   /**
    * Quick Demo Login handler
    */
-  const loginAsDemo = () => {
+  const loginAsDemo = async () => {
+    try {
+      const res = await authService.login('alex.athlete@athletex.ai', 'password123').catch(() => null);
+      if (res?.data?.token) {
+        const newSession = {
+          userId: res.data.user.id,
+          email: res.data.user.email,
+          name: res.data.user.name,
+          token: res.data.token
+        };
+        setCurrentSession(newSession);
+        setSession(newSession);
+      }
+    } catch (e) {
+      // Ignore
+    }
+
     const demo = resetDemoProfile();
     const activeSession = getCurrentSession();
     setSession(activeSession);
@@ -144,7 +275,8 @@ export const AthleteProvider = ({ children }) => {
   /**
    * Logout handler
    */
-  const logout = () => {
+  const logout = async () => {
+    await authService.logout().catch(() => {});
     clearCurrentSession();
     setSession(null);
     showToast('Logged out successfully');
@@ -154,6 +286,14 @@ export const AthleteProvider = ({ children }) => {
    * Change password handler
    */
   const handlePasswordChange = async (currentPassword, newPassword) => {
+    try {
+      await authService.changePassword(currentPassword, newPassword);
+      showToast('Password changed successfully!', 'success');
+      return { success: true };
+    } catch (apiErr) {
+      // Fallback
+    }
+
     const uid = session?.userId || athlete?.userId || 'demo-user-1';
     const res = changeUserPassword(uid, currentPassword, newPassword);
     if (res.success) {
@@ -212,7 +352,6 @@ export const AthleteProvider = ({ children }) => {
     const updated = registerEventStorage(eventId, uid);
     setRegisteredEvents(updated);
     
-    // Check if event date has passed, sync to results immediately
     const evt = COMPETITION_EVENTS.find(e => e.id === eventId);
     if (evt) {
       const isPast = evt.status === 'Completed' || (evt.startDate && new Date(evt.startDate) < new Date());
@@ -256,45 +395,45 @@ export const AthleteProvider = ({ children }) => {
   };
 
   /**
-   * Log or update a competition result
+   * Log or update competition result outcome
    */
   const handleLogCompetitionResult = (resultData) => {
     const uid = session?.userId || athlete?.userId || 'demo-user-1';
-    const updatedList = addOrUpdateCompetitionResult(resultData, uid);
-    setCompetitionResults(updatedList);
+    const updated = addOrUpdateCompetitionResult(resultData, uid);
+    setCompetitionResults(updated);
     
-    // Increase athlete readiness if completing a pending result
     if (resultData.status === 'completed') {
       const currentReadiness = athlete?.readiness || 35;
       if (currentReadiness < 98) {
         updateProfile({ readiness: Math.min(100, currentReadiness + 3) });
       }
     }
+
     showToast('Competition outcome saved to your archive!', 'success');
-    return updatedList;
+    return updated;
   };
 
   /**
-   * Auto-populate results for past saved or registered events
+   * Sync past events to competition results
    */
   const syncPastEventsToResults = () => {
     const uid = session?.userId || athlete?.userId || 'demo-user-1';
     const currentResults = getCompetitionResults(uid);
-    const today = new Date();
+    const now = new Date();
     let updatedResults = [...currentResults];
     let hasChanges = false;
 
-    COMPETITION_EVENTS.forEach((evt) => {
-      const isSaved = savedEvents.includes(evt.id);
+    COMPETITION_EVENTS.forEach(evt => {
+      const isBookmarked = savedEvents.includes(evt.id);
       const isRegistered = registeredEvents.includes(evt.id);
-
-      if (isSaved || isRegistered) {
-        const isPast = evt.status === 'Completed' || (evt.startDate && new Date(evt.startDate) < today);
+      
+      if (isBookmarked || isRegistered) {
+        const isPast = evt.status === 'Completed' || (evt.startDate && new Date(evt.startDate) < now);
         if (isPast) {
-          const alreadyHasResult = updatedResults.some((r) => r.eventId === evt.id);
-          if (!alreadyHasResult) {
+          const alreadyLogged = updatedResults.some(r => r.eventId === evt.id);
+          if (!alreadyLogged) {
             hasChanges = true;
-            const newPendingResult = {
+            updatedResults = [{
               id: `res-${evt.id}`,
               eventId: evt.id,
               eventName: evt.name,
@@ -306,8 +445,7 @@ export const AthleteProvider = ({ children }) => {
               outcome: null,
               notes: '',
               recordedAt: new Date().toISOString()
-            };
-            updatedResults = [newPendingResult, ...updatedResults];
+            }, ...updatedResults];
           }
         }
       }
@@ -319,46 +457,27 @@ export const AthleteProvider = ({ children }) => {
     }
   };
 
-  // Sync past events to results automatically on load and when saved/registered lists change
   useEffect(() => {
     syncPastEventsToResults();
   }, [savedEvents, registeredEvents, session?.userId]);
 
-  /**
-   * Theme toggler
-   */
   const toggleTheme = () => {
-    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
   };
 
-  /**
-   * Toast notification dispatch
-   */
-  const showToast = (msg, type = 'info') => {
-    setToastMessage({ text: msg, type });
-    setTimeout(() => {
-      setToastMessage(null);
-    }, 3500);
-  };
-
-  /**
-   * Mark a lesson as completed
-   */
   const markLessonComplete = (lessonId, lessonTitle = 'Lesson') => {
     const uid = session?.userId || athlete?.userId || 'demo-user-1';
-    let updatedCompleted = [...completedLessons];
-    if (!updatedCompleted.includes(lessonId)) {
-      updatedCompleted.push(lessonId);
-      saveCompletedLessons(updatedCompleted, uid);
-      setCompletedLessons(updatedCompleted);
+    let updated = [...completedLessons];
+    if (!updated.includes(lessonId)) {
+      updated.push(lessonId);
+      saveCompletedLessons(updated, uid);
+      setCompletedLessons(updated);
+      
+      const newInProgress = { ...inProgressLessons };
+      delete newInProgress[lessonId];
+      saveInProgressLessons(newInProgress, uid);
+      setInProgressLessons(newInProgress);
 
-      // Remove from in-progress if present
-      const updatedInProgress = { ...inProgressLessons };
-      delete updatedInProgress[lessonId];
-      saveInProgressLessons(updatedInProgress, uid);
-      setInProgressLessons(updatedInProgress);
-
-      // Slightly increase readiness score for learning effort
       const currentReadiness = athlete?.readiness || 35;
       if (currentReadiness < 98) {
         updateProfile({ readiness: Math.min(100, currentReadiness + 2) });
@@ -368,38 +487,26 @@ export const AthleteProvider = ({ children }) => {
     }
   };
 
-  /**
-   * Start or update lesson progress
-   */
   const startLessonProgress = (lessonId, percent = 45) => {
     const uid = session?.userId || athlete?.userId || 'demo-user-1';
     if (!completedLessons.includes(lessonId)) {
       const updated = {
         ...inProgressLessons,
-        [lessonId]: {
-          percent,
-          lastWatched: 'Just now'
-        }
+        [lessonId]: { percent, lastWatched: 'Just now' }
       };
       saveInProgressLessons(updated, uid);
       setInProgressLessons(updated);
     }
   };
 
-  /**
-   * Update athlete identified weak areas
-   */
-  const updateWeakAreas = (newWeakAreas) => {
+  const updateWeakAreas = (newAreas) => {
     const uid = session?.userId || athlete?.userId || 'demo-user-1';
-    const cleanList = Array.isArray(newWeakAreas) ? newWeakAreas : [newWeakAreas];
-    saveAthleteWeakAreas(cleanList, uid);
-    setWeakAreasState(cleanList);
+    const cleanAreas = Array.isArray(newAreas) ? newAreas : [newAreas];
+    saveAthleteWeakAreas(cleanAreas, uid);
+    setWeakAreasState(cleanAreas);
     showToast('Coach diagnostic weak areas updated.', 'info');
   };
 
-  /**
-   * Reset learning progression for testing/demo
-   */
   const resetLearningProgress = () => {
     const uid = session?.userId || athlete?.userId || 'demo-user-1';
     saveCompletedLessons([], uid);
@@ -423,6 +530,7 @@ export const AthleteProvider = ({ children }) => {
         loginAsDemo,
         logout,
         updateProfile,
+        switchSportAndLevel,
         changePassword: handlePasswordChange,
         deleteAccount: handleDeleteAccount,
         resetToDemo,
@@ -440,23 +548,25 @@ export const AthleteProvider = ({ children }) => {
         theme,
         toggleTheme,
         showToast,
-        // Learning Hub State & Methods
         completedLessons,
         inProgressLessons,
         weakAreas,
         markLessonComplete,
         startLessonProgress,
         updateWeakAreas,
-        resetLearningProgress
+        resetLearningProgress,
+        isLoadingBackend
       }}
     >
       {children}
-      
-      {/* Global Toast Notification */}
+
+      {/* Floating Toast Notification */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-dark-card border border-volt/50 text-white px-5 py-3.5 rounded-2xl shadow-glow-volt animate-bounce">
           <div className="w-2.5 h-2.5 rounded-full bg-volt animate-ping" />
-          <p className="text-sm font-semibold tracking-wide text-white">{toastMessage.text}</p>
+          <p className="text-sm font-semibold tracking-wide text-white">
+            {toastMessage.text}
+          </p>
         </div>
       )}
     </AthleteContext.Provider>
@@ -471,3 +581,4 @@ export const useAthlete = () => {
   return context;
 };
 
+export default AthleteContext;

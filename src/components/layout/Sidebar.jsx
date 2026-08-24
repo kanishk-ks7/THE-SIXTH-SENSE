@@ -54,7 +54,7 @@ export const Sidebar = () => {
           <div>
             <div className="flex items-center gap-1.5">
               <span className="font-display font-extrabold text-lg tracking-tight text-white">
-                SportPath
+                Athletex
               </span>
               <span className="text-xs font-black px-1.5 py-0.5 rounded-md bg-volt/20 text-volt border border-volt/30">
                 AI

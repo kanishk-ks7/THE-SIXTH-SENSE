@@ -175,7 +175,7 @@ export const Settings = () => {
                   </div>
                   <div>
                     <h4 className="text-sm font-bold text-white">{athlete.name || 'Alex Johnson'}</h4>
-                    <p className="text-slate-400 font-mono text-[11px]">{athlete.email || 'alex.athlete@sportpath.ai'}</p>
+                    <p className="text-slate-400 font-mono text-[11px]">{athlete.email || 'alex.athlete@athletex.ai'}</p>
                     <p className="text-[11px] text-volt mt-0.5">{athlete.sport} • {athlete.level} • {athlete.position || 'Forward'}</p>
                   </div>
                 </div>

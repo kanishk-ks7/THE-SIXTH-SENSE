@@ -70,7 +70,7 @@ export const Onboarding = () => {
               <Zap className="w-4 h-4 text-slate-950 fill-current" />
             </div>
             <span className="font-display font-black text-lg tracking-tight text-white">
-              SportPath<span className="text-brand-accent">.AI</span>
+              Athletex<span className="text-brand-accent">.AI</span>
             </span>
           </Link>
 
@@ -377,7 +377,7 @@ export const Onboarding = () => {
 
       {/* Footer */}
       <footer className="py-4 text-center text-xs text-slate-600">
-        SportPath AI • Athlete Setup Engine
+        Athletex • Athlete Setup Engine
       </footer>
 
     </div>

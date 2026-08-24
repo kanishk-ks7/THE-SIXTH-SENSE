@@ -1,6 +1,6 @@
 /**
  * Centralized Geolocation & Distance Calculation Utilities
- * SportPath AI - Events & Competition Discovery
+ * Athletex - Events & Competition Discovery
  */
 
 /**

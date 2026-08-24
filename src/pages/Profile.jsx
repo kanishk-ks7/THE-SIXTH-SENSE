@@ -51,7 +51,7 @@ export const Profile = () => {
 
   const [editForm, setEditForm] = useState({
     name: athlete.name || 'Alex Johnson',
-    email: athlete.email || 'alex.athlete@sportpath.ai',
+    email: athlete.email || 'alex.athlete@athletex.ai',
     phone: athlete.phone || '+44 7911 123456',
     gender: athlete.gender || 'Male',
     age: athlete.age || 17,
@@ -75,7 +75,7 @@ export const Profile = () => {
   const openEditModal = (tab = 'personal') => {
     setEditForm({
       name: athlete.name || 'Alex Johnson',
-      email: athlete.email || 'alex.athlete@sportpath.ai',
+      email: athlete.email || 'alex.athlete@athletex.ai',
       phone: athlete.phone || '+44 7911 123456',
       gender: athlete.gender || 'Male',
       age: athlete.age || 17,
@@ -299,7 +299,7 @@ export const Profile = () => {
 
             <div className="p-3.5 rounded-xl bg-dark-bg/60 border border-dark-border">
               <span className="text-slate-400 block mb-1">Email Address</span>
-              <span className="font-mono text-slate-200 text-xs truncate block">{athlete.email || 'alex.athlete@sportpath.ai'}</span>
+              <span className="font-mono text-slate-200 text-xs truncate block">{athlete.email || 'alex.athlete@athletex.ai'}</span>
             </div>
 
             <div className="p-3.5 rounded-xl bg-dark-bg/60 border border-dark-border">

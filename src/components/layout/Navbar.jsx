@@ -66,7 +66,7 @@ export const Navbar = ({ onToggleMobileMenu }) => {
               <Zap className="w-4 h-4 text-slate-950 fill-current" />
             </div>
             <span className="font-display font-extrabold text-base tracking-tight text-white">
-              SportPath<span className="text-volt">.AI</span>
+              Athletex<span className="text-volt">.AI</span>
             </span>
           </Link>
 
@@ -223,7 +223,7 @@ export const Navbar = ({ onToggleMobileMenu }) => {
                     </div>
                     <div className="truncate">
                       <h4 className="text-xs font-bold text-white truncate">{athlete.name || 'Alex Johnson'}</h4>
-                      <p className="text-[10px] text-slate-400 truncate">{athlete.email || 'alex.athlete@sportpath.ai'}</p>
+                      <p className="text-[10px] text-slate-400 truncate">{athlete.email || 'alex.athlete@athletex.ai'}</p>
                     </div>
                   </div>
                 </div>

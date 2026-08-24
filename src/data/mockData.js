@@ -1,5 +1,5 @@
 /**
- * SportPath AI - Central Mock Data Store
+ * Athletex - Central Mock Data Store
  * Designed for clean teammate module extension and prototype demonstration.
  */
 
@@ -74,7 +74,7 @@ export const DEFAULT_DEMO_ATHLETE = {
   id: 'demo-user-1',
   userId: 'demo-user-1',
   name: 'Alex Johnson',
-  email: 'alex.athlete@sportpath.ai',
+  email: 'alex.athlete@athletex.ai',
   phone: '+44 7911 123456',
   gender: 'Male',
   age: 17,

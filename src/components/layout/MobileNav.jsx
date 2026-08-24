@@ -76,7 +76,7 @@ export const MobileNav = ({ isOpen, onClose }) => {
                   </div>
                   <div>
                     <span className="font-display font-black text-lg tracking-tight text-white">
-                      SportPath<span className="text-volt">.AI</span>
+                      Athletex<span className="text-volt">.AI</span>
                     </span>
                   </div>
                 </Link>

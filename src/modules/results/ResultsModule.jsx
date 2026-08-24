@@ -399,7 +399,7 @@ export const ResultsModule = () => {
             <EmptyState
               icon={Medal}
               title="More achievement badges will unlock"
-              description="Complete roadmap milestones and participate in trials to unlock official SportPath AI verified badges."
+              description="Complete roadmap milestones and participate in trials to unlock official Athletex verified badges."
               actionText="View Roadmap Milestones"
               onActionClick={() => window.location.href = '/roadmap'}
             />
