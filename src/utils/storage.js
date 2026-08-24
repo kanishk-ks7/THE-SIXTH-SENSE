@@ -9,7 +9,10 @@ const KEYS = {
   SELECTED_SPORT: 'selectedSport',
   SELECTED_LEVEL: 'selectedLevel',
   SAVED_EVENTS: 'savedEvents',
-  THEME_MODE: 'sportpath_theme'
+  THEME_MODE: 'sportpath_theme',
+  COMPLETED_LESSONS: 'athletex_completed_lessons',
+  IN_PROGRESS_LESSONS: 'athletex_inprogress_lessons',
+  ATHLETE_WEAK_AREAS: 'athletex_weak_areas'
 };
 
 // Initial seed demo user
@@ -497,4 +500,117 @@ export const saveThemeMode = (theme) => {
     console.error('Error saving theme mode:', err);
   }
 };
+
+/**
+ * Get athlete's completed lessons list
+ */
+export const getCompletedLessons = (targetUserId) => {
+  try {
+    const session = getCurrentSession();
+    const uid = targetUserId || session?.userId || 'demo-user-1';
+    const raw = localStorage.getItem(`${KEYS.COMPLETED_LESSONS}_${uid}`);
+    if (raw) return JSON.parse(raw);
+    
+    // Check if stored inside athlete profile
+    const profile = getAthleteProfile(uid);
+    if (Array.isArray(profile?.completedLessons)) {
+      return profile.completedLessons;
+    }
+  } catch (err) {
+    console.warn('Error reading completed lessons:', err);
+  }
+  return [];
+};
+
+/**
+ * Save athlete's completed lessons
+ */
+export const saveCompletedLessons = (completedList, targetUserId) => {
+  try {
+    const session = getCurrentSession();
+    const uid = targetUserId || session?.userId || 'demo-user-1';
+    localStorage.setItem(`${KEYS.COMPLETED_LESSONS}_${uid}`, JSON.stringify(completedList));
+    
+    // Also sync to profile
+    const profile = getAthleteProfile(uid);
+    saveAthleteProfile({ ...profile, completedLessons: completedList }, uid);
+    return completedList;
+  } catch (err) {
+    console.error('Error saving completed lessons:', err);
+    return completedList;
+  }
+};
+
+/**
+ * Get lessons in progress
+ */
+export const getInProgressLessons = (targetUserId) => {
+  try {
+    const session = getCurrentSession();
+    const uid = targetUserId || session?.userId || 'demo-user-1';
+    const raw = localStorage.getItem(`${KEYS.IN_PROGRESS_LESSONS}_${uid}`);
+    if (raw) return JSON.parse(raw);
+  } catch (err) {
+    console.warn('Error reading in-progress lessons:', err);
+  }
+  return {};
+};
+
+/**
+ * Save in-progress lessons map
+ */
+export const saveInProgressLessons = (progressMap, targetUserId) => {
+  try {
+    const session = getCurrentSession();
+    const uid = targetUserId || session?.userId || 'demo-user-1';
+    localStorage.setItem(`${KEYS.IN_PROGRESS_LESSONS}_${uid}`, JSON.stringify(progressMap));
+    return progressMap;
+  } catch (err) {
+    console.error('Error saving in-progress lessons:', err);
+    return progressMap;
+  }
+};
+
+/**
+ * Get athlete's identified assessment weak areas
+ */
+export const getAthleteWeakAreas = (targetUserId, defaultSport = 'basketball') => {
+  try {
+    const session = getCurrentSession();
+    const uid = targetUserId || session?.userId || 'demo-user-1';
+    const raw = localStorage.getItem(`${KEYS.ATHLETE_WEAK_AREAS}_${uid}`);
+    if (raw) return JSON.parse(raw);
+
+    const profile = getAthleteProfile(uid);
+    if (Array.isArray(profile?.weakAreas) && profile.weakAreas.length > 0) {
+      return profile.weakAreas;
+    }
+    if (Array.isArray(profile?.focusAreas) && profile.focusAreas.length > 0) {
+      return profile.focusAreas.map(f => f.toLowerCase().replace(/\s+/g, '-'));
+    }
+  } catch (err) {
+    console.warn('Error reading weak areas:', err);
+  }
+  return ['rules', 'ball-handling'];
+};
+
+/**
+ * Save athlete's weak areas
+ */
+export const saveAthleteWeakAreas = (weakAreasList, targetUserId) => {
+  try {
+    const session = getCurrentSession();
+    const uid = targetUserId || session?.userId || 'demo-user-1';
+    localStorage.setItem(`${KEYS.ATHLETE_WEAK_AREAS}_${uid}`, JSON.stringify(weakAreasList));
+    
+    // Sync to profile
+    const profile = getAthleteProfile(uid);
+    saveAthleteProfile({ ...profile, weakAreas: weakAreasList }, uid);
+    return weakAreasList;
+  } catch (err) {
+    console.error('Error saving weak areas:', err);
+    return weakAreasList;
+  }
+};
+
 

@@ -16,23 +16,17 @@ import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
 import Modal from '../../components/ui/Modal';
 import ModuleContainer from '../../components/ui/ModuleContainer';
+import { Link } from 'react-router-dom';
 import { ASSESSMENT_MODULES } from '../../data/mockData';
 import { useAthlete } from '../../context/AthleteContext';
 
 /**
  * =========================================================================
- * TEAMMATE INTEGRATION MODULE: AssessmentModule
- * =========================================================================
- * Teammate Responsible: Assessment & AI Evaluation Engine
- * 
- * Future Integration Guide:
- * - Replace mock assessment questions with dynamic computer-adaptive quiz/video input.
- * - Call AI readiness scoring endpoint to calculate pillar scores.
- * - Update athlete profile readiness and unlocked roadmap nodes via `updateProfile()`.
+ * ATHLETEX INTEGRATION MODULE: AssessmentModule
  * =========================================================================
  */
 export const AssessmentModule = () => {
-  const { athlete, updateProfile, showToast } = useAthlete();
+  const { athlete, updateProfile, updateWeakAreas, showToast } = useAthlete();
   const [selectedAssessment, setSelectedAssessment] = useState(null);
   const [isSimulating, setIsSimulating] = useState(false);
 
@@ -53,8 +47,25 @@ export const AssessmentModule = () => {
       // Simulate improving readiness
       const newReadiness = Math.min((athlete.readiness || 35) + 15, 100);
       updateProfile({ readiness: newReadiness });
+
+      // Update identified weak areas based on assessment pillar
+      let diagnosedWeakAreas = ['rules', 'ball-handling'];
+      if (assessment.id === 'knowledge') {
+        diagnosedWeakAreas = ['rules', 'positioning', 'game-regulations'];
+      } else if (assessment.id === 'skills') {
+        diagnosedWeakAreas = ['ball-handling', 'first-touch', 'shooting'];
+      } else if (assessment.id === 'fitness') {
+        diagnosedWeakAreas = ['sprint-mechanics', 'acceleration', 'stamina'];
+      } else if (assessment.id === 'performance') {
+        diagnosedWeakAreas = ['strategy', 'tactics', 'spatial-iq'];
+      }
+
+      if (updateWeakAreas) {
+        updateWeakAreas(diagnosedWeakAreas);
+      }
+
       setSelectedAssessment(null);
-      showToast(`${assessment.title} completed! Readiness increased to ${newReadiness}%.`);
+      showToast(`${assessment.title} completed! Identified weak areas updated for your Learn Hub.`, 'success');
     }, 1200);
   };
 
@@ -137,18 +148,25 @@ export const AssessmentModule = () => {
         </div>
 
         {/* Integration Callout Box */}
-        <div className="p-5 rounded-2xl bg-dark-card/60 border border-dark-border flex items-start gap-4">
-          <div className="p-2.5 rounded-xl bg-volt/10 text-volt border border-volt/20 flex-shrink-0">
-            <Sparkles className="w-5 h-5" />
+        <div className="p-5 rounded-2xl bg-dark-card/60 border border-dark-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-start gap-4">
+            <div className="p-2.5 rounded-xl bg-volt/10 text-volt border border-volt/20 flex-shrink-0">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-white mb-1">
+                athletex Diagnostic & Learning Integration
+              </h4>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Completed assessment pillar diagnostics automatically populate your <strong className="text-volt">Personalized Learn Hub</strong> with targeted YouTube drills.
+              </p>
+            </div>
           </div>
-          <div>
-            <h4 className="text-sm font-bold text-white mb-1">
-              Assessment Engine Architecture Note
-            </h4>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Once an assessment is completed, the scores feed directly into the <strong className="text-slate-200">Personalized Roadmap</strong> and generate customized training recommendations.
-            </p>
-          </div>
+          <Link to="/learn" className="flex-shrink-0">
+            <Button variant="volt" size="sm" icon={ArrowRight} iconPosition="right">
+              View Personalized Lessons
+            </Button>
+          </Link>
         </div>
 
         {/* Assessment Preview Modal */}

@@ -14,7 +14,13 @@ import {
    changeUserPassword,
    deleteUserAccount,
    getThemeMode,
-   saveThemeMode
+   saveThemeMode,
+   getCompletedLessons,
+   saveCompletedLessons,
+   getInProgressLessons,
+   saveInProgressLessons,
+   getAthleteWeakAreas,
+   saveAthleteWeakAreas
  } from '../utils/storage';
 
 const AthleteContext = createContext(null);
@@ -24,6 +30,9 @@ export const AthleteProvider = ({ children }) => {
   const [athlete, setAthlete] = useState(() => getAthleteProfile(session?.userId));
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(() => isOnboardingCompleted());
   const [savedEvents, setSavedEvents] = useState(() => getSavedEvents());
+  const [completedLessons, setCompletedLessons] = useState(() => getCompletedLessons(session?.userId));
+  const [inProgressLessons, setInProgressLessons] = useState(() => getInProgressLessons(session?.userId));
+  const [weakAreas, setWeakAreasState] = useState(() => getAthleteWeakAreas(session?.userId, athlete?.sport));
   const [theme, setTheme] = useState(() => getThemeMode());
   const [toastMessage, setToastMessage] = useState(null);
 
@@ -203,6 +212,74 @@ export const AthleteProvider = ({ children }) => {
     }, 3500);
   };
 
+  /**
+   * Mark a lesson as completed
+   */
+  const markLessonComplete = (lessonId, lessonTitle = 'Lesson') => {
+    const uid = session?.userId || athlete?.userId || 'demo-user-1';
+    let updatedCompleted = [...completedLessons];
+    if (!updatedCompleted.includes(lessonId)) {
+      updatedCompleted.push(lessonId);
+      saveCompletedLessons(updatedCompleted, uid);
+      setCompletedLessons(updatedCompleted);
+
+      // Remove from in-progress if present
+      const updatedInProgress = { ...inProgressLessons };
+      delete updatedInProgress[lessonId];
+      saveInProgressLessons(updatedInProgress, uid);
+      setInProgressLessons(updatedInProgress);
+
+      // Slightly increase readiness score for learning effort
+      const currentReadiness = athlete?.readiness || 35;
+      if (currentReadiness < 98) {
+        updateProfile({ readiness: Math.min(100, currentReadiness + 2) });
+      }
+
+      showToast(`Lesson Completed: ${lessonTitle}! Progression updated.`, 'success');
+    }
+  };
+
+  /**
+   * Start or update lesson progress
+   */
+  const startLessonProgress = (lessonId, percent = 45) => {
+    const uid = session?.userId || athlete?.userId || 'demo-user-1';
+    if (!completedLessons.includes(lessonId)) {
+      const updated = {
+        ...inProgressLessons,
+        [lessonId]: {
+          percent,
+          lastWatched: 'Just now'
+        }
+      };
+      saveInProgressLessons(updated, uid);
+      setInProgressLessons(updated);
+    }
+  };
+
+  /**
+   * Update athlete identified weak areas
+   */
+  const updateWeakAreas = (newWeakAreas) => {
+    const uid = session?.userId || athlete?.userId || 'demo-user-1';
+    const cleanList = Array.isArray(newWeakAreas) ? newWeakAreas : [newWeakAreas];
+    saveAthleteWeakAreas(cleanList, uid);
+    setWeakAreasState(cleanList);
+    showToast('Coach diagnostic weak areas updated.', 'info');
+  };
+
+  /**
+   * Reset learning progression for testing/demo
+   */
+  const resetLearningProgress = () => {
+    const uid = session?.userId || athlete?.userId || 'demo-user-1';
+    saveCompletedLessons([], uid);
+    saveInProgressLessons({}, uid);
+    setCompletedLessons([]);
+    setInProgressLessons({});
+    showToast('Learning progress reset for testing.', 'info');
+  };
+
   const isAuthenticated = !!session;
 
   return (
@@ -226,7 +303,15 @@ export const AthleteProvider = ({ children }) => {
         toggleSaveEvent: handleToggleSaveEvent,
         theme,
         toggleTheme,
-        showToast
+        showToast,
+        // Learning Hub State & Methods
+        completedLessons,
+        inProgressLessons,
+        weakAreas,
+        markLessonComplete,
+        startLessonProgress,
+        updateWeakAreas,
+        resetLearningProgress
       }}
     >
       {children}
