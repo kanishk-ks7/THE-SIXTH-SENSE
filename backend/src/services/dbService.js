@@ -465,6 +465,27 @@ class DatabaseService {
     };
 
     this.initDefaultDemoUser();
+    this.initDefaultAdminUser();
+  }
+
+  initDefaultAdminUser() {
+    const adminEmail = (process.env.ADMIN_EMAIL || 'admin@athletex.ai').trim().toLowerCase();
+    const adminPassword = process.env.ADMIN_PASSWORD || 'adminPassword123';
+
+    const adminUser = {
+      id: 'admin-user-1',
+      name: 'Athletex Administrator',
+      email: adminEmail,
+      passwordHash: bcrypt.hashSync(adminPassword, 10),
+      role: 'ADMIN',
+      createdAt: new Date('2026-08-01T08:00:00.000Z'),
+      updatedAt: new Date()
+    };
+
+    // Ensure not duplicated
+    if (!this.memoryStore.users.some(u => u.email.toLowerCase() === adminEmail)) {
+      this.memoryStore.users.push(adminUser);
+    }
   }
 
   initDefaultDemoUser() {
@@ -969,6 +990,182 @@ class DatabaseService {
 
     this.memoryStore.userAssessmentResults[key] = history;
     return submission;
+  }
+
+  // -------------------------------------------------------------
+  // ADMIN QUERIES & ANALYTICS (ADMIN ROLE ONLY)
+  // -------------------------------------------------------------
+
+  /**
+   * Get all athletes with summary progression data for admin directory
+   */
+  async getAdminAthletesList({ search = '', sport = '', level = '' } = {}) {
+    const athleteUsers = this.memoryStore.users.filter(u => u.role === 'ATHLETE');
+    const results = [];
+
+    for (const user of athleteUsers) {
+      const activeProfile = await this.getActiveUserSportProfile(user.id);
+      const sId = activeProfile?.sportId || 'football';
+      const lId = activeProfile?.difficultyLevelId || 'Beginner';
+      const telemetry = await this.getProgressTelemetry(user.id, sId, lId);
+      const assessments = await this.getAssessmentHistory(user.id, sId, lId);
+
+      const completedAssessments = assessments.filter(a => a.status === 'COMPLETED');
+      const latestAssessment = completedAssessments.length > 0
+        ? completedAssessments[completedAssessments.length - 1]
+        : null;
+
+      const traj = telemetry.trajectoryData || [];
+      const currentTraj = traj.find(t => t.isCurrent) || traj[traj.length - 1] || { score: telemetry.overallReadiness };
+
+      const athleteSummary = {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        avatar: activeProfile?.avatar || null,
+        selectedSport: activeProfile?.sportName || sId.charAt(0).toUpperCase() + sId.slice(1),
+        sportId: sId,
+        difficultyLevel: activeProfile?.levelName || lId,
+        difficultyLevelId: lId,
+        position: activeProfile?.position || 'Athlete',
+        location: activeProfile?.location || 'Manchester, UK',
+        overallProgress: telemetry.overallReadiness,
+        targetReadiness: telemetry.targetReadiness,
+        latestAssessmentScore: latestAssessment?.score ?? telemetry.technicalSkill.value,
+        latestPerformanceScore: currentTraj.score,
+        assessmentsCompleted: telemetry.assessmentsCompleted,
+        assessmentsTotal: 4,
+        trainingHours: activeProfile?.trainingHours || '4 hours/week',
+        joinedDate: user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'August 2026',
+        createdAt: user.createdAt
+      };
+
+      // Search and filters
+      const matchSearch = !search || 
+        user.name.toLowerCase().includes(search.toLowerCase()) || 
+        user.email.toLowerCase().includes(search.toLowerCase());
+      
+      const matchSport = !sport || sport === 'all' || sId.toLowerCase() === sport.toLowerCase();
+      const matchLevel = !level || level === 'all' || lId.toLowerCase() === level.toLowerCase();
+
+      if (matchSearch && matchSport && matchLevel) {
+        results.push(athleteSummary);
+      }
+    }
+
+    return results;
+  }
+
+  /**
+   * Get complete details of a specific athlete for Admin Inspector
+   */
+  async getAthleteDetailById(athleteId) {
+    const user = await this.findUserById(athleteId);
+    if (!user || user.role === 'ADMIN') {
+      return null;
+    }
+
+    const activeProfile = await this.getActiveUserSportProfile(user.id);
+    const sId = activeProfile.sportId || 'football';
+    const lId = activeProfile.difficultyLevelId || 'Beginner';
+
+    const telemetry = await this.getProgressTelemetry(user.id, sId, lId);
+    const trajectory = await this.getTrajectoryRecords(user.id, sId, lId);
+    const assessments = await this.getAssessmentHistory(user.id, sId, lId);
+
+    return {
+      athlete: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        createdAt: user.createdAt
+      },
+      profile: activeProfile,
+      telemetry,
+      trajectory,
+      assessments
+    };
+  }
+
+  /**
+   * Get progress telemetry for a specific athlete
+   */
+  async getAthleteProgressById(athleteId, sport, level) {
+    const user = await this.findUserById(athleteId);
+    if (!user || user.role === 'ADMIN') {
+      return null;
+    }
+
+    const sId = sport || 'football';
+    const lId = level || 'Beginner';
+    return this.getProgressTelemetry(athleteId, sId, lId);
+  }
+
+  /**
+   * Get performance trajectory for a specific athlete
+   */
+  async getAthletePerformanceById(athleteId, sport, level) {
+    const user = await this.findUserById(athleteId);
+    if (!user || user.role === 'ADMIN') {
+      return null;
+    }
+
+    const sId = sport || 'football';
+    const lId = level || 'Beginner';
+    return this.getTrajectoryRecords(athleteId, sId, lId);
+  }
+
+  /**
+   * Get assessment history for a specific athlete
+   */
+  async getAthleteAssessmentsById(athleteId, sport, level) {
+    const user = await this.findUserById(athleteId);
+    if (!user || user.role === 'ADMIN') {
+      return null;
+    }
+
+    const sId = sport || 'football';
+    const lId = level || 'Beginner';
+    return this.getAssessmentHistory(athleteId, sId, lId);
+  }
+
+  /**
+   * Aggregate admin overview dashboard statistics
+   */
+  async getAdminDashboardSummary() {
+    const athletes = await this.getAdminAthletesList();
+    const totalAthletes = athletes.length;
+    const activeAthletes = athletes.filter(a => a.overallProgress > 0).length;
+
+    let totalReadiness = 0;
+    let totalCompletedAssessments = 0;
+    const sportCounts = {};
+
+    athletes.forEach(a => {
+      totalReadiness += a.overallProgress || 0;
+      totalCompletedAssessments += a.assessmentsCompleted || 0;
+      const s = a.selectedSport || 'Football';
+      sportCounts[s] = (sportCounts[s] || 0) + 1;
+    });
+
+    const averageReadiness = totalAthletes > 0 ? Math.round(totalReadiness / totalAthletes) : 0;
+    const assessmentCompletionRate = totalAthletes > 0 
+      ? Math.round((totalCompletedAssessments / (totalAthletes * 4)) * 100) 
+      : 0;
+
+    return {
+      stats: {
+        totalAthletes,
+        activeAthletes,
+        averageReadiness,
+        assessmentCompletionRate,
+        totalAssessmentsTaken: totalCompletedAssessments
+      },
+      sportDistribution: sportCounts,
+      recentAthletes: athletes.slice(0, 5)
+    };
   }
 }
 

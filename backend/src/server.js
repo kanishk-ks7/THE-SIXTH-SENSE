@@ -9,6 +9,7 @@ import athleteRoutes from './routes/athleteRoutes.js';
 import progressRoutes from './routes/progressRoutes.js';
 import assessmentRoutes from './routes/assessmentRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import { checkDatabaseConnection } from './config/db.js';
 
@@ -65,6 +66,7 @@ app.use('/api/athlete', athleteRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/assessments', assessmentRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/admin', adminRoutes);
 
 // -------------------------------------------------------------
 // 404 & ERROR HANDLING

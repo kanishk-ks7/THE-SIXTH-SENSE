@@ -193,6 +193,7 @@ export const AthleteProvider = ({ children }) => {
           userId: backendUser.id,
           email: backendUser.email,
           name: backendUser.name,
+          role: backendUser.role || 'ATHLETE',
           token: res.data.token
         };
         setCurrentSession(newSession);
@@ -203,8 +204,8 @@ export const AthleteProvider = ({ children }) => {
         setAthlete(profileData);
         setHasCompletedOnboarding(true);
 
-        showToast(`Welcome back, ${backendUser.name || 'Athlete'}!`, 'success');
-        return { success: true, user: backendUser };
+        showToast(`Welcome back, ${backendUser.name || 'User'}!`, 'success');
+        return { success: true, user: backendUser, role: backendUser.role || 'ATHLETE' };
       }
     } catch (apiErr) {
       console.warn('Backend login API call note, falling back to local engine:', apiErr.message);
@@ -214,15 +215,52 @@ export const AthleteProvider = ({ children }) => {
     const res = authenticateUser(email, password);
     if (res.success) {
       const activeSession = getCurrentSession();
-      setSession(activeSession);
+      const role = email.toLowerCase().includes('admin') ? 'ADMIN' : 'ATHLETE';
+      const augmentedSession = { ...activeSession, role };
+      setCurrentSession(augmentedSession);
+      setSession(augmentedSession);
       setAthlete(res.profile);
       setHasCompletedOnboarding(true);
       showToast(`Welcome back, ${res.user.name || 'Athlete'}!`, 'success');
-      return { success: true, user: res.user };
+      return { success: true, user: res.user, role };
     } else {
       showToast(res.error || 'Login failed', 'error');
       return { success: false, error: res.error };
     }
+  };
+
+  /**
+   * Admin-Specific Login handler
+   */
+  const loginAsAdmin = async (email, password) => {
+    try {
+      const res = await authService.login(email, password);
+      if (res?.success && res?.data) {
+        const backendUser = res.data.user;
+        if (backendUser.role !== 'ADMIN') {
+          return {
+            success: false,
+            error: 'Access Denied: This credentials belongs to an Athlete account. Please use the Athlete Login portal.'
+          };
+        }
+
+        const newSession = {
+          userId: backendUser.id,
+          email: backendUser.email,
+          name: backendUser.name,
+          role: 'ADMIN',
+          token: res.data.token
+        };
+        setCurrentSession(newSession);
+        setSession(newSession);
+
+        showToast(`Welcome Administrator, ${backendUser.name}!`, 'success');
+        return { success: true, user: backendUser, role: 'ADMIN' };
+      }
+    } catch (err) {
+      return { success: false, error: err.message || 'Admin authentication failed' };
+    }
+    return { success: false, error: 'Invalid admin credentials' };
   };
 
   /**
@@ -517,6 +555,8 @@ export const AthleteProvider = ({ children }) => {
   };
 
   const isAuthenticated = !!session;
+  const userRole = session?.role || 'ATHLETE';
+  const isAdmin = userRole === 'ADMIN';
 
   return (
     <AthleteContext.Provider
@@ -524,8 +564,11 @@ export const AthleteProvider = ({ children }) => {
         athlete,
         currentUser: session,
         isAuthenticated,
+        userRole,
+        isAdmin,
         signup,
         login,
+        loginAsAdmin,
         loginWithGoogle,
         loginAsDemo,
         logout,

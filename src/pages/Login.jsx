@@ -55,7 +55,12 @@ export const Login = () => {
     try {
       const res = await login(formData.email, formData.password);
       if (res.success) {
-        navigate('/dashboard');
+        const userRole = res.role || res.user?.role || 'ATHLETE';
+        if (userRole === 'ADMIN') {
+          navigate('/admin/dashboard');
+        } else {
+          navigate('/athlete/dashboard');
+        }
       } else {
         setErrorMessage(res.error || 'Invalid credentials. Please verify your email and password.');
       }
@@ -316,6 +321,11 @@ export const Login = () => {
             <p>
               Demo credentials: <strong className="text-white">alex.athlete@athletex.ai</strong> / <strong className="text-white">password123</strong>
             </p>
+            <div className="pt-2 mt-2 border-t border-dark-border/40 text-center">
+              <Link to="/admin/login" className="text-slate-400 hover:text-volt text-[11px] font-medium transition-colors">
+                Looking for Administrator Governance Portal? Click here →
+              </Link>
+            </div>
           </div>
 
         </div>

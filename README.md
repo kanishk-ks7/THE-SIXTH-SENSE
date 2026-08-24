@@ -180,6 +180,18 @@ The database models strictly uphold the **`USER + SPORT + DIFFICULTY LEVEL`** co
 | `PUT` | `/api/athlete/profile` | Update profile attributes | Yes (Bearer) |
 | `POST` | `/api/athlete/switch-sport` | Switch active sport and level | Yes (Bearer) |
 
+### 🛡️ Admin Governance & Monitoring (`/api/admin`)
+| Method | Endpoint | Description | Auth Required | Role Required |
+|---|---|---|---|---|
+| `GET` | `/api/admin/dashboard` | Aggregated platform KPIs & analytics | Yes (Bearer) | **ADMIN** |
+| `GET` | `/api/admin/athletes` | Search & filter all registered athletes | Yes (Bearer) | **ADMIN** |
+| `GET` | `/api/admin/athletes/:id` | Full athlete inspector dossier | Yes (Bearer) | **ADMIN** |
+| `GET` | `/api/admin/athletes/:id/progress` | Athlete's 4 core performance pillars | Yes (Bearer) | **ADMIN** |
+| `GET` | `/api/admin/athletes/:id/performance` | Athlete's trajectory records | Yes (Bearer) | **ADMIN** |
+| `GET` | `/api/admin/athletes/:id/assessments` | Athlete's bi-weekly assessment scores | Yes (Bearer) | **ADMIN** |
+
+> **Security Note**: Attempting to access `/api/admin/*` endpoints without an **ADMIN** role returns `HTTP 403 Forbidden`. Normal signup always defaults to the **ATHLETE** role and prevents client-side role privilege escalation.
+
 ### 📈 Progress & Telemetry (`/api/progress`)
 | Method | Endpoint | Description | Auth Required |
 |---|---|---|---|

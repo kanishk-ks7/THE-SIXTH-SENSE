@@ -114,8 +114,8 @@ async function main() {
     });
   }
 
-  // 5. Seed Demo User
-  console.log('Inserting Demo User (Alex Johnson)...');
+  // 5. Seed Demo Athlete & Administrator
+  console.log('Inserting Demo Athlete (Alex Johnson)...');
   const demoPasswordHash = await bcrypt.hash('password123', 10);
   const demoUser = await prisma.user.upsert({
     where: { email: 'alex.athlete@athletex.ai' },
@@ -130,6 +130,26 @@ async function main() {
       email: 'alex.athlete@athletex.ai',
       passwordHash: demoPasswordHash,
       role: 'ATHLETE'
+    }
+  });
+
+  const adminEmail = (process.env.ADMIN_EMAIL || 'admin@athletex.ai').trim().toLowerCase();
+  const adminPassword = process.env.ADMIN_PASSWORD || 'adminPassword123';
+  console.log(`Inserting Administrator Account (${adminEmail})...`);
+  const adminPasswordHash = await bcrypt.hash(adminPassword, 10);
+  await prisma.user.upsert({
+    where: { email: adminEmail },
+    update: {
+      name: 'Athletex Administrator',
+      passwordHash: adminPasswordHash,
+      role: 'ADMIN'
+    },
+    create: {
+      id: 'admin-user-1',
+      name: 'Athletex Administrator',
+      email: adminEmail,
+      passwordHash: adminPasswordHash,
+      role: 'ADMIN'
     }
   });
 

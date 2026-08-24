@@ -2,8 +2,9 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AthleteProvider } from './context/AthleteContext';
 import AppLayout from './components/layout/AppLayout';
+import { AdminRoute } from './components/auth/ProtectedRoute';
 
-// Pages
+// Public & Athlete Pages
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
@@ -20,6 +21,12 @@ import Progress from './pages/Progress';
 import Results from './pages/Results';
 import Settings from './pages/Settings';
 
+// Admin Pages
+import AdminLogin from './pages/admin/AdminLogin';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminAthletes from './pages/admin/AdminAthletes';
+import AdminAthleteDetail from './pages/admin/AdminAthleteDetail';
+
 export const App = () => {
   return (
     <AthleteProvider>
@@ -31,8 +38,21 @@ export const App = () => {
           <Route path="/signup" element={<Signup />} />
           <Route path="/onboarding" element={<Onboarding />} />
 
-          {/* Main Authenticated / Athlete Portal Layout */}
+          {/* Admin Routes (RBAC Protected) */}
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin/dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+          <Route path="/admin/athletes" element={<AdminRoute><AdminAthletes /></AdminRoute>} />
+          <Route path="/admin/athletes/:id" element={<AdminRoute><AdminAthleteDetail /></AdminRoute>} />
+
+          {/* Dedicated /athlete/* Route Mappings */}
           <Route element={<AppLayout />}>
+            <Route path="/athlete/dashboard" element={<Dashboard />} />
+            <Route path="/athlete/profile" element={<Profile />} />
+            <Route path="/athlete/progress" element={<Progress />} />
+            <Route path="/athlete/performance" element={<Progress />} />
+            <Route path="/athlete/assessments" element={<Assessment />} />
+
+            {/* Standard Application Routes */}
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/assessment" element={<Assessment />} />

@@ -49,6 +49,30 @@ export const authenticate = async (req, res, next) => {
 };
 
 /**
+ * Role-Based Access Control (RBAC) Authorization Middleware
+ * @param  {...string} allowedRoles (e.g. 'ADMIN', 'ATHLETE')
+ */
+export const requireRole = (...allowedRoles) => {
+  return (req, res, next) => {
+    if (!req.user) {
+      return errorResponse(res, 'Authentication required to access this resource.', 401);
+    }
+
+    const userRole = req.user.role || 'ATHLETE';
+    if (!allowedRoles.includes(userRole)) {
+      return errorResponse(res, `Forbidden: Access requires ${allowedRoles.join(' or ')} privileges.`, 403);
+    }
+
+    next();
+  };
+};
+
+/**
+ * Admin Only Guard Helper Middleware
+ */
+export const requireAdmin = requireRole('ADMIN');
+
+/**
  * Optional Authentication Middleware: If token exists, attaches user, else continues
  */
 export const optionalAuth = async (req, res, next) => {
