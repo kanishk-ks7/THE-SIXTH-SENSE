@@ -418,12 +418,332 @@ export const COMPETITION_EVENTS = [
   }
 ];
 
+/**
+ * =========================================================================
+ * PROGRESS DATA — keyed by sport (lowercase) → level → metrics
+ * =========================================================================
+ * Each entry supplies everything the Progress page needs:
+ *   - Pillar scores + deltas from previous assessment cycle
+ *   - Trajectory chart data (historical assessments + projected)
+ *   - Assessment summary (completed, total, cycle dates)
+ *   - Training hours for the current bi-weekly cycle
+ *   - Target readiness percentage
+ * =========================================================================
+ */
+const _buildEntry = (o) => ({
+  overallReadiness: o.or,
+  technicalSkill:   { value: o.ts, delta: o.tsd },
+  physicalFitness:  { value: o.pf, delta: o.pfd },
+  sportIQ:          { value: o.iq, delta: o.iqd },
+  trainingConsistency: { value: o.tc, delta: o.tcd },
+  targetReadiness: o.target,
+  assessmentsCompleted: o.ac,
+  assessmentsTotal: 4,
+  cycleTrainingHours: o.hrs,
+  biWeeklyTargetHours: o.tgtHrs,
+  trajectoryData: o.traj,
+});
+
+export const PROGRESS_DATA_BY_SPORT_LEVEL = {
+  football: {
+    Beginner: _buildEntry({
+      or: 35, ts: 32, tsd: 4, pf: 30, pfd: 3, iq: 38, iqd: 5, tc: 65, tcd: 8,
+      target: 50, ac: 1, hrs: 8, tgtHrs: 10,
+      traj: [
+        { label: 'Cycle 1', date: 'Jun 5', score: 18 },
+        { label: 'Cycle 2', date: 'Jun 19', score: 22 },
+        { label: 'Cycle 3', date: 'Jul 3', score: 28 },
+        { label: 'Now',     date: 'Jul 17', score: 35, isCurrent: true },
+        { label: 'Projected', date: 'Jul 31', score: 43, isProjected: true },
+      ],
+    }),
+    Intermediate: _buildEntry({
+      or: 55, ts: 52, tsd: 6, pf: 50, pfd: 4, iq: 58, iqd: 3, tc: 78, tcd: 5,
+      target: 70, ac: 2, hrs: 14, tgtHrs: 16,
+      traj: [
+        { label: 'Cycle 1', date: 'Jun 5', score: 35 },
+        { label: 'Cycle 2', date: 'Jun 19', score: 40 },
+        { label: 'Cycle 3', date: 'Jul 3', score: 48 },
+        { label: 'Now',     date: 'Jul 17', score: 55, isCurrent: true },
+        { label: 'Projected', date: 'Jul 31', score: 64, isProjected: true },
+      ],
+    }),
+    Advanced: _buildEntry({
+      or: 78, ts: 80, tsd: 3, pf: 75, pfd: 2, iq: 82, iqd: 4, tc: 92, tcd: 2,
+      target: 90, ac: 3, hrs: 22, tgtHrs: 24,
+      traj: [
+        { label: 'Cycle 1', date: 'Jun 5', score: 62 },
+        { label: 'Cycle 2', date: 'Jun 19', score: 68 },
+        { label: 'Cycle 3', date: 'Jul 3', score: 74 },
+        { label: 'Now',     date: 'Jul 17', score: 78, isCurrent: true },
+        { label: 'Projected', date: 'Jul 31', score: 85, isProjected: true },
+      ],
+    }),
+  },
+  cricket: {
+    Beginner: _buildEntry({
+      or: 30, ts: 28, tsd: 3, pf: 25, pfd: 2, iq: 35, iqd: 6, tc: 60, tcd: 7,
+      target: 45, ac: 1, hrs: 7, tgtHrs: 10,
+      traj: [
+        { label: 'Cycle 1', date: 'Jun 5', score: 15 },
+        { label: 'Cycle 2', date: 'Jun 19', score: 20 },
+        { label: 'Cycle 3', date: 'Jul 3', score: 25 },
+        { label: 'Now',     date: 'Jul 17', score: 30, isCurrent: true },
+        { label: 'Projected', date: 'Jul 31', score: 38, isProjected: true },
+      ],
+    }),
+    Intermediate: _buildEntry({
+      or: 52, ts: 55, tsd: 5, pf: 48, pfd: 4, iq: 60, iqd: 2, tc: 74, tcd: 6,
+      target: 68, ac: 2, hrs: 13, tgtHrs: 14,
+      traj: [
+        { label: 'Cycle 1', date: 'Jun 5', score: 32 },
+        { label: 'Cycle 2', date: 'Jun 19', score: 38 },
+        { label: 'Cycle 3', date: 'Jul 3', score: 46 },
+        { label: 'Now',     date: 'Jul 17', score: 52, isCurrent: true },
+        { label: 'Projected', date: 'Jul 31', score: 60, isProjected: true },
+      ],
+    }),
+    Advanced: _buildEntry({
+      or: 76, ts: 78, tsd: 2, pf: 72, pfd: 3, iq: 85, iqd: 1, tc: 90, tcd: 3,
+      target: 88, ac: 3, hrs: 20, tgtHrs: 22,
+      traj: [
+        { label: 'Cycle 1', date: 'Jun 5', score: 60 },
+        { label: 'Cycle 2', date: 'Jun 19', score: 66 },
+        { label: 'Cycle 3', date: 'Jul 3', score: 72 },
+        { label: 'Now',     date: 'Jul 17', score: 76, isCurrent: true },
+        { label: 'Projected', date: 'Jul 31', score: 83, isProjected: true },
+      ],
+    }),
+  },
+  basketball: {
+    Beginner: _buildEntry({
+      or: 33, ts: 30, tsd: 5, pf: 35, pfd: 4, iq: 32, iqd: 3, tc: 62, tcd: 9,
+      target: 48, ac: 1, hrs: 9, tgtHrs: 12,
+      traj: [
+        { label: 'Cycle 1', date: 'Jun 5', score: 16 },
+        { label: 'Cycle 2', date: 'Jun 19', score: 22 },
+        { label: 'Cycle 3', date: 'Jul 3', score: 28 },
+        { label: 'Now',     date: 'Jul 17', score: 33, isCurrent: true },
+        { label: 'Projected', date: 'Jul 31', score: 42, isProjected: true },
+      ],
+    }),
+    Intermediate: _buildEntry({
+      or: 58, ts: 56, tsd: 7, pf: 60, pfd: 5, iq: 54, iqd: 4, tc: 80, tcd: 6,
+      target: 72, ac: 2, hrs: 15, tgtHrs: 16,
+      traj: [
+        { label: 'Cycle 1', date: 'Jun 5', score: 38 },
+        { label: 'Cycle 2', date: 'Jun 19', score: 44 },
+        { label: 'Cycle 3', date: 'Jul 3', score: 52 },
+        { label: 'Now',     date: 'Jul 17', score: 58, isCurrent: true },
+        { label: 'Projected', date: 'Jul 31', score: 66, isProjected: true },
+      ],
+    }),
+    Advanced: _buildEntry({
+      or: 82, ts: 84, tsd: 3, pf: 80, pfd: 2, iq: 79, iqd: 5, tc: 94, tcd: 1,
+      target: 92, ac: 3, hrs: 24, tgtHrs: 26,
+      traj: [
+        { label: 'Cycle 1', date: 'Jun 5', score: 66 },
+        { label: 'Cycle 2', date: 'Jun 19', score: 72 },
+        { label: 'Cycle 3', date: 'Jul 3', score: 78 },
+        { label: 'Now',     date: 'Jul 17', score: 82, isCurrent: true },
+        { label: 'Projected', date: 'Jul 31', score: 88, isProjected: true },
+      ],
+    }),
+  },
+  athletics: {
+    Beginner: _buildEntry({
+      or: 38, ts: 35, tsd: 6, pf: 40, pfd: 5, iq: 30, iqd: 4, tc: 70, tcd: 10,
+      target: 52, ac: 1, hrs: 10, tgtHrs: 12,
+      traj: [
+        { label: 'Cycle 1', date: 'Jun 5', score: 20 },
+        { label: 'Cycle 2', date: 'Jun 19', score: 26 },
+        { label: 'Cycle 3', date: 'Jul 3', score: 32 },
+        { label: 'Now',     date: 'Jul 17', score: 38, isCurrent: true },
+        { label: 'Projected', date: 'Jul 31', score: 46, isProjected: true },
+      ],
+    }),
+    Intermediate: _buildEntry({
+      or: 60, ts: 58, tsd: 4, pf: 65, pfd: 6, iq: 52, iqd: -2, tc: 82, tcd: 4,
+      target: 75, ac: 2, hrs: 16, tgtHrs: 18,
+      traj: [
+        { label: 'Cycle 1', date: 'Jun 5', score: 40 },
+        { label: 'Cycle 2', date: 'Jun 19', score: 46 },
+        { label: 'Cycle 3', date: 'Jul 3', score: 54 },
+        { label: 'Now',     date: 'Jul 17', score: 60, isCurrent: true },
+        { label: 'Projected', date: 'Jul 31', score: 68, isProjected: true },
+      ],
+    }),
+    Advanced: _buildEntry({
+      or: 85, ts: 83, tsd: 2, pf: 90, pfd: 1, iq: 78, iqd: 3, tc: 95, tcd: 1,
+      target: 95, ac: 4, hrs: 26, tgtHrs: 28,
+      traj: [
+        { label: 'Cycle 1', date: 'Jun 5', score: 70 },
+        { label: 'Cycle 2', date: 'Jun 19', score: 75 },
+        { label: 'Cycle 3', date: 'Jul 3', score: 80 },
+        { label: 'Now',     date: 'Jul 17', score: 85, isCurrent: true },
+        { label: 'Projected', date: 'Jul 31', score: 91, isProjected: true },
+      ],
+    }),
+  },
+  volleyball: {
+    Beginner: _buildEntry({
+      or: 32, ts: 28, tsd: 5, pf: 34, pfd: 4, iq: 30, iqd: 6, tc: 58, tcd: 7,
+      target: 46, ac: 1, hrs: 7, tgtHrs: 10,
+      traj: [
+        { label: 'Cycle 1', date: 'Jun 5', score: 14 },
+        { label: 'Cycle 2', date: 'Jun 19', score: 20 },
+        { label: 'Cycle 3', date: 'Jul 3', score: 26 },
+        { label: 'Now',     date: 'Jul 17', score: 32, isCurrent: true },
+        { label: 'Projected', date: 'Jul 31', score: 40, isProjected: true },
+      ],
+    }),
+    Intermediate: _buildEntry({
+      or: 54, ts: 50, tsd: 6, pf: 55, pfd: 5, iq: 56, iqd: 3, tc: 76, tcd: 5,
+      target: 68, ac: 2, hrs: 12, tgtHrs: 14,
+      traj: [
+        { label: 'Cycle 1', date: 'Jun 5', score: 34 },
+        { label: 'Cycle 2', date: 'Jun 19', score: 40 },
+        { label: 'Cycle 3', date: 'Jul 3', score: 48 },
+        { label: 'Now',     date: 'Jul 17', score: 54, isCurrent: true },
+        { label: 'Projected', date: 'Jul 31', score: 62, isProjected: true },
+      ],
+    }),
+    Advanced: _buildEntry({
+      or: 79, ts: 77, tsd: 3, pf: 82, pfd: 2, iq: 80, iqd: 2, tc: 91, tcd: 2,
+      target: 90, ac: 3, hrs: 21, tgtHrs: 24,
+      traj: [
+        { label: 'Cycle 1', date: 'Jun 5', score: 63 },
+        { label: 'Cycle 2', date: 'Jun 19', score: 68 },
+        { label: 'Cycle 3', date: 'Jul 3', score: 74 },
+        { label: 'Now',     date: 'Jul 17', score: 79, isCurrent: true },
+        { label: 'Projected', date: 'Jul 31', score: 86, isProjected: true },
+      ],
+    }),
+  },
+  badminton: {
+    Beginner: _buildEntry({
+      or: 34, ts: 30, tsd: 4, pf: 32, pfd: 3, iq: 36, iqd: 5, tc: 64, tcd: 8,
+      target: 48, ac: 1, hrs: 8, tgtHrs: 10,
+      traj: [
+        { label: 'Cycle 1', date: 'Jun 5', score: 17 },
+        { label: 'Cycle 2', date: 'Jun 19', score: 22 },
+        { label: 'Cycle 3', date: 'Jul 3', score: 28 },
+        { label: 'Now',     date: 'Jul 17', score: 34, isCurrent: true },
+        { label: 'Projected', date: 'Jul 31', score: 42, isProjected: true },
+      ],
+    }),
+    Intermediate: _buildEntry({
+      or: 56, ts: 58, tsd: 5, pf: 52, pfd: 4, iq: 60, iqd: 2, tc: 78, tcd: 6,
+      target: 70, ac: 2, hrs: 14, tgtHrs: 16,
+      traj: [
+        { label: 'Cycle 1', date: 'Jun 5', score: 36 },
+        { label: 'Cycle 2', date: 'Jun 19', score: 42 },
+        { label: 'Cycle 3', date: 'Jul 3', score: 50 },
+        { label: 'Now',     date: 'Jul 17', score: 56, isCurrent: true },
+        { label: 'Projected', date: 'Jul 31', score: 64, isProjected: true },
+      ],
+    }),
+    Advanced: _buildEntry({
+      or: 80, ts: 82, tsd: 2, pf: 76, pfd: 3, iq: 84, iqd: 1, tc: 93, tcd: 2,
+      target: 92, ac: 3, hrs: 22, tgtHrs: 24,
+      traj: [
+        { label: 'Cycle 1', date: 'Jun 5', score: 64 },
+        { label: 'Cycle 2', date: 'Jun 19', score: 70 },
+        { label: 'Cycle 3', date: 'Jul 3', score: 76 },
+        { label: 'Now',     date: 'Jul 17', score: 80, isCurrent: true },
+        { label: 'Projected', date: 'Jul 31', score: 87, isProjected: true },
+      ],
+    }),
+  },
+  tennis: {
+    Beginner: _buildEntry({
+      or: 36, ts: 34, tsd: 5, pf: 38, pfd: 4, iq: 33, iqd: 3, tc: 66, tcd: 9,
+      target: 50, ac: 1, hrs: 9, tgtHrs: 12,
+      traj: [
+        { label: 'Cycle 1', date: 'Jun 5', score: 19 },
+        { label: 'Cycle 2', date: 'Jun 19', score: 24 },
+        { label: 'Cycle 3', date: 'Jul 3', score: 30 },
+        { label: 'Now',     date: 'Jul 17', score: 36, isCurrent: true },
+        { label: 'Projected', date: 'Jul 31', score: 44, isProjected: true },
+      ],
+    }),
+    Intermediate: _buildEntry({
+      or: 57, ts: 60, tsd: 6, pf: 55, pfd: 3, iq: 54, iqd: -1, tc: 76, tcd: 5,
+      target: 72, ac: 2, hrs: 15, tgtHrs: 16,
+      traj: [
+        { label: 'Cycle 1', date: 'Jun 5', score: 37 },
+        { label: 'Cycle 2', date: 'Jun 19', score: 43 },
+        { label: 'Cycle 3', date: 'Jul 3', score: 51 },
+        { label: 'Now',     date: 'Jul 17', score: 57, isCurrent: true },
+        { label: 'Projected', date: 'Jul 31', score: 65, isProjected: true },
+      ],
+    }),
+    Advanced: _buildEntry({
+      or: 81, ts: 85, tsd: 2, pf: 78, pfd: 2, iq: 80, iqd: 3, tc: 92, tcd: 1,
+      target: 93, ac: 3, hrs: 23, tgtHrs: 26,
+      traj: [
+        { label: 'Cycle 1', date: 'Jun 5', score: 65 },
+        { label: 'Cycle 2', date: 'Jun 19', score: 71 },
+        { label: 'Cycle 3', date: 'Jul 3', score: 77 },
+        { label: 'Now',     date: 'Jul 17', score: 81, isCurrent: true },
+        { label: 'Projected', date: 'Jul 31', score: 88, isProjected: true },
+      ],
+    }),
+  },
+  other: {
+    Beginner: _buildEntry({
+      or: 30, ts: 28, tsd: 3, pf: 30, pfd: 3, iq: 28, iqd: 4, tc: 55, tcd: 6,
+      target: 44, ac: 1, hrs: 6, tgtHrs: 8,
+      traj: [
+        { label: 'Cycle 1', date: 'Jun 5', score: 14 },
+        { label: 'Cycle 2', date: 'Jun 19', score: 19 },
+        { label: 'Cycle 3', date: 'Jul 3', score: 24 },
+        { label: 'Now',     date: 'Jul 17', score: 30, isCurrent: true },
+        { label: 'Projected', date: 'Jul 31', score: 37, isProjected: true },
+      ],
+    }),
+    Intermediate: _buildEntry({
+      or: 50, ts: 48, tsd: 4, pf: 50, pfd: 5, iq: 48, iqd: 2, tc: 72, tcd: 5,
+      target: 65, ac: 2, hrs: 12, tgtHrs: 14,
+      traj: [
+        { label: 'Cycle 1', date: 'Jun 5', score: 30 },
+        { label: 'Cycle 2', date: 'Jun 19', score: 36 },
+        { label: 'Cycle 3', date: 'Jul 3', score: 44 },
+        { label: 'Now',     date: 'Jul 17', score: 50, isCurrent: true },
+        { label: 'Projected', date: 'Jul 31', score: 58, isProjected: true },
+      ],
+    }),
+    Advanced: _buildEntry({
+      or: 74, ts: 72, tsd: 2, pf: 74, pfd: 2, iq: 70, iqd: 3, tc: 88, tcd: 2,
+      target: 85, ac: 3, hrs: 20, tgtHrs: 22,
+      traj: [
+        { label: 'Cycle 1', date: 'Jun 5', score: 58 },
+        { label: 'Cycle 2', date: 'Jun 19', score: 63 },
+        { label: 'Cycle 3', date: 'Jul 3', score: 69 },
+        { label: 'Now',     date: 'Jul 17', score: 74, isCurrent: true },
+        { label: 'Projected', date: 'Jul 31', score: 81, isProjected: true },
+      ],
+    }),
+  },
+};
+
+/**
+ * Resolve progress data for a given sport + level.
+ * Falls back gracefully: unknown sport → 'other', unknown level → 'Beginner'.
+ */
+export const getProgressData = (sport = 'Football', level = 'Beginner') => {
+  const key = sport.toLowerCase();
+  const sportData = PROGRESS_DATA_BY_SPORT_LEVEL[key] || PROGRESS_DATA_BY_SPORT_LEVEL['other'];
+  return sportData[level] || sportData['Beginner'];
+};
+
+/** Backward-compatible alias so nothing else breaks */
 export const PROGRESS_METRICS = {
   overallScore: 35,
   skillScore: 40,
   fitnessScore: 35,
   knowledgeScore: 45,
-  consistencyStreak: 4, // days
+  consistencyStreak: 4,
   totalTrainingHours: 16,
   weeklyTargetHours: 4,
   assessmentsCompleted: 1,
