@@ -18,12 +18,12 @@ export const Card = ({
   };
 
   const glowStyle = glow ? 'border-brand-500/40 shadow-glow-sm' : '';
-  const hoverStyle = hover ? 'hover:border-slate-600 hover:shadow-xl hover:shadow-cyan-950/20 transition-all duration-300' : '';
-  const borderStyle = bordered ? 'border border-dark-border' : '';
+  const hoverStyle = hover ? 'hover:border-brand-400/40 hover:bg-dark-cardHover/90 hover:shadow-sport-card-hover hover:-translate-y-1 transition-all duration-300' : '';
+  const borderStyle = bordered ? 'border border-white/[0.08]' : '';
 
   return (
     <div
-      className={`bg-dark-surface/90 backdrop-blur-md rounded-2xl ${borderStyle} ${glowStyle} ${hoverStyle} ${paddings[padding]} ${className}`}
+      className={`bg-dark-card/75 backdrop-blur-xl rounded-2xl ${borderStyle} ${glowStyle} ${hoverStyle} ${paddings[padding]} ${className}`}
       onClick={onClick}
       {...props}
     >

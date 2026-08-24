@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Zap, 
@@ -14,7 +14,14 @@ import {
   Flame,
   CheckCircle2,
   ChevronRight,
-  Activity
+  Activity,
+  Target,
+  Menu,
+  X,
+  Compass,
+  BarChart3,
+  Award,
+  Layers
 } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
@@ -22,6 +29,18 @@ import Card from '../components/ui/Card';
 import { SPORTS_LIST } from '../data/mockData';
 
 export const Landing = () => {
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeSportId, setActiveSportId] = useState('football');
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const steps = [
     {
       num: '01',
@@ -88,219 +107,733 @@ export const Landing = () => {
     }
   ];
 
+  const activeSportData = SPORTS_LIST.find(s => s.id === activeSportId) || SPORTS_LIST[0];
+
   return (
-    <div className="min-h-screen bg-dark-bg text-slate-100 selection:bg-brand-500 selection:text-white">
+    <div className="min-h-screen bg-[#05070B] text-slate-100 selection:bg-volt selection:text-slate-950 relative overflow-x-hidden font-sans">
       
+      {/* Background Ambient Grid & Radial Lighting */}
+      <div className="fixed inset-0 sports-grid-pattern opacity-40 pointer-events-none z-0" />
+      <div className="fixed top-0 left-1/4 w-[700px] h-[500px] bg-brand-500/10 rounded-full blur-[160px] pointer-events-none z-0" />
+      <div className="fixed top-1/3 right-[-100px] w-[600px] h-[600px] bg-volt/5 rounded-full blur-[180px] pointer-events-none z-0" />
+      <div className="fixed bottom-10 left-1/3 w-[800px] h-[400px] bg-cyan-500/5 rounded-full blur-[180px] pointer-events-none z-0" />
+
       {/* Top Navigation */}
-      <nav className="border-b border-dark-border/80 bg-dark-bg/80 backdrop-blur-xl sticky top-0 z-40 px-4 sm:px-8 py-4">
+      <header className={`sticky top-0 z-50 transition-all duration-300 px-4 sm:px-8 py-3.5 ${
+        scrolled 
+          ? 'bg-[#080C14]/90 backdrop-blur-xl border-b border-white/[0.08] shadow-[0_10px_30px_rgba(0,0,0,0.6)]' 
+          : 'bg-transparent border-b border-white/[0.04]'
+      }`}>
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-500 via-cyan-400 to-volt p-0.5 shadow-glow-sm">
-              <div className="w-full h-full bg-dark-bg rounded-[14px] flex items-center justify-center">
-                <Zap className="w-5 h-5 text-brand-accent" />
+          <Link to="/" className="flex items-center gap-3 group">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 via-cyan-400 to-volt p-[1.5px] shadow-glow-sm group-hover:shadow-glow-volt transition-all duration-300">
+              <div className="w-full h-full bg-[#080C14] rounded-[10px] flex items-center justify-center">
+                <Zap className="w-5 h-5 text-volt group-hover:scale-110 transition-transform duration-300" />
               </div>
             </div>
-            <span className="font-display font-extrabold text-xl tracking-tight text-white">
-              Athletex<span className="text-brand-accent">.AI</span>
-            </span>
+            <div className="flex flex-col">
+              <span className="font-display font-black text-xl tracking-tight text-white leading-none">
+                Athletex<span className="bg-gradient-to-r from-cyan-400 to-volt bg-clip-text text-transparent">.AI</span>
+              </span>
+              <span className="text-[9px] font-mono tracking-widest text-slate-400 uppercase mt-0.5">
+                Sports Intelligence
+              </span>
+            </div>
           </Link>
 
-          <div className="flex items-center gap-2 sm:gap-3">
+          {/* Desktop Navigation Actions */}
+          <div className="hidden md:flex items-center gap-3">
             <Link to="/admin/login">
-              <Button variant="outline" size="sm" icon={ShieldCheck} className="text-xs text-volt border-volt/40 hover:bg-volt/10 hidden sm:inline-flex">
+              <Button variant="outline" size="sm" icon={ShieldCheck} className="text-xs text-slate-300 border-white/15 hover:border-volt/50 hover:text-volt hover:bg-volt/5">
                 Admin Portal
               </Button>
             </Link>
             <Link to="/login">
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" className="text-xs text-slate-300 hover:text-white">
                 Log In
               </Button>
             </Link>
             <Link to="/dashboard">
-              <Button variant="secondary" size="sm">
+              <Button variant="secondary" size="sm" className="text-xs text-slate-200 border-white/10 hover:border-cyan-400/50">
                 Demo Portal
               </Button>
             </Link>
             <Link to="/signup">
-              <Button variant="volt" size="sm" icon={ArrowRight} iconPosition="right" className="text-slate-950 font-bold">
+              <Button variant="volt" size="sm" icon={ArrowRight} iconPosition="right" className="text-xs text-slate-950 font-black shadow-glow-volt-sm">
                 Get Started
               </Button>
             </Link>
           </div>
+
+          {/* Mobile Menu Toggle Button */}
+          <div className="flex items-center gap-2 md:hidden">
+            <Link to="/signup">
+              <Button variant="volt" size="sm" className="text-xs font-bold text-slate-950 py-1.5 px-3">
+                Get Started
+              </Button>
+            </Link>
+            <button 
+              type="button"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 rounded-lg bg-dark-card border border-white/10 text-slate-300 hover:text-white"
+              aria-label="Toggle Navigation Menu"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
-      </nav>
+
+        {/* Mobile Dropdown Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden pt-4 pb-3 border-t border-white/10 mt-3.5 space-y-2 animate-fadeIn">
+            <div className="grid grid-cols-2 gap-2">
+              <Link to="/admin/login" onClick={() => setMobileMenuOpen(false)}>
+                <Button variant="outline" size="sm" icon={ShieldCheck} className="w-full text-xs">
+                  Admin Portal
+                </Button>
+              </Link>
+              <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
+                <Button variant="ghost" size="sm" className="w-full text-xs">
+                  Log In
+                </Button>
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 gap-2 pt-1">
+              <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                <Button variant="secondary" size="sm" className="w-full text-xs">
+                  Demo Portal
+                </Button>
+              </Link>
+              <Link to="/signup" onClick={() => setMobileMenuOpen(false)}>
+                <Button variant="volt" size="sm" icon={ArrowRight} iconPosition="right" className="w-full text-xs font-bold text-slate-950">
+                  Get Started
+                </Button>
+              </Link>
+            </div>
+          </div>
+        )}
+      </header>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden pt-16 pb-24 px-4 sm:px-8">
-        {/* Glow ambient backgrounds */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-brand-500/15 rounded-full blur-[140px] pointer-events-none" />
-        <div className="absolute top-1/3 right-10 w-[300px] h-[300px] bg-volt/10 rounded-full blur-[100px] pointer-events-none" />
+      <section className="relative pt-12 pb-20 sm:pt-20 sm:pb-28 px-4 sm:px-8 z-10">
+        <div className="max-w-7xl mx-auto">
+          
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+            
+            {/* Left Column: Headline, Description & CTAs */}
+            <div className="lg:col-span-7 space-y-8 text-left">
+              
+              {/* Premium Pill Badge */}
+              <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-gradient-to-r from-dark-surface/90 to-dark-card/90 border border-volt/30 shadow-[0_0_20px_-3px_rgba(204,255,0,0.25)] backdrop-blur-md">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-volt opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-volt"></span>
+                </span>
+                <Sparkles className="w-4 h-4 text-volt" />
+                <span className="text-xs font-semibold text-slate-200 tracking-wide">
+                  The Intelligent Sports Career Platform for Student Athletes
+                </span>
+              </div>
 
-        <div className="max-w-5xl mx-auto text-center space-y-8 relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-dark-surface/90 border border-volt/30 text-xs font-semibold text-volt shadow-glow-volt/20">
-            <Sparkles className="w-4 h-4 text-volt animate-pulse" />
-            <span>The Intelligent Sports Career Platform for Student Athletes</span>
+              {/* Cinematic Headline */}
+              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white font-display leading-[1.08]">
+                Find your path. <br />
+                <span className="bg-gradient-to-r from-cyan-300 via-brand-accent to-volt bg-clip-text text-transparent">
+                  Build your skills.
+                </span> <br />
+                Reach your potential.
+              </h1>
+
+              {/* Subtitle Description */}
+              <p className="text-base sm:text-lg lg:text-xl text-slate-300 max-w-2xl leading-relaxed font-normal">
+                An intelligent sports career companion that helps athletes understand where they are, what they should improve, and what opportunities they can pursue next.
+              </p>
+
+              {/* Dual Action Buttons */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
+                <Link to="/signup" className="w-full sm:w-auto">
+                  <Button 
+                    variant="volt" 
+                    size="lg" 
+                    className="w-full text-slate-950 font-black shadow-[0_0_25px_-2px_rgba(204,255,0,0.45)] hover:shadow-[0_0_35px_-2px_rgba(204,255,0,0.65)]" 
+                    icon={ArrowRight} 
+                    iconPosition="right"
+                  >
+                    Create Free Account
+                  </Button>
+                </Link>
+                <Link to="/dashboard" className="w-full sm:w-auto">
+                  <Button 
+                    variant="secondary" 
+                    size="lg" 
+                    className="w-full border-white/10 hover:border-cyan-400/50 hover:bg-dark-cardHover/80 text-white font-bold" 
+                    icon={Activity}
+                  >
+                    Explore Platform Demo
+                  </Button>
+                </Link>
+              </div>
+
+              {/* Supported Sports Strip */}
+              <div className="pt-6 border-t border-white/[0.06] space-y-3">
+                <div className="flex items-center gap-2">
+                  <Flame className="w-4 h-4 text-volt" />
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                    Supported Sports:
+                  </span>
+                </div>
+                
+                <div className="flex items-center gap-2 flex-wrap">
+                  {SPORTS_LIST.slice(0, 7).map((s) => {
+                    const isSelected = s.id === activeSportId;
+                    return (
+                      <button
+                        key={s.id}
+                        type="button"
+                        onClick={() => setActiveSportId(s.id)}
+                        className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 cursor-pointer ${
+                          isSelected
+                            ? 'bg-gradient-to-r from-brand-500/20 to-volt/20 text-volt border border-volt/50 shadow-[0_0_12px_-2px_rgba(204,255,0,0.3)]'
+                            : 'bg-dark-card/80 border border-white/[0.08] text-slate-300 hover:text-white hover:border-slate-500 hover:bg-dark-cardHover'
+                        }`}
+                      >
+                        <span 
+                          className="w-2 h-2 rounded-full" 
+                          style={{ backgroundColor: s.color || '#00F0FF' }}
+                        />
+                        {s.name}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+            </div>
+
+            {/* Right Column: Cinematic Sports Telemetry Hero Card */}
+            <div className="lg:col-span-5 relative">
+              
+              {/* Outer Glowing Frame */}
+              <div className="relative rounded-3xl p-1 bg-gradient-to-b from-white/15 via-cyan-500/20 to-volt/20 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.8)]">
+                
+                {/* Main Hero Visual Surface */}
+                <div className="relative rounded-[22px] overflow-hidden bg-[#0a101d] border border-white/10 aspect-[4/5] sm:aspect-[4/4.5] flex flex-col justify-end">
+                  
+                  {/* High Resolution Sports Photography Asset */}
+                  <img
+                    src="https://images.unsplash.com/photo-1517649763962-0c623266ddc0?auto=format&fit=crop&w=1200&q=80"
+                    alt="Professional Athlete Training"
+                    className="absolute inset-0 w-full h-full object-cover object-center filter brightness-[0.92] contrast-[1.1] scale-105 transition-transform duration-700 hover:scale-100"
+                    loading="eager"
+                  />
+
+                  {/* Dark Multi-layer Vignette & Sports Lighting Overlays */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#05070B] via-[#05070B]/50 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#05070B]/70 via-transparent to-[#05070B]/30" />
+                  <div className="absolute top-0 right-0 w-48 h-48 bg-volt/15 rounded-full blur-3xl pointer-events-none" />
+                  <div className="absolute bottom-0 left-0 w-48 h-48 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none" />
+
+                  {/* Top Floating Badge: Live Sports Engine */}
+                  <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-20">
+                    <div className="glass-panel px-3 py-1.5 rounded-full border border-white/10 flex items-center gap-2 shadow-lg">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+                      </span>
+                      <span className="text-[11px] font-mono font-bold text-slate-200 uppercase tracking-wider">
+                        Live AI Diagnostic
+                      </span>
+                    </div>
+
+                    <div className="glass-panel px-2.5 py-1 rounded-lg border border-white/10 text-[11px] font-mono font-bold text-volt">
+                      {activeSportData.name} Pro
+                    </div>
+                  </div>
+
+                  {/* Telemetry HUD Floating Card */}
+                  <div className="relative z-20 p-5 space-y-3.5 m-3 rounded-2xl glass-card-premium border border-white/15 shadow-2xl">
+                    
+                    {/* Athlete Performance Bar */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-lg bg-volt/10 border border-volt/30 flex items-center justify-center text-volt">
+                          <Activity className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <div className="text-xs font-bold text-white leading-none">Athletic Index Rating</div>
+                          <div className="text-[10px] font-mono text-slate-400 mt-0.5">Physical · Technical · Tactical</div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-lg font-mono font-black text-volt">94.8</span>
+                        <span className="text-[10px] text-slate-400 font-mono"> /100</span>
+                      </div>
+                    </div>
+
+                    {/* Metric Bars Preview */}
+                    <div className="space-y-1.5 pt-1">
+                      <div className="flex justify-between text-[10px] font-mono text-slate-300">
+                        <span>Career Milestone Alignment</span>
+                        <span className="text-cyan-400 font-bold">State Selection Ready</span>
+                      </div>
+                      <div className="w-full bg-dark-bg/80 h-2 rounded-full overflow-hidden p-[1px] border border-white/10">
+                        <div className="bg-gradient-to-r from-brand-500 via-cyan-400 to-volt h-full rounded-full w-[88%]" />
+                      </div>
+                    </div>
+
+                    {/* Bottom Status Tags */}
+                    <div className="grid grid-cols-2 gap-2 pt-1">
+                      <div className="px-2.5 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.06] flex items-center justify-between">
+                        <span className="text-[10px] text-slate-400">Verified Drills</span>
+                        <span className="text-[11px] font-mono font-bold text-slate-200">128+</span>
+                      </div>
+                      <div className="px-2.5 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.06] flex items-center justify-between">
+                        <span className="text-[10px] text-slate-400">Scout Tier</span>
+                        <span className="text-[11px] font-mono font-bold text-emerald-400">Tier 1</span>
+                      </div>
+                    </div>
+
+                  </div>
+
+                </div>
+              </div>
+
+              {/* Decorative Accent Elements */}
+              <div className="hidden sm:block absolute -bottom-6 -left-6 glass-card px-4 py-3 rounded-2xl border border-white/10 shadow-2xl z-30 animate-float">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                    <CheckCircle2 className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold text-white">Roadmap Generated</div>
+                    <div className="text-[10px] text-slate-400 font-mono">5 Core Milestones Active</div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
           </div>
 
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white font-display leading-[1.1]">
-            Find your path. <br />
-            <span className="bg-gradient-to-r from-brand-accent via-cyan-300 to-volt bg-clip-text text-transparent">
-              Build your skills.
-            </span> <br />
-            Reach your potential.
-          </h1>
-
-          <p className="text-base sm:text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
-            An intelligent sports career companion that helps athletes understand where they are, what they should improve, and what opportunities they can pursue next.
-          </p>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-            <Link to="/signup" className="w-full sm:w-auto">
-              <Button variant="volt" size="lg" className="w-full text-slate-950 font-extrabold" icon={ArrowRight} iconPosition="right">
-                Create Free Account
-              </Button>
-            </Link>
-            <Link to="/dashboard" className="w-full sm:w-auto">
-              <Button variant="secondary" size="lg" className="w-full" icon={Activity}>
-                Explore Platform Demo
-              </Button>
-            </Link>
-          </div>
-
-          {/* Quick Sports Pill Carousel */}
-          <div className="pt-10 flex items-center justify-center gap-2 flex-wrap text-xs text-slate-400">
-            <span className="font-semibold text-slate-300">Supported Sports:</span>
-            {SPORTS_LIST.slice(0, 7).map((s) => (
-              <span key={s.id} className="px-3 py-1 rounded-lg bg-dark-surface/80 border border-dark-border text-slate-300">
-                {s.name}
-              </span>
-            ))}
-          </div>
         </div>
       </section>
 
       {/* How Athletex Works Section (5 Steps) */}
-      <section className="py-20 px-4 sm:px-8 bg-dark-surface/40 border-y border-dark-border/80 relative">
-        <div className="max-w-7xl mx-auto space-y-12">
+      <section className="py-24 px-4 sm:px-8 relative bg-gradient-to-b from-[#05070B] via-[#080E1B] to-[#05070B] border-y border-white/[0.06]">
+        
+        {/* Glow ambient */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[300px] bg-brand-500/5 rounded-full blur-[140px] pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto space-y-16 relative z-10">
           
-          <div className="text-center space-y-3 max-w-2xl mx-auto">
-            <Badge variant="volt" size="md">Step-by-Step Trajectory</Badge>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white font-display">
+          {/* Section Header */}
+          <div className="text-center space-y-3.5 max-w-2xl mx-auto">
+            <div className="inline-flex">
+              <Badge variant="volt" size="md" className="font-mono uppercase tracking-wider">
+                Step-by-Step Trajectory
+              </Badge>
+            </div>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white font-display tracking-tight">
               How Athletex Works
             </h2>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm sm:text-base text-slate-400 leading-relaxed">
               A continuous, structured cycle that turns raw athletic potential into certified competitive performance.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 relative">
-            {steps.map((s, idx) => {
-              const Icon = s.icon;
-              return (
-                <div
-                  key={s.num}
-                  className="relative p-6 rounded-2xl bg-dark-surface/90 border border-dark-border hover:border-brand-500/50 transition-all duration-300 flex flex-col justify-between group"
-                >
-                  <div>
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="text-xs font-mono font-black text-brand-accent px-2 py-1 rounded-md bg-brand-500/10 border border-brand-500/20">
-                        {s.num}
-                      </span>
-                      <div className="p-2 rounded-xl bg-dark-bg border border-dark-border text-slate-400 group-hover:text-brand-300 transition-colors">
-                        <Icon className="w-4 h-4" />
+          {/* Desktop Horizontal Progression Indicator */}
+          <div className="relative">
+            
+            {/* Background connecting progression line */}
+            <div className="hidden lg:block absolute top-1/2 left-8 right-8 h-[2px] bg-gradient-to-r from-brand-500/20 via-cyan-400/40 to-volt/30 -translate-y-1/2 z-0" />
+
+            {/* 5 Step Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-5 relative z-10">
+              {steps.map((s, idx) => {
+                const Icon = s.icon;
+                return (
+                  <div
+                    key={s.num}
+                    className="relative p-6 rounded-2xl glass-card border border-white/[0.08] hover:border-volt/50 hover:bg-dark-cardHover/90 transition-all duration-300 flex flex-col justify-between group shadow-sport-card hover:shadow-glow-volt/10 hover:-translate-y-2"
+                  >
+                    <div>
+                      {/* Step Number & Icon Header */}
+                      <div className="flex items-center justify-between mb-5">
+                        <span className="text-xs font-mono font-black text-volt px-2.5 py-1 rounded-lg bg-volt/10 border border-volt/30">
+                          {s.num}
+                        </span>
+                        <div className="p-2.5 rounded-xl bg-[#080C14] border border-white/10 text-slate-300 group-hover:text-volt group-hover:border-volt/40 group-hover:scale-110 transition-all duration-300">
+                          <Icon className="w-4 h-4" />
+                        </div>
                       </div>
+
+                      {/* Step Title & Description */}
+                      <h3 className="text-base font-bold text-white font-display mb-2.5 group-hover:text-volt transition-colors">
+                        {s.title}
+                      </h3>
+                      <p className="text-xs text-slate-400 leading-relaxed">
+                        {s.desc}
+                      </p>
                     </div>
 
-                    <h3 className="text-base font-bold text-white font-display mb-2">
-                      {s.title}
-                    </h3>
-                    <p className="text-xs text-slate-400 leading-relaxed">
-                      {s.desc}
-                    </p>
+                    {/* Step Card Bottom Visual Pulse Indicator */}
+                    <div className="pt-5 mt-4 border-t border-white/[0.06] flex items-center justify-between text-[11px] font-mono text-slate-500 group-hover:text-slate-400">
+                      <span>Phase {s.num}</span>
+                      <div className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-volt group-hover:shadow-[0_0_8px_#CCFF00] transition-colors" />
+                    </div>
+
+                    {/* Step Arrow for Desktop */}
+                    {idx < steps.length - 1 && (
+                      <div className="hidden lg:flex items-center justify-center absolute -right-3.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-[#080C14] border border-white/15 text-slate-400 z-20 group-hover:text-volt group-hover:border-volt/50 transition-colors">
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </div>
+                    )}
                   </div>
+                );
+              })}
+            </div>
 
-                  {idx < steps.length - 1 && (
-                    <div className="hidden lg:block absolute -right-3 top-1/2 -translate-y-1/2 z-20">
-                      <ChevronRight className="w-5 h-5 text-brand-500/40" />
-                    </div>
-                  )}
-                </div>
-              );
-            })}
           </div>
+
         </div>
       </section>
 
-      {/* Feature Section */}
-      <section className="py-24 px-4 sm:px-8">
-        <div className="max-w-7xl mx-auto space-y-12">
-          <div className="text-center space-y-3 max-w-2xl mx-auto">
-            <Badge variant="primary" size="md">Core Architecture</Badge>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white font-display">
+      {/* Cinematic Sports Visual Feature Area */}
+      <section className="py-24 px-4 sm:px-8 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto">
+          
+          <div className="relative rounded-3xl overflow-hidden border border-white/15 bg-[#090F1C] shadow-[0_25px_70px_-15px_rgba(0,0,0,0.9)]">
+            
+            {/* Background High-Impact Sports Action Photography */}
+            <div className="absolute inset-0 z-0">
+              <img
+                src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=1600&q=80"
+                alt="Elite Athlete Development"
+                className="w-full h-full object-cover object-center filter brightness-[0.75] contrast-[1.15]"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#05070B] via-[#05070B]/85 to-[#05070B]/40" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#05070B] via-transparent to-[#05070B]/60" />
+            </div>
+
+            {/* Content Over Sports Image */}
+            <div className="relative z-10 p-8 sm:p-12 lg:p-16 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+              
+              <div className="lg:col-span-7 space-y-6">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-dark-bg/80 border border-brand-500/30 text-xs font-mono text-cyan-300">
+                  <Award className="w-3.5 h-3.5 text-volt" />
+                  <span>ATHLETIC PERFORMANCE CAMPAIGN</span>
+                </div>
+
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white font-display tracking-tight leading-tight">
+                  From Grassroots Potential <br />
+                  <span className="bg-gradient-to-r from-cyan-400 via-brand-accent to-volt bg-clip-text text-transparent">
+                    To Certified Selection.
+                  </span>
+                </h2>
+
+                <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-xl">
+                  Athletex provides standard-defining performance analytics, position mastery guides, and verified tournament discovery to ensure no talent goes unnoticed.
+                </p>
+
+                <div className="flex flex-wrap gap-4 pt-2">
+                  <Link to="/signup">
+                    <Button variant="volt" size="md" icon={ArrowRight} iconPosition="right" className="text-slate-950 font-black">
+                      Join The Platform
+                    </Button>
+                  </Link>
+                  <Link to="/dashboard">
+                    <Button variant="secondary" size="md" className="text-white border-white/15">
+                      View Athlete Demo
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+
+              {/* Right Telemetry Stat Cards */}
+              <div className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                
+                <div className="glass-card-premium p-5 rounded-2xl border border-white/15 space-y-2">
+                  <div className="text-xs font-mono text-slate-400 uppercase">Precision Rating</div>
+                  <div className="text-3xl font-black font-mono text-volt">98.4%</div>
+                  <div className="text-[11px] text-slate-300">Milestone calibration accuracy based on age & position data.</div>
+                </div>
+
+                <div className="glass-card-premium p-5 rounded-2xl border border-white/15 space-y-2">
+                  <div className="text-xs font-mono text-slate-400 uppercase">Assessment Pillars</div>
+                  <div className="text-3xl font-black font-mono text-cyan-400">4-Tier</div>
+                  <div className="text-[11px] text-slate-300">Technical, Physical, Tactical IQ, and Real-match performance.</div>
+                </div>
+
+                <div className="glass-card-premium p-5 rounded-2xl border border-white/15 space-y-2 sm:col-span-2">
+                  <div className="flex items-center justify-between text-xs font-mono text-slate-400 uppercase">
+                    <span>Scouting Pipeline</span>
+                    <span className="text-emerald-400 font-bold">Active Verifications</span>
+                  </div>
+                  <div className="text-lg font-bold text-white font-display">State & National Selection Trials Ready</div>
+                  <div className="text-[11px] text-slate-300">Direct integration with academy scouts and tournament registration engines.</div>
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      {/* Feature Section: Engineered for Aspiring Athletes */}
+      <section className="py-24 px-4 sm:px-8 relative z-10">
+        <div className="max-w-7xl mx-auto space-y-16">
+          
+          {/* Section Header */}
+          <div className="text-center space-y-3.5 max-w-2xl mx-auto">
+            <div className="inline-flex">
+              <Badge variant="primary" size="md" className="font-mono uppercase tracking-wider">
+                Core Architecture
+              </Badge>
+            </div>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white font-display tracking-tight">
               Engineered for Aspiring Athletes
             </h2>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm sm:text-base text-slate-400 leading-relaxed">
               Five interconnected pillars designed to guide athletic development from first practice to competitive trials.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {features.map((f, i) => {
-              const Icon = f.icon;
-              return (
-                <Card
-                  key={i}
-                  className="p-6 flex flex-col justify-between hover:border-brand-500/50 transition-all group"
-                >
-                  <div>
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="p-3 rounded-xl bg-brand-500/10 text-brand-400 border border-brand-500/20 group-hover:scale-110 transition-transform">
-                        <Icon className="w-5 h-5" />
-                      </div>
-                      <Badge variant="primary" size="sm">{f.badge}</Badge>
+          {/* Asymmetric Bento-Style Feature Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
+            
+            {/* Feature 1: Large Flagship Bento Card */}
+            <div className="lg:col-span-3">
+              <Card className="p-7 sm:p-8 h-full flex flex-col justify-between glass-card-premium border-white/10 hover:border-cyan-400/50 transition-all duration-300 group">
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="p-3.5 rounded-2xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/25 group-hover:scale-110 group-hover:bg-cyan-500/20 transition-all duration-300">
+                      <UserCheck className="w-6 h-6" />
                     </div>
-
-                    <h3 className="text-lg font-bold text-white font-display mb-2 group-hover:text-brand-300 transition-colors">
-                      {f.title}
-                    </h3>
-                    <p className="text-xs text-slate-400 leading-relaxed">
-                      {f.desc}
-                    </p>
+                    <Badge variant="primary" size="sm" className="font-mono font-semibold">
+                      {features[0].badge}
+                    </Badge>
                   </div>
 
-                  <div className="pt-4 mt-6 border-t border-dark-border/40 flex items-center gap-1 text-xs text-brand-400 font-semibold group-hover:translate-x-1 transition-transform">
-                    <span>Feature module preview</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
+                  <h3 className="text-xl sm:text-2xl font-bold text-white font-display mb-3 group-hover:text-cyan-300 transition-colors">
+                    {features[0].title}
+                  </h3>
+                  <p className="text-sm text-slate-300 leading-relaxed">
+                    {features[0].desc}
+                  </p>
+
+                  {/* Micro Metric Preview Widget */}
+                  <div className="mt-6 p-4 rounded-xl bg-[#05070B]/70 border border-white/[0.06] space-y-2.5">
+                    <div className="flex justify-between text-xs text-slate-300 font-mono">
+                      <span>Athletic Passport Status</span>
+                      <span className="text-emerald-400 font-bold">100% Verified</span>
+                    </div>
+                    <div className="flex gap-1.5">
+                      <span className="px-2 py-1 rounded bg-white/[0.05] text-[10px] font-mono text-slate-400">Biomechanics</span>
+                      <span className="px-2 py-1 rounded bg-white/[0.05] text-[10px] font-mono text-slate-400">Skill Radar</span>
+                      <span className="px-2 py-1 rounded bg-white/[0.05] text-[10px] font-mono text-slate-400">Match Log</span>
+                    </div>
                   </div>
-                </Card>
-              );
-            })}
+                </div>
+
+                <div className="pt-6 mt-6 border-t border-white/[0.08] flex items-center gap-2 text-xs text-cyan-400 font-semibold group-hover:translate-x-1 transition-transform">
+                  <span>Feature module preview</span>
+                  <ArrowRight className="w-4 h-4" />
+                </div>
+              </Card>
+            </div>
+
+            {/* Feature 2: Large Flagship Bento Card */}
+            <div className="lg:col-span-3">
+              <Card className="p-7 sm:p-8 h-full flex flex-col justify-between glass-card-premium border-white/10 hover:border-volt/50 transition-all duration-300 group">
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="p-3.5 rounded-2xl bg-volt/10 text-volt border border-volt/25 group-hover:scale-110 group-hover:bg-volt/20 transition-all duration-300">
+                      <Milestone className="w-6 h-6" />
+                    </div>
+                    <Badge variant="volt" size="sm" className="font-mono font-semibold">
+                      {features[1].badge}
+                    </Badge>
+                  </div>
+
+                  <h3 className="text-xl sm:text-2xl font-bold text-white font-display mb-3 group-hover:text-volt transition-colors">
+                    {features[1].title}
+                  </h3>
+                  <p className="text-sm text-slate-300 leading-relaxed">
+                    {features[1].desc}
+                  </p>
+
+                  {/* Micro Metric Preview Widget */}
+                  <div className="mt-6 p-4 rounded-xl bg-[#05070B]/70 border border-white/[0.06] space-y-2.5">
+                    <div className="flex justify-between text-xs text-slate-300 font-mono">
+                      <span>Career Path Progression</span>
+                      <span className="text-volt font-bold">Stage 3 of 5</span>
+                    </div>
+                    <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                      <div className="bg-gradient-to-r from-volt to-emerald-400 h-full w-[65%]" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-6 mt-6 border-t border-white/[0.08] flex items-center gap-2 text-xs text-volt font-semibold group-hover:translate-x-1 transition-transform">
+                  <span>Feature module preview</span>
+                  <ArrowRight className="w-4 h-4" />
+                </div>
+              </Card>
+            </div>
+
+            {/* Feature 3: Complementary Row Card */}
+            <div className="lg:col-span-2">
+              <Card className="p-6 h-full flex flex-col justify-between glass-card border-white/10 hover:border-brand-400/40 transition-all duration-300 group">
+                <div>
+                  <div className="flex items-center justify-between mb-5">
+                    <div className="p-3 rounded-xl bg-brand-500/10 text-brand-400 border border-brand-500/20 group-hover:scale-110 transition-transform">
+                      <Activity className="w-5 h-5" />
+                    </div>
+                    <Badge variant="primary" size="sm">{features[2].badge}</Badge>
+                  </div>
+
+                  <h3 className="text-lg font-bold text-white font-display mb-2 group-hover:text-brand-300 transition-colors">
+                    {features[2].title}
+                  </h3>
+                  <p className="text-xs text-slate-400 leading-relaxed">
+                    {features[2].desc}
+                  </p>
+                </div>
+
+                <div className="pt-4 mt-6 border-t border-white/[0.06] flex items-center gap-1.5 text-xs text-brand-400 font-semibold group-hover:translate-x-1 transition-transform">
+                  <span>Feature module preview</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </div>
+              </Card>
+            </div>
+
+            {/* Feature 4: Complementary Row Card */}
+            <div className="lg:col-span-2">
+              <Card className="p-6 h-full flex flex-col justify-between glass-card border-white/10 hover:border-emerald-400/40 transition-all duration-300 group">
+                <div>
+                  <div className="flex items-center justify-between mb-5">
+                    <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 group-hover:scale-110 transition-transform">
+                      <Dumbbell className="w-5 h-5" />
+                    </div>
+                    <Badge variant="emerald" size="sm">{features[3].badge}</Badge>
+                  </div>
+
+                  <h3 className="text-lg font-bold text-white font-display mb-2 group-hover:text-emerald-300 transition-colors">
+                    {features[3].title}
+                  </h3>
+                  <p className="text-xs text-slate-400 leading-relaxed">
+                    {features[3].desc}
+                  </p>
+                </div>
+
+                <div className="pt-4 mt-6 border-t border-white/[0.06] flex items-center gap-1.5 text-xs text-emerald-400 font-semibold group-hover:translate-x-1 transition-transform">
+                  <span>Feature module preview</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </div>
+              </Card>
+            </div>
+
+            {/* Feature 5: Complementary Row Card */}
+            <div className="lg:col-span-2">
+              <Card className="p-6 h-full flex flex-col justify-between glass-card border-white/10 hover:border-amber-400/40 transition-all duration-300 group">
+                <div>
+                  <div className="flex items-center justify-between mb-5">
+                    <div className="p-3 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 group-hover:scale-110 transition-transform">
+                      <Trophy className="w-5 h-5" />
+                    </div>
+                    <Badge variant="amber" size="sm">{features[4].badge}</Badge>
+                  </div>
+
+                  <h3 className="text-lg font-bold text-white font-display mb-2 group-hover:text-amber-300 transition-colors">
+                    {features[4].title}
+                  </h3>
+                  <p className="text-xs text-slate-400 leading-relaxed">
+                    {features[4].desc}
+                  </p>
+                </div>
+
+                <div className="pt-4 mt-6 border-t border-white/[0.06] flex items-center gap-1.5 text-xs text-amber-400 font-semibold group-hover:translate-x-1 transition-transform">
+                  <span>Feature module preview</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </div>
+              </Card>
+            </div>
+
           </div>
+
         </div>
       </section>
 
-      {/* CTA Footer Banner */}
-      <section className="py-16 px-4 sm:px-8 border-t border-dark-border/80 bg-gradient-to-b from-dark-surface to-dark-bg">
-        <div className="max-w-4xl mx-auto text-center space-y-6">
-          <h2 className="text-2xl sm:text-4xl font-extrabold text-white font-display">
+      {/* CTA Footer Banner Section */}
+      <section className="py-24 px-4 sm:px-8 relative overflow-hidden border-t border-white/[0.08]">
+        
+        {/* Stadium Floodlight & Dark Gradient Backdrop */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src="https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1600&q=80"
+            alt="Stadium Floodlight Atmosphere"
+            className="w-full h-full object-cover object-center filter brightness-[0.25] contrast-[1.2]"
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#05070B] via-[#05070B]/90 to-[#080E1B]/95" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-volt/10 rounded-full blur-[140px] pointer-events-none" />
+        </div>
+
+        <div className="max-w-4xl mx-auto text-center space-y-8 relative z-10">
+          
+          <div className="inline-flex p-3 rounded-2xl bg-volt/10 border border-volt/30 text-volt shadow-[0_0_20px_rgba(204,255,0,0.2)]">
+            <Zap className="w-7 h-7" />
+          </div>
+
+          <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white font-display tracking-tight leading-tight">
             Start your athletic roadmap today.
           </h2>
-          <p className="text-sm text-slate-400 max-w-xl mx-auto">
+
+          <p className="text-base sm:text-xl text-slate-300 max-w-xl mx-auto leading-relaxed font-medium">
             “Your personalized path from aspiring athlete to competitive athlete.”
           </p>
-          <div className="pt-2">
-            <Link to="/signup">
-              <Button variant="volt" size="lg" icon={ArrowRight} iconPosition="right" className="text-slate-950 font-extrabold">
+
+          <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link to="/signup" className="w-full sm:w-auto">
+              <Button 
+                variant="volt" 
+                size="lg" 
+                icon={ArrowRight} 
+                iconPosition="right" 
+                className="w-full text-slate-950 font-black text-base px-8 py-4 shadow-[0_0_30px_rgba(204,255,0,0.5)] hover:shadow-[0_0_45px_rgba(204,255,0,0.75)] hover:scale-105 transition-all duration-300"
+              >
                 Create My Athlete Profile
               </Button>
             </Link>
           </div>
+
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-dark-border/60 py-8 px-4 text-center text-xs text-slate-500">
-        <p>© 2026 Athletex — Sports Career & Athlete Development Platform. All rights reserved.</p>
+      <footer className="border-t border-white/[0.06] bg-[#05070B] py-10 px-4 sm:px-8 relative z-10">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+          
+          <div className="flex items-center gap-2.5">
+            <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-brand-500 to-volt p-0.5">
+              <div className="w-full h-full bg-[#05070B] rounded-[6px] flex items-center justify-center">
+                <Zap className="w-3.5 h-3.5 text-volt" />
+              </div>
+            </div>
+            <span className="font-display font-bold text-slate-300 tracking-tight">
+              Athletex<span className="text-volt">.AI</span>
+            </span>
+          </div>
+
+          <p className="text-center sm:text-right text-slate-400 font-mono text-[11px]">
+            © 2026 Athletex — Sports Career & Athlete Development Platform. All rights reserved.
+          </p>
+
+        </div>
       </footer>
 
     </div>
