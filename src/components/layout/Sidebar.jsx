@@ -26,7 +26,7 @@ const NAV_ITEMS = [
   { path: '/roadmap', label: 'My Roadmap', icon: Milestone, badge: 'Active' },
   { path: '/learn', label: 'Learn', icon: BookOpen },
   { path: '/train', label: 'Train', icon: Dumbbell },
-  { path: '/compete', label: 'Compete', icon: Trophy, badge: 'New' },
+  { path: '/events', label: 'Events', icon: Trophy, badge: 'New' },
   { path: '/progress', label: 'Progress', icon: TrendingUp },
   { path: '/results', label: 'Results', icon: Award },
 ];

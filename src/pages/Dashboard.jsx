@@ -13,7 +13,9 @@ import {
   ChevronRight, 
   CheckCircle2, 
   TrendingUp,
-  ShieldCheck
+  ShieldCheck,
+  MapPin,
+  Calendar
 } from 'lucide-react';
 import PageHeader from '../components/ui/PageHeader';
 import StatCard from '../components/ui/StatCard';
@@ -241,8 +243,8 @@ export const Dashboard = () => {
               <Trophy className="w-4 h-4 text-amber-400" />
               Upcoming Opportunities
             </h3>
-            <Link to="/compete" className="text-xs text-brand-400 hover:underline font-semibold">
-              Browse All Trials →
+            <Link to="/events" className="text-xs text-brand-400 hover:underline font-semibold">
+              Browse All Events &rarr;
             </Link>
           </div>
 
@@ -257,15 +259,21 @@ export const Dashboard = () => {
                 {featuredEvent.name}
               </h4>
 
-              <div className="text-xs text-slate-400 space-y-1">
-                <p>📍 {featuredEvent.location}</p>
-                <p>📅 {featuredEvent.date}</p>
+              <div className="text-xs text-slate-400 space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-3.5 h-3.5 text-brand-400 flex-shrink-0" />
+                  <span>{featuredEvent.location}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-3.5 h-3.5 text-volt flex-shrink-0" />
+                  <span>{featuredEvent.date}</span>
+                </div>
               </div>
             </div>
 
             <div className="pt-4 mt-4 border-t border-dark-border/40 flex items-center justify-between">
               <span className="text-xs text-slate-400">{featuredEvent.eligibility}</span>
-              <Link to="/compete">
+              <Link to="/events">
                 <Button variant="secondary" size="sm">
                   View Details
                 </Button>

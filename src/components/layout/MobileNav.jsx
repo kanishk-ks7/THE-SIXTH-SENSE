@@ -24,7 +24,7 @@ const NAV_ITEMS = [
   { path: '/roadmap', label: 'My Roadmap', icon: Milestone },
   { path: '/learn', label: 'Learn', icon: BookOpen },
   { path: '/train', label: 'Train', icon: Dumbbell },
-  { path: '/compete', label: 'Compete', icon: Trophy },
+  { path: '/events', label: 'Events', icon: Trophy },
   { path: '/progress', label: 'Progress', icon: TrendingUp },
   { path: '/results', label: 'Results', icon: Award },
   { path: '/settings', label: 'Settings', icon: Settings },
@@ -34,7 +34,7 @@ const BOTTOM_SHORTCUTS = [
   { path: '/dashboard', label: 'Home', icon: LayoutDashboard },
   { path: '/roadmap', label: 'Roadmap', icon: Milestone },
   { path: '/train', label: 'Train', icon: Dumbbell },
-  { path: '/compete', label: 'Compete', icon: Trophy },
+  { path: '/events', label: 'Events', icon: Trophy },
   { path: '/profile', label: 'Passport', icon: User },
 ];
 

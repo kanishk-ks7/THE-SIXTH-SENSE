@@ -9,6 +9,8 @@ const KEYS = {
   SELECTED_SPORT: 'selectedSport',
   SELECTED_LEVEL: 'selectedLevel',
   SAVED_EVENTS: 'savedEvents',
+  REGISTERED_EVENTS: 'sportpath_registered_events',
+  COMPETITION_RESULTS: 'sportpath_competition_results',
   THEME_MODE: 'sportpath_theme',
   COMPLETED_LESSONS: 'athletex_completed_lessons',
   IN_PROGRESS_LESSONS: 'athletex_inprogress_lessons',
@@ -478,6 +480,158 @@ export const toggleSaveEvent = (eventId) => {
     return updated;
   } catch (err) {
     console.error('Error toggling saved event:', err);
+    return [];
+  }
+};
+
+/**
+ * Get list of registered event IDs
+ */
+export const getRegisteredEvents = (targetUserId) => {
+  try {
+    const session = getCurrentSession();
+    const uid = targetUserId || session?.userId || 'demo-user-1';
+    const raw = localStorage.getItem(`${KEYS.REGISTERED_EVENTS}_${uid}`);
+    if (raw) return JSON.parse(raw);
+    // Default seed for demo: evt-past-1 registered so past result can be showcased
+    return ['evt-past-1'];
+  } catch {
+    return ['evt-past-1'];
+  }
+};
+
+/**
+ * Save list of registered event IDs
+ */
+export const saveRegisteredEvents = (eventsList, targetUserId) => {
+  try {
+    const session = getCurrentSession();
+    const uid = targetUserId || session?.userId || 'demo-user-1';
+    localStorage.setItem(`${KEYS.REGISTERED_EVENTS}_${uid}`, JSON.stringify(eventsList));
+    return eventsList;
+  } catch (err) {
+    console.error('Error saving registered events:', err);
+    return eventsList;
+  }
+};
+
+/**
+ * Register athlete for an event
+ */
+export const registerForEvent = (eventId, targetUserId) => {
+  try {
+    const current = getRegisteredEvents(targetUserId);
+    if (!current.includes(eventId)) {
+      const updated = [...current, eventId];
+      saveRegisteredEvents(updated, targetUserId);
+      return updated;
+    }
+    return current;
+  } catch (err) {
+    console.error('Error registering for event:', err);
+    return [];
+  }
+};
+
+/**
+ * Unregister athlete from an event
+ */
+export const unregisterFromEvent = (eventId, targetUserId) => {
+  try {
+    const current = getRegisteredEvents(targetUserId);
+    const updated = current.filter(id => id !== eventId);
+    saveRegisteredEvents(updated, targetUserId);
+    return updated;
+  } catch (err) {
+    console.error('Error unregistering from event:', err);
+    return [];
+  }
+};
+
+/**
+ * Default seed competition results
+ */
+const DEFAULT_INITIAL_RESULTS = [
+  {
+    id: 'res-evt-past-1',
+    eventId: 'evt-past-1',
+    eventName: 'Summer Youth Football Classic 2026',
+    sport: 'Football',
+    location: 'Etihad Regional Campus, Manchester',
+    date: 'Jul 18 - Jul 20, 2026',
+    status: 'completed',
+    placement: '1st Place (Gold / Champion)',
+    outcome: 'Won final 3-1 • 2 Goals Scored • Match MVP',
+    notes: 'Exceptional link-up play in the final third. Scouted by North West Regional Academy scouts.',
+    recordedAt: '2026-07-21T14:30:00.000Z'
+  },
+  {
+    id: 'res-evt-past-2',
+    eventId: 'evt-past-2',
+    eventName: 'North Regional Athletics Sprint Trials',
+    sport: 'Athletics',
+    location: 'Manchester Regional Arena',
+    date: 'Aug 08, 2026',
+    status: 'pending',
+    placement: null,
+    outcome: null,
+    notes: '',
+    recordedAt: '2026-08-09T09:00:00.000Z'
+  }
+];
+
+/**
+ * Get athlete's competition results
+ */
+export const getCompetitionResults = (targetUserId) => {
+  try {
+    const session = getCurrentSession();
+    const uid = targetUserId || session?.userId || 'demo-user-1';
+    const raw = localStorage.getItem(`${KEYS.COMPETITION_RESULTS}_${uid}`);
+    if (raw) return JSON.parse(raw);
+    
+    // Seed initial results for demo
+    localStorage.setItem(`${KEYS.COMPETITION_RESULTS}_${uid}`, JSON.stringify(DEFAULT_INITIAL_RESULTS));
+    return DEFAULT_INITIAL_RESULTS;
+  } catch (err) {
+    console.warn('Error reading competition results:', err);
+    return DEFAULT_INITIAL_RESULTS;
+  }
+};
+
+/**
+ * Save athlete's competition results
+ */
+export const saveCompetitionResults = (resultsList, targetUserId) => {
+  try {
+    const session = getCurrentSession();
+    const uid = targetUserId || session?.userId || 'demo-user-1';
+    localStorage.setItem(`${KEYS.COMPETITION_RESULTS}_${uid}`, JSON.stringify(resultsList));
+    return resultsList;
+  } catch (err) {
+    console.error('Error saving competition results:', err);
+    return resultsList;
+  }
+};
+
+/**
+ * Add or update a competition result
+ */
+export const addOrUpdateCompetitionResult = (resultItem, targetUserId) => {
+  try {
+    const current = getCompetitionResults(targetUserId);
+    const existingIndex = current.findIndex(r => r.id === resultItem.id || r.eventId === resultItem.eventId);
+    let updated;
+    if (existingIndex >= 0) {
+      updated = [...current];
+      updated[existingIndex] = { ...updated[existingIndex], ...resultItem };
+    } else {
+      updated = [resultItem, ...current];
+    }
+    saveCompetitionResults(updated, targetUserId);
+    return updated;
+  } catch (err) {
+    console.error('Error updating competition result:', err);
     return [];
   }
 };

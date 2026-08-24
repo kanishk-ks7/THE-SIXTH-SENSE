@@ -20,8 +20,15 @@ import {
    getInProgressLessons,
    saveInProgressLessons,
    getAthleteWeakAreas,
-   saveAthleteWeakAreas
+   saveAthleteWeakAreas,
+   getRegisteredEvents,
+   registerForEvent as registerEventStorage,
+   unregisterFromEvent as unregisterEventStorage,
+   getCompetitionResults,
+   saveCompetitionResults,
+   addOrUpdateCompetitionResult
  } from '../utils/storage';
+import { COMPETITION_EVENTS } from '../data/mockData';
 
 const AthleteContext = createContext(null);
 
@@ -30,6 +37,8 @@ export const AthleteProvider = ({ children }) => {
   const [athlete, setAthlete] = useState(() => getAthleteProfile(session?.userId));
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(() => isOnboardingCompleted());
   const [savedEvents, setSavedEvents] = useState(() => getSavedEvents());
+  const [registeredEvents, setRegisteredEvents] = useState(() => getRegisteredEvents(session?.userId));
+  const [competitionResults, setCompetitionResults] = useState(() => getCompetitionResults(session?.userId));
   const [completedLessons, setCompletedLessons] = useState(() => getCompletedLessons(session?.userId));
   const [inProgressLessons, setInProgressLessons] = useState(() => getInProgressLessons(session?.userId));
   const [weakAreas, setWeakAreasState] = useState(() => getAthleteWeakAreas(session?.userId, athlete?.sport));
@@ -196,6 +205,126 @@ export const AthleteProvider = ({ children }) => {
   };
 
   /**
+   * Register athlete for an event
+   */
+  const handleRegisterForEvent = (eventId, registrationInfo) => {
+    const uid = session?.userId || athlete?.userId || 'demo-user-1';
+    const updated = registerEventStorage(eventId, uid);
+    setRegisteredEvents(updated);
+    
+    // Check if event date has passed, sync to results immediately
+    const evt = COMPETITION_EVENTS.find(e => e.id === eventId);
+    if (evt) {
+      const isPast = evt.status === 'Completed' || (evt.startDate && new Date(evt.startDate) < new Date());
+      if (isPast) {
+        const currentResults = getCompetitionResults(uid);
+        if (!currentResults.some(r => r.eventId === eventId)) {
+          const pendingRes = {
+            id: `res-${eventId}`,
+            eventId: eventId,
+            eventName: evt.name,
+            sport: evt.sport,
+            location: evt.location,
+            date: evt.date,
+            status: 'pending',
+            placement: null,
+            outcome: null,
+            notes: '',
+            recordedAt: new Date().toISOString()
+          };
+          const newResults = [pendingRes, ...currentResults];
+          saveCompetitionResults(newResults, uid);
+          setCompetitionResults(newResults);
+        }
+      }
+      showToast(`Successfully registered for ${evt.name}!`, 'success');
+    } else {
+      showToast('Registration confirmed!', 'success');
+    }
+    return { success: true };
+  };
+
+  /**
+   * Unregister athlete from an event
+   */
+  const handleUnregisterFromEvent = (eventId) => {
+    const uid = session?.userId || athlete?.userId || 'demo-user-1';
+    const updated = unregisterEventStorage(eventId, uid);
+    setRegisteredEvents(updated);
+    showToast('Registration removed from event', 'info');
+    return updated;
+  };
+
+  /**
+   * Log or update a competition result
+   */
+  const handleLogCompetitionResult = (resultData) => {
+    const uid = session?.userId || athlete?.userId || 'demo-user-1';
+    const updatedList = addOrUpdateCompetitionResult(resultData, uid);
+    setCompetitionResults(updatedList);
+    
+    // Increase athlete readiness if completing a pending result
+    if (resultData.status === 'completed') {
+      const currentReadiness = athlete?.readiness || 35;
+      if (currentReadiness < 98) {
+        updateProfile({ readiness: Math.min(100, currentReadiness + 3) });
+      }
+    }
+    showToast('Competition outcome saved to your archive!', 'success');
+    return updatedList;
+  };
+
+  /**
+   * Auto-populate results for past saved or registered events
+   */
+  const syncPastEventsToResults = () => {
+    const uid = session?.userId || athlete?.userId || 'demo-user-1';
+    const currentResults = getCompetitionResults(uid);
+    const today = new Date();
+    let updatedResults = [...currentResults];
+    let hasChanges = false;
+
+    COMPETITION_EVENTS.forEach((evt) => {
+      const isSaved = savedEvents.includes(evt.id);
+      const isRegistered = registeredEvents.includes(evt.id);
+
+      if (isSaved || isRegistered) {
+        const isPast = evt.status === 'Completed' || (evt.startDate && new Date(evt.startDate) < today);
+        if (isPast) {
+          const alreadyHasResult = updatedResults.some((r) => r.eventId === evt.id);
+          if (!alreadyHasResult) {
+            hasChanges = true;
+            const newPendingResult = {
+              id: `res-${evt.id}`,
+              eventId: evt.id,
+              eventName: evt.name,
+              sport: evt.sport,
+              location: evt.location,
+              date: evt.date,
+              status: 'pending',
+              placement: null,
+              outcome: null,
+              notes: '',
+              recordedAt: new Date().toISOString()
+            };
+            updatedResults = [newPendingResult, ...updatedResults];
+          }
+        }
+      }
+    });
+
+    if (hasChanges) {
+      saveCompetitionResults(updatedResults, uid);
+      setCompetitionResults(updatedResults);
+    }
+  };
+
+  // Sync past events to results automatically on load and when saved/registered lists change
+  useEffect(() => {
+    syncPastEventsToResults();
+  }, [savedEvents, registeredEvents, session?.userId]);
+
+  /**
    * Theme toggler
    */
   const toggleTheme = () => {
@@ -301,6 +430,13 @@ export const AthleteProvider = ({ children }) => {
         setHasCompletedOnboarding,
         savedEvents,
         toggleSaveEvent: handleToggleSaveEvent,
+        registeredEvents,
+        registerForEvent: handleRegisterForEvent,
+        unregisterFromEvent: handleUnregisterFromEvent,
+        competitionResults,
+        logCompetitionResult: handleLogCompetitionResult,
+        updateCompetitionResult: handleLogCompetitionResult,
+        syncPastEventsToResults,
         theme,
         toggleTheme,
         showToast,

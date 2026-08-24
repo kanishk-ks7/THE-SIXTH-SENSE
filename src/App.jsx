@@ -14,7 +14,8 @@ import Assessment from './pages/Assessment';
 import Roadmap from './pages/Roadmap';
 import Learn from './pages/Learn';
 import Train from './pages/Train';
-import Compete from './pages/Compete';
+import Events from './pages/Events';
+import DemoRegistration from './pages/DemoRegistration';
 import Progress from './pages/Progress';
 import Results from './pages/Results';
 import Settings from './pages/Settings';
@@ -38,7 +39,9 @@ export const App = () => {
             <Route path="/roadmap" element={<Roadmap />} />
             <Route path="/learn" element={<Learn />} />
             <Route path="/train" element={<Train />} />
-            <Route path="/compete" element={<Compete />} />
+            <Route path="/events" element={<Events />} />
+            <Route path="/events/register/:eventId" element={<DemoRegistration />} />
+            <Route path="/compete" element={<Navigate to="/events" replace />} />
             <Route path="/progress" element={<Progress />} />
             <Route path="/results" element={<Results />} />
             <Route path="/settings" element={<Settings />} />
