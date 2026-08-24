@@ -105,14 +105,19 @@ export const Landing = () => {
             </span>
           </Link>
 
-          <div className="flex items-center gap-3">
-            <Link to="/dashboard">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Link to="/login">
               <Button variant="ghost" size="sm">
-                Demo Dashboard
+                Log In
               </Button>
             </Link>
-            <Link to="/onboarding">
-              <Button variant="primary" size="sm" icon={ArrowRight} iconPosition="right">
+            <Link to="/dashboard">
+              <Button variant="secondary" size="sm">
+                Demo Portal
+              </Button>
+            </Link>
+            <Link to="/signup">
+              <Button variant="volt" size="sm" icon={ArrowRight} iconPosition="right" className="text-slate-950 font-bold">
                 Get Started
               </Button>
             </Link>
@@ -127,7 +132,7 @@ export const Landing = () => {
         <div className="absolute top-1/3 right-10 w-[300px] h-[300px] bg-volt/10 rounded-full blur-[100px] pointer-events-none" />
 
         <div className="max-w-5xl mx-auto text-center space-y-8 relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-dark-surface/90 border border-brand-500/30 text-xs font-semibold text-brand-300 shadow-glow-sm">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-dark-surface/90 border border-volt/30 text-xs font-semibold text-volt shadow-glow-volt/20">
             <Sparkles className="w-4 h-4 text-volt animate-pulse" />
             <span>The Intelligent Sports Career Platform for Student Athletes</span>
           </div>
@@ -145,9 +150,9 @@ export const Landing = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-            <Link to="/onboarding" className="w-full sm:w-auto">
-              <Button variant="volt" size="lg" className="w-full text-slate-950 font-bold" icon={ArrowRight} iconPosition="right">
-                Get Started Free
+            <Link to="/signup" className="w-full sm:w-auto">
+              <Button variant="volt" size="lg" className="w-full text-slate-950 font-extrabold" icon={ArrowRight} iconPosition="right">
+                Create Free Account
               </Button>
             </Link>
             <Link to="/dashboard" className="w-full sm:w-auto">
@@ -279,8 +284,8 @@ export const Landing = () => {
             “Your personalized path from aspiring athlete to competitive athlete.”
           </p>
           <div className="pt-2">
-            <Link to="/onboarding">
-              <Button variant="volt" size="lg" icon={ArrowRight} iconPosition="right">
+            <Link to="/signup">
+              <Button variant="volt" size="lg" icon={ArrowRight} iconPosition="right" className="text-slate-950 font-extrabold">
                 Create My Athlete Profile
               </Button>
             </Link>

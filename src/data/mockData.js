@@ -71,11 +71,21 @@ export const SPORTS_LIST = [
 ];
 
 export const DEFAULT_DEMO_ATHLETE = {
-  name: 'Alex',
+  id: 'demo-user-1',
+  userId: 'demo-user-1',
+  name: 'Alex Johnson',
+  email: 'alex.athlete@sportpath.ai',
+  phone: '+44 7911 123456',
+  gender: 'Male',
   age: 17,
   location: 'Manchester, UK',
   sport: 'Football',
+  position: 'Forward / Winger',
   level: 'Beginner',
+  height: '178 cm',
+  weight: '68 kg',
+  personalBest: '100m Sprint: 11.8s • 14 Goals Season',
+  preferredTrainingDays: ['Monday', 'Wednesday', 'Friday', 'Saturday'],
   trainingHours: '4 hours/week',
   trainingHoursNumber: 4,
   goal: 'Improve performance',
@@ -86,6 +96,26 @@ export const DEFAULT_DEMO_ATHLETE = {
   joinedDate: 'August 2026',
   strengths: ['Ball Control', 'Agility', 'Determination'],
   focusAreas: ['Tactical Positioning', 'Stamina', 'Weak-foot shooting']
+};
+
+export const AVATAR_PRESETS = [
+  { id: 'av-1', label: 'Default Athlete', url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80' },
+  { id: 'av-2', label: 'Striker', url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80' },
+  { id: 'av-3', label: 'Sprinter', url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&auto=format&fit=crop&q=80' },
+  { id: 'av-4', label: 'Champion', url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&auto=format&fit=crop&q=80' },
+  { id: 'av-5', label: 'Court Master', url: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=300&auto=format&fit=crop&q=80' },
+  { id: 'av-6', label: 'Pro Player', url: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=300&auto=format&fit=crop&q=80' }
+];
+
+export const SPORT_POSITIONS_MAP = {
+  Football: ['Forward / Winger', 'Striker', 'Midfielder', 'Central Defensive Mid', 'Full Back', 'Center Back', 'Goalkeeper'],
+  Cricket: ['Top-Order Batsman', 'Middle-Order Batsman', 'Fast Bowler', 'Spin Bowler', 'All-Rounder', 'Wicket-Keeper Batsman'],
+  Basketball: ['Point Guard (PG)', 'Shooting Guard (SG)', 'Small Forward (SF)', 'Power Forward (PF)', 'Center (C)'],
+  Athletics: ['100m / 200m Sprint', '400m / 800m Middle Distance', '1500m / 5000m Long Distance', 'Hurdles', 'Long Jump / Triple Jump', 'High Jump', 'Relay Specialist'],
+  Volleyball: ['Outside Hitter', 'Opposite Hitter', 'Setter', 'Middle Blocker', 'Libero', 'Defensive Specialist'],
+  Badminton: ['Men’s / Women’s Singles Specialist', 'Doubles Front-Court Attacker', 'Doubles Rear-Court Smasher', 'Mixed Doubles Specialist'],
+  Tennis: ['Baseline Aggressor', 'Serve-and-Volleyer', 'All-Court Player', 'Counterpuncher / Defensive Specialist', 'Doubles Specialist'],
+  'Other Sport': ['Athlete', 'Captain', 'Competitor', 'Individual Specialist']
 };
 
 export const ONBOARDING_LEVELS = [

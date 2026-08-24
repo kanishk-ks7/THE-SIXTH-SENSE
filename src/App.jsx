@@ -5,6 +5,8 @@ import AppLayout from './components/layout/AppLayout';
 
 // Pages
 import Landing from './pages/Landing';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
 import Onboarding from './pages/Onboarding';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
@@ -22,8 +24,10 @@ export const App = () => {
     <AthleteProvider>
       <BrowserRouter>
         <Routes>
-          {/* Public Landing & Onboarding */}
+          {/* Public Landing, Auth & Onboarding */}
           <Route path="/" element={<Landing />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
           <Route path="/onboarding" element={<Onboarding />} />
 
           {/* Main Authenticated / Athlete Portal Layout */}

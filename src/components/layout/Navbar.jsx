@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Zap, 
   Bell, 
@@ -9,23 +9,34 @@ import {
   Flame, 
   Menu, 
   Sun, 
-  Moon,
-  Sparkles,
-  ExternalLink
+  Moon, 
+  Sparkles, 
+  LogOut, 
+  ShieldCheck, 
+  Milestone, 
+  ClipboardCheck 
 } from 'lucide-react';
 import { useAthlete } from '../../context/AthleteContext';
 import { SPORTS_LIST } from '../../data/mockData';
 import Badge from '../ui/Badge';
 
 export const Navbar = ({ onToggleMobileMenu }) => {
-  const { athlete, updateProfile, theme, toggleTheme } = useAthlete();
+  const navigate = useNavigate();
+  const { athlete, updateProfile, theme, toggleTheme, logout, isAuthenticated } = useAthlete();
   const [showSportMenu, setShowSportMenu] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const location = useLocation();
 
   const handleSportChange = (sportName) => {
     updateProfile({ sport: sportName });
     setShowSportMenu(false);
+  };
+
+  const handleLogout = () => {
+    setShowUserMenu(false);
+    logout();
+    navigate('/login');
   };
 
   const notifications = [
@@ -35,7 +46,7 @@ export const Navbar = ({ onToggleMobileMenu }) => {
   ];
 
   return (
-    <header className="sticky top-0 z-30 w-full bg-dark-bg/85 backdrop-blur-xl border-b border-dark-border/80 px-4 sm:px-6 py-3 transition-all duration-200">
+    <header className="sticky top-0 z-30 w-full bg-dark-bg/90 backdrop-blur-xl border-b border-dark-border/80 px-4 sm:px-6 py-3 transition-all duration-200">
       <div className="flex items-center justify-between gap-4">
         
         {/* Left: Mobile Menu Button & Brand (mobile only) */}
@@ -55,30 +66,30 @@ export const Navbar = ({ onToggleMobileMenu }) => {
               <Zap className="w-4 h-4 text-slate-950 fill-current" />
             </div>
             <span className="font-display font-extrabold text-base tracking-tight text-white">
-              SportPath<span className="text-brand-accent">.AI</span>
+              SportPath<span className="text-volt">.AI</span>
             </span>
           </Link>
 
           {/* Quick Sport Switcher Pill (Desktop) */}
           <div className="hidden lg:flex items-center gap-2 relative">
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Active Sport:</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Sport:</span>
             <div className="relative">
               <button
                 type="button"
                 onClick={() => setShowSportMenu(!showSportMenu)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-dark-surface border border-dark-border hover:border-brand-500/40 text-xs font-semibold text-slate-200 transition-all shadow-sm"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-dark-surface border border-dark-border hover:border-volt/50 text-xs font-semibold text-slate-200 transition-all shadow-sm group"
               >
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="w-2 h-2 rounded-full bg-volt animate-pulse" />
                 <span>{athlete.sport || 'Football'}</span>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-white transition-colors" />
               </button>
 
               {showSportMenu && (
                 <div 
-                  className="absolute left-0 mt-2 w-48 bg-dark-surface border border-dark-border rounded-2xl shadow-2xl p-1.5 z-40 animate-scale-up"
+                  className="absolute left-0 mt-2 w-52 bg-dark-surface border border-dark-border rounded-2xl shadow-2xl p-1.5 z-40 animate-scale-up"
                   onMouseLeave={() => setShowSportMenu(false)}
                 >
-                  <p className="text-[10px] uppercase font-bold text-slate-400 px-3 py-1.5">Select Sport</p>
+                  <p className="text-[10px] uppercase font-bold text-slate-400 px-3 py-1.5">Change Active Sport</p>
                   {SPORTS_LIST.map((sp) => (
                     <button
                       key={sp.id}
@@ -86,12 +97,12 @@ export const Navbar = ({ onToggleMobileMenu }) => {
                       onClick={() => handleSportChange(sp.name)}
                       className={`w-full text-left px-3 py-2 rounded-xl text-xs flex items-center justify-between transition-colors ${
                         athlete.sport === sp.name
-                          ? 'bg-brand-500/15 text-brand-300 font-semibold'
+                          ? 'bg-volt/15 text-volt font-bold'
                           : 'text-slate-300 hover:bg-dark-card hover:text-white'
                       }`}
                     >
                       <span>{sp.name}</span>
-                      {athlete.sport === sp.name && <span className="text-brand-400 text-xs">●</span>}
+                      {athlete.sport === sp.name && <span className="text-volt text-xs">●</span>}
                     </button>
                   ))}
                 </div>
@@ -104,13 +115,13 @@ export const Navbar = ({ onToggleMobileMenu }) => {
         <div className="flex items-center gap-2 sm:gap-3">
           
           {/* Readiness Pill (Desktop) */}
-          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-dark-surface/80 border border-dark-border text-xs">
+          <Link to="/assessment" className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-dark-surface/80 border border-dark-border hover:border-volt/40 transition-colors text-xs">
             <Flame className="w-4 h-4 text-volt animate-pulse" />
             <span className="text-slate-400">Readiness:</span>
             <span className="font-mono font-bold text-white">{athlete.readiness || 35}%</span>
-          </div>
+          </Link>
 
-          {/* Theme Toggle (Bonus feature) */}
+          {/* Theme Toggle */}
           <button
             type="button"
             onClick={toggleTheme}
@@ -130,8 +141,8 @@ export const Navbar = ({ onToggleMobileMenu }) => {
               aria-label="View notifications"
             >
               <Bell className="w-4 h-4" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-brand-accent animate-ping" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-brand-accent" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-volt animate-ping" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-volt" />
             </button>
 
             {showNotifications && (
@@ -141,7 +152,7 @@ export const Navbar = ({ onToggleMobileMenu }) => {
               >
                 <div className="flex items-center justify-between pb-3 mb-2 border-b border-dark-border/60">
                   <h4 className="text-sm font-bold text-white font-display">Notifications</h4>
-                  <Badge variant="primary" size="sm">3 Updates</Badge>
+                  <Badge variant="volt" size="sm">3 Updates</Badge>
                 </div>
                 <div className="space-y-2 max-h-64 overflow-y-auto">
                   {notifications.map((n) => (
@@ -168,25 +179,107 @@ export const Navbar = ({ onToggleMobileMenu }) => {
             <Settings className="w-4 h-4" />
           </Link>
 
-          {/* Profile Card Pill */}
-          <Link
-            to="/profile"
-            className="flex items-center gap-2.5 pl-2 pr-3 py-1.5 rounded-xl bg-dark-surface hover:bg-dark-card border border-dark-border hover:border-brand-500/40 transition-all group"
-          >
-            <div className="relative w-7 h-7 rounded-lg overflow-hidden bg-brand-500/20 border border-brand-500/40 flex items-center justify-center flex-shrink-0">
-              <span className="text-xs font-bold text-brand-300 font-display">
-                {athlete.name ? athlete.name.charAt(0).toUpperCase() : 'A'}
-              </span>
-            </div>
-            <div className="hidden sm:block text-left">
-              <p className="text-xs font-bold text-slate-200 group-hover:text-brand-300 transition-colors leading-tight">
-                {athlete.name || 'Alex'}
-              </p>
-              <p className="text-[10px] font-medium text-slate-400 leading-tight">
-                {athlete.level || 'Beginner'}
-              </p>
-            </div>
-          </Link>
+          {/* User Profile Pill & Dropdown Menu */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setShowUserMenu(!showUserMenu)}
+              className="flex items-center gap-2.5 pl-2 pr-3 py-1.5 rounded-xl bg-dark-surface hover:bg-dark-card border border-dark-border hover:border-volt/40 transition-all group"
+            >
+              <div className="relative w-7 h-7 rounded-lg overflow-hidden bg-volt/10 border border-volt/30 flex items-center justify-center flex-shrink-0">
+                {athlete.avatar ? (
+                  <img src={athlete.avatar} alt={athlete.name} className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-xs font-bold text-volt font-display">
+                    {athlete.name ? athlete.name.charAt(0).toUpperCase() : 'A'}
+                  </span>
+                )}
+              </div>
+              <div className="hidden sm:block text-left">
+                <p className="text-xs font-bold text-slate-200 group-hover:text-volt transition-colors leading-tight">
+                  {athlete.name || 'Alex Johnson'}
+                </p>
+                <p className="text-[10px] font-medium text-slate-400 leading-tight">
+                  {athlete.sport} • {athlete.level}
+                </p>
+              </div>
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-white transition-colors" />
+            </button>
+
+            {showUserMenu && (
+              <div 
+                className="absolute right-0 mt-2 w-64 bg-dark-surface border border-dark-border rounded-2xl shadow-2xl p-2 z-50 animate-scale-up"
+                onMouseLeave={() => setShowUserMenu(false)}
+              >
+                {/* User Dropdown Header */}
+                <div className="p-3 border-b border-dark-border/60 mb-1">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-xl bg-dark-bg border border-volt/30 overflow-hidden flex items-center justify-center flex-shrink-0">
+                      {athlete.avatar ? (
+                        <img src={athlete.avatar} alt={athlete.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="font-bold text-volt text-sm">{athlete.name ? athlete.name.charAt(0) : 'A'}</span>
+                      )}
+                    </div>
+                    <div className="truncate">
+                      <h4 className="text-xs font-bold text-white truncate">{athlete.name || 'Alex Johnson'}</h4>
+                      <p className="text-[10px] text-slate-400 truncate">{athlete.email || 'alex.athlete@sportpath.ai'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Dropdown Navigation Links */}
+                <div className="space-y-1 text-xs">
+                  <Link
+                    to="/profile"
+                    onClick={() => setShowUserMenu(false)}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-dark-card transition-colors"
+                  >
+                    <User className="w-4 h-4 text-volt" />
+                    <span>My Athlete Passport</span>
+                  </Link>
+
+                  <Link
+                    to="/assessment"
+                    onClick={() => setShowUserMenu(false)}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-dark-card transition-colors"
+                  >
+                    <ClipboardCheck className="w-4 h-4 text-cyan-400" />
+                    <span>Take Assessment</span>
+                  </Link>
+
+                  <Link
+                    to="/roadmap"
+                    onClick={() => setShowUserMenu(false)}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-dark-card transition-colors"
+                  >
+                    <Milestone className="w-4 h-4 text-amber-400" />
+                    <span>Career Roadmap</span>
+                  </Link>
+
+                  <Link
+                    to="/settings"
+                    onClick={() => setShowUserMenu(false)}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-dark-card transition-colors"
+                  >
+                    <Settings className="w-4 h-4 text-slate-400" />
+                    <span>Account Settings</span>
+                  </Link>
+
+                  <div className="border-t border-dark-border/60 my-1" />
+
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors text-left"
+                  >
+                    <LogOut className="w-4 h-4 text-red-400" />
+                    <span>Sign Out</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
 
         </div>
       </div>

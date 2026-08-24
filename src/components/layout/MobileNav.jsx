@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { NavLink, Link, useLocation } from 'react-router-dom';
+import { NavLink, Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   User,
@@ -12,13 +12,15 @@ import {
   Settings,
   X,
   Zap,
-  Flame
+  Flame,
+  LogOut
 } from 'lucide-react';
 import { useAthlete } from '../../context/AthleteContext';
 
 const NAV_ITEMS = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { path: '/profile', label: 'My Profile', icon: User },
+  { path: '/profile', label: 'Athlete Passport', icon: User },
+  { path: '/assessment', label: 'AI Assessment', icon: Award },
   { path: '/roadmap', label: 'My Roadmap', icon: Milestone },
   { path: '/learn', label: 'Learn', icon: BookOpen },
   { path: '/train', label: 'Train', icon: Dumbbell },
@@ -33,17 +35,24 @@ const BOTTOM_SHORTCUTS = [
   { path: '/roadmap', label: 'Roadmap', icon: Milestone },
   { path: '/train', label: 'Train', icon: Dumbbell },
   { path: '/compete', label: 'Compete', icon: Trophy },
-  { path: '/profile', label: 'Profile', icon: User },
+  { path: '/profile', label: 'Passport', icon: User },
 ];
 
 export const MobileNav = ({ isOpen, onClose }) => {
-  const { athlete } = useAthlete();
+  const navigate = useNavigate();
+  const { athlete, logout } = useAthlete();
   const location = useLocation();
 
   // Close drawer on route change
   useEffect(() => {
     onClose();
   }, [location.pathname]);
+
+  const handleLogout = () => {
+    onClose();
+    logout();
+    navigate('/login');
+  };
 
   return (
     <>
@@ -67,7 +76,7 @@ export const MobileNav = ({ isOpen, onClose }) => {
                   </div>
                   <div>
                     <span className="font-display font-black text-lg tracking-tight text-white">
-                      SportPath<span className="text-brand-accent">.AI</span>
+                      SportPath<span className="text-volt">.AI</span>
                     </span>
                   </div>
                 </Link>
@@ -81,7 +90,7 @@ export const MobileNav = ({ isOpen, onClose }) => {
               </div>
 
               {/* Navigation Links */}
-              <nav className="space-y-1.5 overflow-y-auto max-h-[calc(100vh-220px)]">
+              <nav className="space-y-1.5 overflow-y-auto max-h-[calc(100vh-240px)]">
                 {NAV_ITEMS.map((item) => {
                   const Icon = item.icon;
                   return (
@@ -89,9 +98,9 @@ export const MobileNav = ({ isOpen, onClose }) => {
                       key={item.path}
                       to={item.path}
                       className={({ isActive }) =>
-                        `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
+                        `flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${
                           isActive
-                            ? 'bg-brand-500/20 text-brand-300 font-semibold border-l-4 border-brand-accent'
+                            ? 'bg-volt/15 text-volt font-bold border-l-4 border-volt'
                             : 'text-slate-400 hover:text-white hover:bg-dark-surface'
                         }`
                       }
@@ -104,21 +113,27 @@ export const MobileNav = ({ isOpen, onClose }) => {
               </nav>
             </div>
 
-            {/* Bottom Athlete Mini Tag */}
-            <div className="pt-4 border-t border-dark-border/60">
+            {/* Bottom Athlete Mini Tag & Logout */}
+            <div className="pt-4 border-t border-dark-border/60 space-y-2">
               <div className="flex items-center justify-between p-3 rounded-xl bg-dark-surface border border-dark-border">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-brand-500/20 text-brand-300 flex items-center justify-center font-bold text-xs">
+                <Link to="/profile" onClick={onClose} className="flex items-center gap-2.5 truncate">
+                  <div className="w-8 h-8 rounded-lg bg-volt/20 text-volt flex items-center justify-center font-bold text-xs flex-shrink-0">
                     {athlete.name ? athlete.name.charAt(0).toUpperCase() : 'A'}
                   </div>
-                  <div>
-                    <p className="text-xs font-bold text-white">{athlete.name || 'Alex'}</p>
+                  <div className="truncate">
+                    <p className="text-xs font-bold text-white truncate">{athlete.name || 'Alex Johnson'}</p>
                     <p className="text-[10px] text-slate-400">{athlete.sport} • {athlete.level}</p>
                   </div>
-                </div>
-                <div className="text-right">
-                  <span className="text-[10px] font-bold text-volt">{athlete.readiness || 35}% Ready</span>
-                </div>
+                </Link>
+
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="p-2 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors flex-shrink-0"
+                  title="Sign Out"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
               </div>
             </div>
           </div>
@@ -137,7 +152,7 @@ export const MobileNav = ({ isOpen, onClose }) => {
                 className={({ isActive }) =>
                   `flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all ${
                     isActive
-                      ? 'text-brand-accent font-semibold scale-105'
+                      ? 'text-volt font-bold scale-105'
                       : 'text-slate-400 hover:text-slate-200'
                   }`
                 }
