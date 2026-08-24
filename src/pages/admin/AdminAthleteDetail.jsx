@@ -196,10 +196,10 @@ export const AdminAthleteDetail = () => {
                 <div className="flex items-center gap-4 text-xs text-slate-400 pt-1">
                   <span className="flex items-center gap-1">
                     <MapPin className="w-3.5 h-3.5 text-slate-500" />
-                    {profile.location || 'Manchester, UK'}
+                    {profile.location || 'Location not provided'}
                   </span>
                   <span>Position: <strong className="text-slate-200">{profile.position || 'Athlete'}</strong></span>
-                  <span>Training: <strong className="text-slate-200">{profile.trainingHours || '4 hours/week'}</strong></span>
+                  <span>Training: <strong className="text-slate-200">{profile.trainingHours || 'Not provided'}</strong></span>
                 </div>
               </div>
             </div>

@@ -19,6 +19,7 @@ import ModuleContainer from '../../components/ui/ModuleContainer';
 import { Link } from 'react-router-dom';
 import { ASSESSMENT_MODULES } from '../../data/mockData';
 import { useAthlete } from '../../context/AthleteContext';
+import { assessmentService } from '../../services/assessmentService';
 
 /**
  * =========================================================================
@@ -40,12 +41,17 @@ export const AssessmentModule = () => {
     }
   };
 
-  const handleSimulateAssessment = (assessment) => {
+  const handleSimulateAssessment = async (assessment) => {
     setIsSimulating(true);
-    setTimeout(() => {
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1200));
       setIsSimulating(false);
-      // Simulate improving readiness
       const newReadiness = Math.min((athlete.readiness || 35) + 15, 100);
+      await assessmentService.submitAssessment(assessment.id, {
+        sport: athlete.sport || 'football',
+        level: athlete.level || 'Beginner',
+        score: newReadiness
+      });
       updateProfile({ readiness: newReadiness });
 
       // Update identified weak areas based on assessment pillar
@@ -66,7 +72,10 @@ export const AssessmentModule = () => {
 
       setSelectedAssessment(null);
       showToast(`${assessment.title} completed! Identified weak areas updated for your Learn Hub.`, 'success');
-    }, 1200);
+    } catch (error) {
+      setIsSimulating(false);
+      showToast(error.message || 'Assessment could not be saved.', 'error');
+    }
   };
 
   return (

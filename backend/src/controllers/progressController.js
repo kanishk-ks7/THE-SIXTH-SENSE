@@ -35,6 +35,21 @@ export const getTrajectory = async (req, res, next) => {
   }
 };
 
+export const updateProgressTelemetry = async (req, res, next) => {
+  try {
+    const userId = req.user.userId;
+    const telemetry = await dbService.updateProgressTelemetry(
+      userId,
+      req.body.sport || 'football',
+      req.body.level || 'Beginner',
+      req.body
+    );
+    return successResponse(res, telemetry, 'Progress telemetry updated successfully');
+  } catch (err) {
+    next(err);
+  }
+};
+
 /**
  * Create a new Performance Trajectory snapshot
  * POST /api/progress/snapshot
