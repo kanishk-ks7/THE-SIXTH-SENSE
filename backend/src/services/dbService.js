@@ -752,6 +752,50 @@ class DatabaseService {
     const lId = difficultyLevelId || 'Beginner';
     const key = `${userId}_${sId}_${lId}`;
 
+    if (prisma && await checkDatabaseConnection()) {
+      try {
+        const profile = await prisma.userSportProfile.findUnique({
+          where: { user_sport_level_unique: { userId, sportId: sId, difficultyLevelId: lId } },
+          include: { sport: true, difficultyLevel: true, user: true }
+        });
+        if (profile) {
+          return {
+            ...profile,
+            sportName: profile.sport.name,
+            levelName: profile.difficultyLevel.name,
+            name: profile.user.name,
+            email: profile.user.email,
+            strengths: profile.strengths ? JSON.parse(profile.strengths) : [],
+            focusAreas: profile.focusAreas ? JSON.parse(profile.focusAreas) : [],
+            preferredTrainingDays: profile.preferredTrainingDays ? JSON.parse(profile.preferredTrainingDays) : []
+          };
+        }
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+        if (user) {
+          const sport = await prisma.sport.findUnique({ where: { id: sId } });
+          const level = await prisma.difficultyLevel.findUnique({ where: { id: lId } });
+          if (sport && level) {
+            const created = await prisma.userSportProfile.create({
+              data: { userId, sportId: sId, difficultyLevelId: lId, isCurrentSelected: true },
+              include: { sport: true, difficultyLevel: true, user: true }
+            });
+            return {
+              ...created,
+              sportName: created.sport.name,
+              levelName: created.difficultyLevel.name,
+              name: created.user.name,
+              email: created.user.email,
+              strengths: [],
+              focusAreas: [],
+              preferredTrainingDays: []
+            };
+          }
+        }
+      } catch (err) {
+        console.warn('Prisma getUserSportProfile fallback:', err.message);
+      }
+    }
+
     if (this.memoryStore.userSportProfiles[key]) {
       return this.memoryStore.userSportProfiles[key];
     }
@@ -794,6 +838,31 @@ class DatabaseService {
   }
 
   async getActiveUserSportProfile(userId) {
+    if (prisma && await checkDatabaseConnection()) {
+      try {
+        const profile = await prisma.userSportProfile.findFirst({
+          where: { userId, isCurrentSelected: true },
+          orderBy: { updatedAt: 'desc' },
+          include: { sport: true, difficultyLevel: true, user: true }
+        });
+        if (profile) {
+          return {
+            ...profile,
+            sportName: profile.sport.name,
+            levelName: profile.difficultyLevel.name,
+            name: profile.user.name,
+            email: profile.user.email,
+            strengths: profile.strengths ? JSON.parse(profile.strengths) : [],
+            focusAreas: profile.focusAreas ? JSON.parse(profile.focusAreas) : [],
+            preferredTrainingDays: profile.preferredTrainingDays ? JSON.parse(profile.preferredTrainingDays) : []
+          };
+        }
+      } catch (err) {
+        console.warn('Prisma getActiveUserSportProfile fallback:', err.message);
+      }
+      return this.getUserSportProfile(userId, 'football', 'Beginner');
+    }
+
     // Find profile marked as isCurrentSelected, or default to Football Beginner
     const userProfileKeys = Object.keys(this.memoryStore.userSportProfiles).filter(k => k.startsWith(`${userId}_`));
     for (const key of userProfileKeys) {
@@ -807,13 +876,70 @@ class DatabaseService {
   async updateUserSportProfile(userId, sportId, difficultyLevelId, updateData) {
     const sId = (sportId || 'football').toLowerCase();
     const lId = difficultyLevelId || 'Beginner';
+
+    if (prisma && await checkDatabaseConnection()) {
+      try {
+        const { name, email, sport, level, strengths, focusAreas, preferredTrainingDays, phone, avatar, ...profileData } = updateData;
+        await prisma.userSportProfile.updateMany({ where: { userId }, data: { isCurrentSelected: false } });
+        if (name || email) {
+          await prisma.user.update({
+            where: { id: userId },
+            data: { ...(name ? { name } : {}), ...(email ? { email: email.trim().toLowerCase() } : {}) }
+          });
+        }
+        if (avatar) {
+          await prisma.user.update({ where: { id: userId }, data: { avatar } });
+        }
+        const updated = await prisma.userSportProfile.upsert({
+          where: { user_sport_level_unique: { userId, sportId: sId, difficultyLevelId: lId } },
+          update: {
+            ...profileData,
+            ...(strengths ? { strengths: JSON.stringify(strengths) } : {}),
+            ...(focusAreas ? { focusAreas: JSON.stringify(focusAreas) } : {}),
+            ...(preferredTrainingDays ? { preferredTrainingDays: JSON.stringify(preferredTrainingDays) } : {})
+          },
+          create: {
+            userId,
+            sportId: sId,
+            difficultyLevelId: lId,
+            isCurrentSelected: true,
+            ...profileData,
+            ...(strengths ? { strengths: JSON.stringify(strengths) } : {}),
+            ...(focusAreas ? { focusAreas: JSON.stringify(focusAreas) } : {}),
+            ...(preferredTrainingDays ? { preferredTrainingDays: JSON.stringify(preferredTrainingDays) } : {})
+          },
+          include: { sport: true, difficultyLevel: true, user: true }
+        });
+        return {
+          ...updated,
+          sportName: updated.sport.name,
+          levelName: updated.difficultyLevel.name,
+          name: updated.user.name,
+          email: updated.user.email,
+          strengths: updated.strengths ? JSON.parse(updated.strengths) : [],
+          focusAreas: updated.focusAreas ? JSON.parse(updated.focusAreas) : [],
+          preferredTrainingDays: updated.preferredTrainingDays ? JSON.parse(updated.preferredTrainingDays) : []
+        };
+      } catch (err) {
+        console.warn('Prisma updateUserSportProfile fallback:', err.message);
+      }
+    }
+
     const profile = await this.getUserSportProfile(userId, sId, lId);
 
     const updated = {
       ...profile,
       ...updateData,
+      sportId: sId,
+      difficultyLevelId: lId,
+      isCurrentSelected: true,
       updatedAt: new Date()
     };
+
+    const userProfileKeys = Object.keys(this.memoryStore.userSportProfiles).filter(k => k.startsWith(`${userId}_`));
+    userProfileKeys.forEach(k => {
+      if (this.memoryStore.userSportProfiles[k]) this.memoryStore.userSportProfiles[k].isCurrentSelected = false;
+    });
 
     const key = `${userId}_${sId}_${lId}`;
     this.memoryStore.userSportProfiles[key] = updated;
@@ -823,6 +949,15 @@ class DatabaseService {
   async switchUserSportAndLevel(userId, sportId, difficultyLevelId) {
     const sId = (sportId || 'football').toLowerCase();
     const lId = difficultyLevelId || 'Beginner';
+
+    if (prisma && await checkDatabaseConnection()) {
+      try {
+        await prisma.userSportProfile.updateMany({ where: { userId }, data: { isCurrentSelected: false } });
+        return this.updateUserSportProfile(userId, sId, lId, { isCurrentSelected: true });
+      } catch (err) {
+        console.warn('Prisma switchUserSportAndLevel fallback:', err.message);
+      }
+    }
 
     // Set all other profiles for this user to isCurrentSelected = false
     const userProfileKeys = Object.keys(this.memoryStore.userSportProfiles).filter(k => k.startsWith(`${userId}_`));
@@ -849,27 +984,44 @@ class DatabaseService {
     const key = `${userId}_${sId}_${lId}`;
 
     const baseTelemetry = this.resolveTelemetry(sId, lId);
-    const pillars = this.memoryStore.userPillarProgress[key] || [
+    const databaseAvailable = prisma && await checkDatabaseConnection();
+    let pillars = this.memoryStore.userPillarProgress[key] || [
       { pillarType: 'TECHNICAL_SKILL', pillarName: 'Technical Skill', value: baseTelemetry.technicalSkill.value, delta: baseTelemetry.technicalSkill.delta, targetValue: 100 },
       { pillarType: 'PHYSICAL_FITNESS', pillarName: 'Physical Fitness', value: baseTelemetry.physicalFitness.value, delta: baseTelemetry.physicalFitness.delta, targetValue: 100 },
       { pillarType: 'SPORT_IQ', pillarName: 'Sport IQ & Tactical', value: baseTelemetry.sportIQ.value, delta: baseTelemetry.sportIQ.delta, targetValue: 100 },
       { pillarType: 'TRAINING_CONSISTENCY', pillarName: 'Training Consistency', value: baseTelemetry.trainingConsistency.value, delta: baseTelemetry.trainingConsistency.delta, targetValue: 100 }
     ];
 
+    if (databaseAvailable) {
+      try {
+        const records = await prisma.userPillarProgress.findMany({
+          where: { userId, sportId: sId, difficultyLevelId: lId },
+          orderBy: { pillarType: 'asc' }
+        });
+        pillars = records;
+      } catch (err) {
+        console.warn('Prisma getProgressTelemetry fallback:', err.message);
+      }
+    }
+
     const trajectory = await this.getTrajectoryRecords(userId, sId, lId);
-    const assessmentResults = this.memoryStore.userAssessmentResults[key] || [];
+    const assessmentResults = await this.getAssessmentHistory(userId, sId, lId);
     const completedAssessmentsCount = assessmentResults.filter(a => a.status === 'COMPLETED').length;
 
-    const technicalPillar = pillars.find(p => p.pillarType === 'TECHNICAL_SKILL') || { value: baseTelemetry.technicalSkill.value, delta: baseTelemetry.technicalSkill.delta };
-    const physicalPillar = pillars.find(p => p.pillarType === 'PHYSICAL_FITNESS') || { value: baseTelemetry.physicalFitness.value, delta: baseTelemetry.physicalFitness.delta };
-    const sportIqPillar = pillars.find(p => p.pillarType === 'SPORT_IQ') || { value: baseTelemetry.sportIQ.value, delta: baseTelemetry.sportIQ.delta };
-    const consistencyPillar = pillars.find(p => p.pillarType === 'TRAINING_CONSISTENCY') || { value: baseTelemetry.trainingConsistency.value, delta: baseTelemetry.trainingConsistency.delta };
+    const emptyPillar = { value: 0, delta: 0 };
+    const technicalPillar = pillars.find(p => p.pillarType === 'TECHNICAL_SKILL') || (databaseAvailable ? emptyPillar : { value: baseTelemetry.technicalSkill.value, delta: baseTelemetry.technicalSkill.delta });
+    const physicalPillar = pillars.find(p => p.pillarType === 'PHYSICAL_FITNESS') || (databaseAvailable ? emptyPillar : { value: baseTelemetry.physicalFitness.value, delta: baseTelemetry.physicalFitness.delta });
+    const sportIqPillar = pillars.find(p => p.pillarType === 'SPORT_IQ') || (databaseAvailable ? emptyPillar : { value: baseTelemetry.sportIQ.value, delta: baseTelemetry.sportIQ.delta });
+    const consistencyPillar = pillars.find(p => p.pillarType === 'TRAINING_CONSISTENCY') || (databaseAvailable ? emptyPillar : { value: baseTelemetry.trainingConsistency.value, delta: baseTelemetry.trainingConsistency.delta });
+    const overallReadiness = databaseAvailable
+      ? Math.round((technicalPillar.value + physicalPillar.value + sportIqPillar.value + consistencyPillar.value) / 4)
+      : baseTelemetry.overallReadiness;
 
     return {
       sport: sId,
       level: lId,
-      overallReadiness: baseTelemetry.overallReadiness,
-      targetReadiness: baseTelemetry.targetReadiness,
+      overallReadiness,
+      targetReadiness: databaseAvailable ? 100 : baseTelemetry.targetReadiness,
       technicalSkill: { value: technicalPillar.value, delta: technicalPillar.delta },
       physicalFitness: { value: physicalPillar.value, delta: physicalPillar.delta },
       sportIQ: { value: sportIqPillar.value, delta: sportIqPillar.delta },
@@ -883,10 +1035,61 @@ class DatabaseService {
     };
   }
 
+  async updateProgressTelemetry(userId, sportId = 'football', difficultyLevelId = 'Beginner', progress = {}) {
+    const sId = (sportId || 'football').toLowerCase();
+    const lId = difficultyLevelId || 'Beginner';
+    const definitions = [
+      ['TECHNICAL_SKILL', 'Technical Skill', progress.technicalSkill],
+      ['PHYSICAL_FITNESS', 'Physical Fitness', progress.physicalFitness],
+      ['SPORT_IQ', 'Sport IQ & Tactical', progress.sportIQ],
+      ['TRAINING_CONSISTENCY', 'Training Consistency', progress.trainingConsistency]
+    ];
+    const values = definitions.filter(([, , value]) => value !== undefined && value !== null);
+
+    if (prisma && await checkDatabaseConnection()) {
+      try {
+        for (const [pillarType, pillarName, value] of values) {
+          const normalized = typeof value === 'object' ? value : { value };
+          await prisma.userPillarProgress.upsert({
+            where: { user_sport_level_pillar_unique: { userId, sportId: sId, difficultyLevelId: lId, pillarType } },
+            update: { value: Number(normalized.value), delta: Number(normalized.delta || 0), targetValue: Number(normalized.targetValue || 100) },
+            create: { userId, sportId: sId, difficultyLevelId: lId, pillarType, pillarName, value: Number(normalized.value), delta: Number(normalized.delta || 0), targetValue: Number(normalized.targetValue || 100) }
+          });
+        }
+        return this.getProgressTelemetry(userId, sId, lId);
+      } catch (err) {
+        console.warn('Prisma updateProgressTelemetry fallback:', err.message);
+      }
+    }
+
+    const key = `${userId}_${sId}_${lId}`;
+    const current = this.memoryStore.userPillarProgress[key] || [];
+    values.forEach(([pillarType, pillarName, value]) => {
+      const normalized = typeof value === 'object' ? value : { value };
+      const updated = { pillarType, pillarName, value: Number(normalized.value), delta: Number(normalized.delta || 0), targetValue: Number(normalized.targetValue || 100) };
+      const existing = current.find(pillar => pillar.pillarType === pillarType);
+      if (existing) Object.assign(existing, updated);
+      else current.push(updated);
+    });
+    this.memoryStore.userPillarProgress[key] = current;
+    return this.getProgressTelemetry(userId, sId, lId);
+  }
+
   async getTrajectoryRecords(userId, sportId = 'football', difficultyLevelId = 'Beginner') {
     const sId = (sportId || 'football').toLowerCase();
     const lId = difficultyLevelId || 'Beginner';
     const key = `${userId}_${sId}_${lId}`;
+
+    if (prisma && await checkDatabaseConnection()) {
+      try {
+        return await prisma.performanceTrajectoryRecord.findMany({
+          where: { userId, sportId: sId, difficultyLevelId: lId },
+          orderBy: { cycleOrder: 'asc' }
+        });
+      } catch (err) {
+        console.warn('Prisma getTrajectoryRecords fallback:', err.message);
+      }
+    }
 
     if (this.memoryStore.userTrajectoryRecords[key]) {
       return this.memoryStore.userTrajectoryRecords[key];
@@ -914,6 +1117,33 @@ class DatabaseService {
     const sId = (sportId || 'football').toLowerCase();
     const lId = difficultyLevelId || 'Beginner';
     const key = `${userId}_${sId}_${lId}`;
+
+    if (prisma && await checkDatabaseConnection()) {
+      try {
+        const previous = await prisma.performanceTrajectoryRecord.findMany({
+          where: { userId, sportId: sId, difficultyLevelId: lId, isProjected: false }
+        });
+        await prisma.performanceTrajectoryRecord.updateMany({
+          where: { userId, sportId: sId, difficultyLevelId: lId, isProjected: false },
+          data: { isCurrent: false }
+        });
+        return await prisma.performanceTrajectoryRecord.create({
+          data: {
+            userId,
+            sportId: sId,
+            difficultyLevelId: lId,
+            cycleOrder: previous.length + 1,
+            label,
+            recordedDate: recordedDate || new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+            score: Number(score),
+            isCurrent: true,
+            isProjected: false
+          }
+        });
+      } catch (err) {
+        console.warn('Prisma createTrajectorySnapshot fallback:', err.message);
+      }
+    }
 
     const records = await this.getTrajectoryRecords(userId, sId, lId);
     const dateLabel = recordedDate || new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -951,6 +1181,31 @@ class DatabaseService {
     const lId = difficultyLevelId || 'Beginner';
     const key = `${userId}_${sId}_${lId}`;
 
+    if (prisma && await checkDatabaseConnection()) {
+      try {
+        const results = await prisma.userAssessmentResult.findMany({
+          where: { userId, sportId: sId, difficultyLevelId: lId },
+          include: { assessment: true, cycle: true },
+          orderBy: { completedAt: 'asc' }
+        });
+        return results.map(result => ({
+          id: result.id,
+          assessmentId: result.assessmentId,
+          slug: result.assessment.slug,
+          title: result.assessment.title,
+          category: result.assessment.category,
+          status: result.status,
+          score: result.score,
+          completedAt: result.completedAt,
+          cycleId: result.cycleId,
+          cycle: result.cycle,
+          breakdown: result.breakdown ? JSON.parse(result.breakdown) : null
+        }));
+      } catch (err) {
+        console.warn('Prisma getAssessmentHistory fallback:', err.message);
+      }
+    }
+
     if (!this.memoryStore.userAssessmentResults[key]) {
       const telemetry = this.resolveTelemetry(sId, lId);
       this.memoryStore.userAssessmentResults[key] = [
@@ -968,6 +1223,42 @@ class DatabaseService {
     const sId = (sportId || 'football').toLowerCase();
     const lId = difficultyLevelId || 'Beginner';
     const key = `${userId}_${sId}_${lId}`;
+
+    if (prisma && await checkDatabaseConnection()) {
+      try {
+        const assessment = await prisma.assessment.findUnique({ where: { slug: assessmentSlug } });
+        if (!assessment) throw new Error(`Assessment '${assessmentSlug}' not found`);
+        const currentCycle = await prisma.assessmentCycle.findFirst({ where: { status: 'ACTIVE' }, orderBy: { cycleNumber: 'desc' } });
+        const existing = await prisma.userAssessmentResult.findFirst({
+          where: { userId, sportId: sId, difficultyLevelId: lId, assessmentId: assessment.id, cycleId: currentCycle?.id || null }
+        });
+        const data = {
+          score: Number(score),
+          status: 'COMPLETED',
+          completedAt: new Date(),
+          breakdown: breakdown ? JSON.stringify(breakdown) : null,
+          cycleId: currentCycle?.id || null
+        };
+        const result = existing
+          ? await prisma.userAssessmentResult.update({ where: { id: existing.id }, data, include: { assessment: true, cycle: true } })
+          : await prisma.userAssessmentResult.create({ data: { userId, sportId: sId, difficultyLevelId: lId, assessmentId: assessment.id, ...data }, include: { assessment: true, cycle: true } });
+        return {
+          id: result.id,
+          assessmentId: result.assessmentId,
+          slug: result.assessment.slug,
+          title: result.assessment.title,
+          category: result.assessment.category,
+          status: result.status,
+          score: result.score,
+          completedAt: result.completedAt,
+          cycleId: result.cycleId,
+          cycle: result.cycle,
+          breakdown: result.breakdown ? JSON.parse(result.breakdown) : null
+        };
+      } catch (err) {
+        console.warn('Prisma submitAssessment fallback:', err.message);
+      }
+    }
 
     const history = await this.getAssessmentHistory(userId, sId, lId);
     const existingIndex = history.findIndex(a => a.assessmentId === assessmentSlug || a.slug === assessmentSlug);
@@ -1000,7 +1291,17 @@ class DatabaseService {
    * Get all athletes with summary progression data for admin directory
    */
   async getAdminAthletesList({ search = '', sport = '', level = '' } = {}) {
-    const athleteUsers = this.memoryStore.users.filter(u => u.role === 'ATHLETE');
+    let athleteUsers = this.memoryStore.users.filter(u => u.role === 'ATHLETE');
+    if (prisma && await checkDatabaseConnection()) {
+      try {
+        athleteUsers = await prisma.user.findMany({
+          where: { role: 'ATHLETE' },
+          orderBy: { updatedAt: 'desc' }
+        });
+      } catch (err) {
+        console.warn('Prisma getAdminAthletesList fallback:', err.message);
+      }
+    }
     const results = [];
 
     for (const user of athleteUsers) {
@@ -1029,15 +1330,15 @@ class DatabaseService {
         difficultyLevel: activeProfile?.levelName || lId,
         difficultyLevelId: lId,
         position: activeProfile?.position || 'Athlete',
-        location: activeProfile?.location || 'Manchester, UK',
+        location: activeProfile?.location || null,
         overallProgress: telemetry.overallReadiness,
         targetReadiness: telemetry.targetReadiness,
         latestAssessmentScore: latestAssessment?.score ?? telemetry.technicalSkill.value,
         latestPerformanceScore: currentTraj.score,
         assessmentsCompleted: telemetry.assessmentsCompleted,
         assessmentsTotal: 4,
-        trainingHours: activeProfile?.trainingHours || '4 hours/week',
-        joinedDate: user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'August 2026',
+        trainingHours: activeProfile?.trainingHours || null,
+        joinedDate: user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : null,
         createdAt: user.createdAt
       };
 

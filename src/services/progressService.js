@@ -24,6 +24,13 @@ export const progressService = {
     });
   },
 
+  async updateProgressTelemetry(progressData) {
+    return apiClient('/progress/telemetry', {
+      method: 'PUT',
+      body: progressData
+    });
+  },
+
   /**
    * Save a manual evaluation snapshot
    */
