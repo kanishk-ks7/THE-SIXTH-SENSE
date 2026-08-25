@@ -184,10 +184,18 @@ export const DemoRegistration = () => {
           {/* Left Column: Event Summary (4 cols) */}
           <div className="lg:col-span-4 space-y-4">
             <Card className="p-5 space-y-4 sticky top-20 border-brand-500/30">
-              <div className="flex items-center justify-between">
-                <Badge variant={targetEvent.type === 'Selection Trials' ? 'volt' : 'primary'} size="sm">
-                  {targetEvent.type}
-                </Badge>
+              <div className="flex items-center justify-between flex-wrap gap-1.5">
+                <div className="flex items-center gap-1.5">
+                  <Badge
+                    variant={targetEvent.tier === 'National' ? 'amber' : targetEvent.tier === 'State' ? 'volt' : targetEvent.tier === 'District' ? 'primary' : 'default'}
+                    size="sm"
+                  >
+                    {targetEvent.tier || 'District'} Tier
+                  </Badge>
+                  <Badge variant={targetEvent.type === 'Selection Trials' ? 'volt' : 'primary'} size="sm">
+                    {targetEvent.type}
+                  </Badge>
+                </div>
                 <Badge variant="emerald" size="sm">
                   {targetEvent.status}
                 </Badge>

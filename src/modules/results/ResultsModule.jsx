@@ -16,7 +16,8 @@ import {
   TrendingUp,
   FileText,
   Clock,
-  ChevronRight
+  ChevronRight,
+  Flag
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Card from '../../components/ui/Card';
@@ -31,8 +32,9 @@ import { useAthlete } from '../../context/AthleteContext';
  * =========================================================================
  * ATHLETE PORTAL MODULE: ResultsModule (Competitive Records Archive)
  * =========================================================================
- * Responsible for: Competition outcomes source of truth, verified match
- * records, pending result completion workflow, assessment curves, and badges.
+ * Responsible for: Official competition outcomes source of truth, verified
+ * match & meet records across Local, District, State, and National tiers,
+ * pending result logging workflow, assessment curves, and badges.
  * =========================================================================
  */
 export const ResultsModule = () => {
@@ -103,12 +105,29 @@ export const ResultsModule = () => {
     setEditingResult(null);
   };
 
+  /**
+   * Helper to render tier badge
+   */
+  const renderTierBadge = (tier) => {
+    switch (tier) {
+      case 'National':
+        return <Badge variant="amber" size="sm">National</Badge>;
+      case 'State':
+        return <Badge variant="volt" size="sm">State</Badge>;
+      case 'District':
+        return <Badge variant="primary" size="sm">District</Badge>;
+      case 'Local':
+      default:
+        return <Badge variant="default" size="sm">Local</Badge>;
+    }
+  };
+
   return (
     <ModuleContainer
       moduleName="ResultsModule.jsx"
       assignedTo="Results & Records Archive"
       status="Integrated & Live"
-      description="Competitive records archive, tournament outcomes source of truth, and athlete badges."
+      description="Competitive records archive, official match outcomes source of truth, and athlete verified badges."
     >
       <div className="space-y-6">
 
@@ -200,9 +219,12 @@ export const ResultsModule = () => {
                     >
                       <div className="space-y-2.5">
                         <div className="flex items-center justify-between">
-                          <Badge variant="amber" size="sm" dot={true}>
-                            Result Pending
-                          </Badge>
+                          <div className="flex items-center gap-1.5">
+                            {renderTierBadge(item.tier)}
+                            <Badge variant="amber" size="sm" dot={true}>
+                              Result Pending
+                            </Badge>
+                          </div>
                           <span className="text-[11px] text-slate-400 font-medium">
                             {item.sport}
                           </span>
@@ -264,7 +286,7 @@ export const ResultsModule = () => {
                 <EmptyState
                   icon={Trophy}
                   title="No competition records found"
-                  description="Your tournament entries and scouted trials results will appear here once you participate in events."
+                  description="Your tournament entries and scouted trials results will appear here once you register and participate in events."
                   actionText="Explore Upcoming Events"
                   onActionClick={() => window.location.href = '/events'}
                 />
@@ -284,6 +306,7 @@ export const ResultsModule = () => {
                           <Badge variant="volt" size="sm">
                             {res.placement || 'Completed Entry'}
                           </Badge>
+                          {renderTierBadge(res.tier)}
                           <Badge variant="primary" size="sm">
                             {res.sport}
                           </Badge>
@@ -412,16 +435,25 @@ export const ResultsModule = () => {
             isOpen={!!editingResult}
             onClose={() => setEditingResult(null)}
             title="Log Competition Outcome"
-            subtitle={editingResult.eventName}
+            subtitle={`${editingResult.tier || 'District'} Tier &bull; ${editingResult.eventName}`}
             maxWidth="max-w-lg"
           >
             <form onSubmit={handleSaveOutcome} className="space-y-4 text-xs">
               
               {/* Event Info Brief */}
-              <div className="p-3 rounded-xl bg-dark-bg border border-dark-border space-y-1 text-slate-300">
-                <p><strong className="text-white">Sport:</strong> {editingResult.sport}</p>
-                <p><strong className="text-white">Dates:</strong> {editingResult.date}</p>
-                <p><strong className="text-white">Location:</strong> {editingResult.location}</p>
+              <div className="p-3 rounded-xl bg-dark-bg border border-dark-border space-y-1.5 text-slate-300">
+                <div className="flex justify-between items-center">
+                  <span>Pathway Tier:</span>
+                  <span className="font-bold text-volt">{editingResult.tier || 'District'} Tier</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Sport &amp; Venue:</span>
+                  <span className="text-slate-200">{editingResult.sport} &bull; {editingResult.location}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Dates:</span>
+                  <span className="text-slate-200">{editingResult.date}</span>
+                </div>
               </div>
 
               {/* Placement / Standing */}

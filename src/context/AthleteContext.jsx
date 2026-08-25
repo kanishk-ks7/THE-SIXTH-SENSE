@@ -400,6 +400,7 @@ export const AthleteProvider = ({ children }) => {
             id: `res-${eventId}`,
             eventId: eventId,
             eventName: evt.name,
+            tier: evt.tier || 'Local',
             sport: evt.sport,
             location: evt.location,
             date: evt.date,
@@ -452,7 +453,7 @@ export const AthleteProvider = ({ children }) => {
   };
 
   /**
-   * Sync past events to competition results
+   * Sync past events to competition results - STRICT RULE: ONLY registered events generate results
    */
   const syncPastEventsToResults = () => {
     const uid = session?.userId || athlete?.userId || 'demo-user-1';
@@ -462,10 +463,10 @@ export const AthleteProvider = ({ children }) => {
     let hasChanges = false;
 
     COMPETITION_EVENTS.forEach(evt => {
-      const isBookmarked = savedEvents.includes(evt.id);
+      // STRICT REQUIREMENT: Only registered events produce results; bookmarks/saved events NEVER produce results
       const isRegistered = registeredEvents.includes(evt.id);
       
-      if (isBookmarked || isRegistered) {
+      if (isRegistered) {
         const isPast = evt.status === 'Completed' || (evt.startDate && new Date(evt.startDate) < now);
         if (isPast) {
           const alreadyLogged = updatedResults.some(r => r.eventId === evt.id);
@@ -475,6 +476,7 @@ export const AthleteProvider = ({ children }) => {
               id: `res-${evt.id}`,
               eventId: evt.id,
               eventName: evt.name,
+              tier: evt.tier || 'Local',
               sport: evt.sport,
               location: evt.location,
               date: evt.date,

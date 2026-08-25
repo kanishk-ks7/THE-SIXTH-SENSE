@@ -251,7 +251,15 @@ export const Dashboard = () => {
           <Card className="p-5 flex flex-col justify-between hover:border-brand-500/40 transition-all">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <Badge variant="primary" size="sm">{featuredEvent.type}</Badge>
+                <div className="flex items-center gap-1.5">
+                  <Badge
+                    variant={featuredEvent.tier === 'National' ? 'amber' : featuredEvent.tier === 'State' ? 'volt' : featuredEvent.tier === 'District' ? 'primary' : 'default'}
+                    size="sm"
+                  >
+                    {featuredEvent.tier || 'Local'}
+                  </Badge>
+                  <Badge variant="primary" size="sm">{featuredEvent.type}</Badge>
+                </div>
                 <Badge variant="emerald" size="sm">{featuredEvent.status}</Badge>
               </div>
 
