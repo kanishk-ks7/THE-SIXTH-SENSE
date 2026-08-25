@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { X } from 'lucide-react';
 import { 
   getAthleteProfile, 
   saveAthleteProfile, 
@@ -613,6 +614,14 @@ export const AthleteProvider = ({ children }) => {
           <p className="text-sm font-semibold tracking-wide text-white">
             {toastMessage.text}
           </p>
+          <button
+            type="button"
+            onClick={() => setToastMessage(null)}
+            className="ml-1 rounded-lg p-1 text-slate-400 transition-colors hover:bg-white/10 hover:text-white"
+            aria-label="Dismiss notification"
+          >
+            <X className="h-4 w-4" />
+          </button>
         </div>
       )}
     </AthleteContext.Provider>

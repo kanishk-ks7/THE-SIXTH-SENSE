@@ -52,6 +52,7 @@ export const AssessmentModule = () => {
   const { athlete, updateProfile, showToast } = useAthlete();
   const [selectedAssessment, setSelectedAssessment] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [startingAssessment, setStartingAssessment] = useState(null);
   const [answers, setAnswers] = useState({});
   const [assessmentResults, setAssessmentResults] = useState({});
   const sport = athlete.sport || 'Football';
@@ -86,6 +87,16 @@ export const AssessmentModule = () => {
       case 'performance': return Award;
       default: return Layers;
     }
+  };
+
+  const handleStartAssessment = (assessment) => {
+    setStartingAssessment(assessment.id);
+    showToast(`${assessment.title} started successfully!`, 'success');
+    window.setTimeout(() => {
+      setAnswers({});
+      setSelectedAssessment(assessment);
+      setStartingAssessment(null);
+    }, 350);
   };
 
   const handleSubmitAssessment = async (assessment, answers) => {
@@ -210,12 +221,12 @@ export const AssessmentModule = () => {
                     size="sm"
                     icon={ArrowRight}
                     iconPosition="right"
-                    onClick={() => {
-                      setAnswers({});
-                      setSelectedAssessment(item);
-                    }}
+                    loading={startingAssessment === item.id}
+                    onClick={() => handleStartAssessment(item)}
                   >
-                    {assessmentResults[item.id] ? 'Retake Assessment' : 'Start Assessment'}
+                    {startingAssessment === item.id
+                      ? 'Starting...'
+                      : assessmentResults[item.id] ? 'Retake Assessment' : 'Start Assessment'}
                   </Button>
                 </div>
                 {assessmentResults[item.id] && (
