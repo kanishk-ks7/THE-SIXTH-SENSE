@@ -1,7 +1,7 @@
 /**
  * athletex - Learning & Coaching Content Engine
  * Structured sports education repository organized by Sport, Level, Category, and Sequential Stage.
- * Contains real educational YouTube video IDs and rich coaching metadata.
+ * Contains real educational YouTube video IDs, YouTube-playlist-style modules, and coaching metadata.
  */
 
 export const LEARN_CATEGORIES = [
@@ -21,6 +21,469 @@ export const LEARNING_STAGES = [
   { stage: 5, category: 'advanced', label: 'Advanced Mastery', shortLabel: 'Advanced Skills', icon: 'Award' }
 ];
 
+export const LEARN_MILESTONES = [
+  {
+    id: 'first-lesson',
+    title: 'First Step',
+    description: 'Complete your first structured lesson',
+    icon: 'Sparkles',
+    target: 1,
+    type: 'count',
+    badgeColor: 'brand'
+  },
+  {
+    id: 'three-lessons',
+    title: 'Skill Builder',
+    description: 'Complete 3 practice lessons',
+    icon: 'Target',
+    target: 3,
+    type: 'count',
+    badgeColor: 'volt'
+  },
+  {
+    id: 'five-lessons',
+    title: '5 Lessons Done',
+    description: 'Reach 5 completed lessons',
+    icon: 'Award',
+    target: 5,
+    type: 'count',
+    badgeColor: 'gold'
+  },
+  {
+    id: 'rules-master',
+    title: 'Rules Scholar',
+    description: 'Master official match regulations',
+    icon: 'BookOpen',
+    targetCategory: 'rules',
+    type: 'category',
+    badgeColor: 'cyan'
+  },
+  {
+    id: 'module-master',
+    title: 'Module Master',
+    description: 'Complete an entire playlist module',
+    icon: 'Flame',
+    target: 1,
+    type: 'module',
+    badgeColor: 'volt'
+  }
+];
+
+export const STRUCTURED_MODULES = [
+  // =========================================================================
+  // BASKETBALL MODULES
+  // =========================================================================
+  {
+    id: 'mod-bb-rules',
+    sport: 'basketball',
+    level: 'beginner',
+    title: 'Basketball Rules & Court Officiating',
+    category: 'rules',
+    coverImage: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=600&auto=format&fit=crop&q=80',
+    description: 'Official court boundaries, violation triggers, shot clock timing, and referee signals.',
+    lessonIds: ['bb-beg-rules-1', 'bb-int-rules-1'],
+    tags: ['Rules', 'Violations', 'Court Lines', 'Shot Clock']
+  },
+  {
+    id: 'mod-bb-fundamentals',
+    sport: 'basketball',
+    level: 'beginner',
+    title: 'Basketball Fundamentals & Ball Mastery',
+    category: 'fundamentals',
+    coverImage: 'https://images.unsplash.com/photo-1519861531473-9200262188bf?w=600&auto=format&fit=crop&q=80',
+    description: 'Low triple-threat stance, fingertip ball handling, shooting pocket dip, and triple-threat balance.',
+    lessonIds: ['bb-beg-fund-1', 'bb-int-fund-1', 'bb-adv-fund-1'],
+    tags: ['Ball Handling', 'Stance', 'Shooting Dip', 'Balance']
+  },
+  {
+    id: 'mod-bb-techniques',
+    sport: 'basketball',
+    level: 'beginner',
+    title: 'Dribbling Separation & First-Step Footwork',
+    category: 'techniques',
+    coverImage: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=600&auto=format&fit=crop&q=80',
+    description: 'Crossover counters, snatch-back deceleration, in-and-out hesitation, and cone weaves.',
+    lessonIds: ['bb-beg-tech-1', 'bb-int-tech-1'],
+    tags: ['Crossover', 'Hesitation', 'Deceleration', 'Footwork']
+  },
+  {
+    id: 'mod-bb-strategy',
+    sport: 'basketball',
+    level: 'beginner',
+    title: 'Offensive Spacing & Tactical Defense',
+    category: 'strategy',
+    coverImage: 'https://images.unsplash.com/photo-1518063319789-7217e6706b04?w=600&auto=format&fit=crop&q=80',
+    description: '5-out perimeter spacing, pick-and-roll reads, zone defense breakdown, and transition coverages.',
+    lessonIds: ['bb-beg-strat-1', 'bb-int-strat-1', 'bb-adv-strat-1'],
+    tags: ['Pick & Roll', 'Spacing', 'Zone Defense', 'Scouting']
+  },
+  {
+    id: 'mod-bb-advanced',
+    sport: 'basketball',
+    level: 'beginner',
+    title: 'Rim Scoring & Elite Game Execution',
+    category: 'advanced',
+    coverImage: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=600&auto=format&fit=crop&q=80',
+    description: 'Eurosteps, high-arcing floaters, lockdown perimeter defense, and crunch-time shot creation.',
+    lessonIds: ['bb-beg-adv-1', 'bb-int-adv-1'],
+    tags: ['Eurostep', 'Floaters', 'Clutch Time', 'Lockdown Defense']
+  },
+
+  // =========================================================================
+  // FOOTBALL / SOCCER MODULES
+  // =========================================================================
+  {
+    id: 'mod-fb-rules',
+    sport: 'football',
+    level: 'beginner',
+    title: 'Football Regulations & Tactical Offside Rules',
+    category: 'rules',
+    coverImage: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=600&auto=format&fit=crop&q=80',
+    description: 'Pitch layout, offside line mechanics, direct vs indirect free kicks, and penalty area laws.',
+    lessonIds: ['fb-beg-rules-1'],
+    tags: ['Offside', 'Fouls', 'Pitch Dimensions', 'Referee Signals']
+  },
+  {
+    id: 'mod-fb-fundamentals',
+    sport: 'football',
+    level: 'beginner',
+    title: 'Football Fundamentals: First Touch & Passing',
+    category: 'fundamentals',
+    coverImage: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=600&auto=format&fit=crop&q=80',
+    description: 'Inside-foot receiving, cushion trapping on the half-turn, aerial ball control, and diagonal passing.',
+    lessonIds: ['fb-beg-fund-1', 'fb-int-fund-1'],
+    tags: ['First Touch', 'Ground Passing', 'Aerial Control', 'Vision']
+  },
+  {
+    id: 'mod-fb-techniques',
+    sport: 'football',
+    level: 'beginner',
+    title: 'Close Dribbling & 1v1 Feints',
+    category: 'techniques',
+    coverImage: 'https://images.unsplash.com/photo-1529900748604-07564a03e7a6?w=600&auto=format&fit=crop&q=80',
+    description: 'Tight-space cone dribbling, sole rolls, sharp direction shifts, and step-over deception.',
+    lessonIds: ['fb-beg-tech-1'],
+    tags: ['Cone Dribbling', 'Sole Rolls', 'Agility', 'Speed']
+  },
+  {
+    id: 'mod-fb-strategy',
+    sport: 'football',
+    level: 'beginner',
+    title: 'Tactical Positioning & Pressing Systems',
+    category: 'strategy',
+    coverImage: 'https://images.unsplash.com/photo-1489944440615-453fc2b6a9a9?w=600&auto=format&fit=crop&q=80',
+    description: 'Formation structures (4-3-3 / 4-4-2), positional triangles, pressing triggers, and counter-attacks.',
+    lessonIds: ['fb-beg-strat-1', 'fb-int-strat-1'],
+    tags: ['Formations', 'Pressing', 'Counter-Attack', 'Spatial IQ']
+  },
+  {
+    id: 'mod-fb-advanced',
+    sport: 'football',
+    level: 'beginner',
+    title: 'Shooting Biomechanics & Curled Finishing',
+    category: 'advanced',
+    coverImage: 'https://images.unsplash.com/photo-1517466787929-bc90951d0974?w=600&auto=format&fit=crop&q=80',
+    description: 'Instep lace drives, curled far-post finesse, 1-on-1 composure, and weak-foot calibration.',
+    lessonIds: ['fb-beg-adv-1'],
+    tags: ['Finishing', 'Curled Shots', 'Power Drives', 'Composure']
+  },
+
+  // =========================================================================
+  // CRICKET MODULES
+  // =========================================================================
+  {
+    id: 'mod-cr-rules',
+    sport: 'cricket',
+    level: 'beginner',
+    title: 'Cricket Laws, Dismissals & Powerplays',
+    category: 'rules',
+    coverImage: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=600&auto=format&fit=crop&q=80',
+    description: 'The 10 methods of dismissal, LBW pitch zones, no-balls, wide deliveries, and powerplays.',
+    lessonIds: ['cr-beg-rules-1'],
+    tags: ['LBW', 'Dismissals', 'Powerplays', 'No-Ball Rules']
+  },
+  {
+    id: 'mod-cr-fundamentals',
+    sport: 'cricket',
+    level: 'beginner',
+    title: 'Batting Stance, Grip & Backlift Mechanics',
+    category: 'fundamentals',
+    coverImage: 'https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=600&auto=format&fit=crop&q=80',
+    description: 'Classic top-hand V-grip, side-on balanced stance, high backlift, and head alignment.',
+    lessonIds: ['cr-beg-fund-1'],
+    tags: ['V-Grip', 'Stance', 'Backlift', 'Balance']
+  },
+  {
+    id: 'mod-cr-techniques',
+    sport: 'cricket',
+    level: 'beginner',
+    title: 'Front-Foot Driving & Footwork Mastery',
+    category: 'techniques',
+    coverImage: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=600&auto=format&fit=crop&q=80',
+    description: 'Cover drive, straight drive, leading elbow alignment, and weight transfer onto front foot.',
+    lessonIds: ['cr-beg-tech-1'],
+    tags: ['Cover Drive', 'Straight Drive', 'Elbow Alignment', 'Sweet Spot']
+  },
+  {
+    id: 'mod-cr-strategy',
+    sport: 'cricket',
+    level: 'beginner',
+    title: 'Strike Rotation, Running & Field Placements',
+    category: 'strategy',
+    coverImage: 'https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=600&auto=format&fit=crop&q=80',
+    description: 'Calling systems, bat grounding at the crease, finding boundary gaps, and pacing innings.',
+    lessonIds: ['cr-beg-strat-1'],
+    tags: ['Strike Rotation', 'Running', 'Calling', 'Field Gaps']
+  },
+  {
+    id: 'mod-cr-advanced',
+    sport: 'cricket',
+    level: 'beginner',
+    title: 'Pace Bowling: Seam Position & Yorkers',
+    category: 'advanced',
+    coverImage: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=600&auto=format&fit=crop&q=80',
+    description: 'Seam presentation, upright wrist release, consistent run-up rhythm, and toe-crushing yorkers.',
+    lessonIds: ['cr-beg-adv-1'],
+    tags: ['Seam Release', 'Yorker', 'Pace Bowling', 'Swing']
+  },
+
+  // =========================================================================
+  // ATHLETICS / TRACK & FIELD MODULES
+  // =========================================================================
+  {
+    id: 'mod-ath-rules',
+    sport: 'athletics',
+    level: 'beginner',
+    title: 'Sprint Regulations & Block Start Laws',
+    category: 'rules',
+    coverImage: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=600&auto=format&fit=crop&q=80',
+    description: 'Starting commands, false-start reaction thresholds, lane boundaries, and relay zones.',
+    lessonIds: ['ath-beg-rules-1'],
+    tags: ['Sprint Rules', 'False Starts', 'Lane Discipline', 'Relay Zones']
+  },
+  {
+    id: 'mod-ath-fundamentals',
+    sport: 'athletics',
+    level: 'beginner',
+    title: 'Sprint Posture & Biomechanical Form',
+    category: 'fundamentals',
+    coverImage: 'https://images.unsplash.com/photo-1530549387789-4c1017266635?w=600&auto=format&fit=crop&q=80',
+    description: 'Tall upright posture, neutral pelvis, 90-degree arm drive, and stiff dorsiflexed ankles.',
+    lessonIds: ['ath-beg-fund-1'],
+    tags: ['Posture', 'Arm Swing', 'Dorsiflexion', 'Biomechanics']
+  },
+  {
+    id: 'mod-ath-techniques',
+    sport: 'athletics',
+    level: 'beginner',
+    title: 'Block Starts & Drive Phase Acceleration',
+    category: 'techniques',
+    coverImage: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=600&auto=format&fit=crop&q=80',
+    description: 'Block spacing, 45-degree explosive push-off, low heel recovery, and progressive head rise.',
+    lessonIds: ['ath-beg-tech-1'],
+    tags: ['Block Starts', 'Drive Phase', 'Low Heel Recovery', 'Acceleration']
+  },
+  {
+    id: 'mod-ath-strategy',
+    sport: 'athletics',
+    level: 'beginner',
+    title: 'Race Modeling & Energy System Distribution',
+    category: 'strategy',
+    coverImage: 'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=600&auto=format&fit=crop&q=80',
+    description: '100m, 200m, and 400m race modeling: acceleration, max speed maintenance, and speed endurance.',
+    lessonIds: ['ath-beg-strat-1'],
+    tags: ['Pacing', 'Curve Running', 'Speed Endurance', 'Race Modeling']
+  },
+  {
+    id: 'mod-ath-advanced',
+    sport: 'athletics',
+    level: 'beginner',
+    title: 'Max Velocity & High-Speed Resistance',
+    category: 'advanced',
+    coverImage: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=600&auto=format&fit=crop&q=80',
+    description: 'Front-side knee punch, ground contact times <0.090s, relaxation cues, and finish line lunge.',
+    lessonIds: ['ath-beg-adv-1'],
+    tags: ['Top Speed', 'Ground Force', 'Knee Punch', 'Finish Line']
+  },
+
+  // =========================================================================
+  // TENNIS MODULES
+  // =========================================================================
+  {
+    id: 'mod-tn-rules',
+    sport: 'tennis',
+    level: 'beginner',
+    title: 'Tennis Scoring System & Court Lines',
+    category: 'rules',
+    coverImage: 'https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=600&auto=format&fit=crop&q=80',
+    description: 'Game-set-match scoring, tiebreaks, service faults, lets, and singles vs doubles lines.',
+    lessonIds: ['tn-beg-rules-1'],
+    tags: ['Scoring', 'Tiebreak', 'Faults', 'Court Lines']
+  },
+  {
+    id: 'mod-tn-fundamentals',
+    sport: 'tennis',
+    level: 'beginner',
+    title: 'Tennis Grips & Dynamic Ready Position',
+    category: 'fundamentals',
+    coverImage: 'https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=600&auto=format&fit=crop&q=80',
+    description: 'Bevel placement for Eastern, Semi-Western, and Continental grips with split-step readiness.',
+    lessonIds: ['tn-beg-fund-1'],
+    tags: ['Grips', 'Semi-Western', 'Split Step', 'Ready Position']
+  },
+  {
+    id: 'mod-tn-techniques',
+    sport: 'tennis',
+    level: 'beginner',
+    title: 'Topspin Forehand & Low-to-High Swing',
+    category: 'techniques',
+    coverImage: 'https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=600&auto=format&fit=crop&q=80',
+    description: 'Unit turn, racket drop below the ball, windshield wiper follow-through, and brushing topspin.',
+    lessonIds: ['tn-beg-tech-1'],
+    tags: ['Forehand', 'Topspin', 'Unit Turn', 'Follow-Through']
+  },
+  {
+    id: 'mod-tn-strategy',
+    sport: 'tennis',
+    level: 'beginner',
+    title: 'Crosscourt Baseline Rally Patterns',
+    category: 'strategy',
+    coverImage: 'https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?w=600&auto=format&fit=crop&q=80',
+    description: 'High-percentage geometry: lowest net clearance, longest court baseline distance, and angle bisecting.',
+    lessonIds: ['tn-beg-strat-1'],
+    tags: ['Crosscourt', 'Court Geometry', 'Shot Selection', 'Angles']
+  },
+  {
+    id: 'mod-tn-advanced',
+    sport: 'tennis',
+    level: 'beginner',
+    title: 'Flat & Kick Serve Biomechanics',
+    category: 'advanced',
+    coverImage: 'https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=600&auto=format&fit=crop&q=80',
+    description: 'Trophy pose, 1 o’clock toss, back scratch racket drop, and forearm pronation release.',
+    lessonIds: ['tn-beg-adv-1'],
+    tags: ['Serve', 'Kick Serve', 'Trophy Pose', 'Pronation']
+  },
+
+  // =========================================================================
+  // BADMINTON MODULES
+  // =========================================================================
+  {
+    id: 'mod-bd-rules',
+    sport: 'badminton',
+    level: 'beginner',
+    title: 'Badminton Regulations & Service Rules',
+    category: 'rules',
+    coverImage: 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=600&auto=format&fit=crop&q=80',
+    description: 'Rally scoring to 21, singles vs doubles boxes, 1.15m service height rule, and net touch fouls.',
+    lessonIds: ['bd-beg-rules-1'],
+    tags: ['Service Rules', 'Scoring', 'Boundaries', 'Faults']
+  },
+  {
+    id: 'mod-bd-fundamentals',
+    sport: 'badminton',
+    level: 'beginner',
+    title: 'Racket Grips & 6-Corner Footwork',
+    category: 'fundamentals',
+    coverImage: 'https://images.unsplash.com/photo-1613918108466-292b78a8ef95?w=600&auto=format&fit=crop&q=80',
+    description: 'Relaxed V-grip, thumb grip for backhand, split step, and chassé step recovery to the center T.',
+    lessonIds: ['bd-beg-fund-1'],
+    tags: ['V-Grip', 'Backhand Grip', 'Footwork', 'Base Recovery']
+  },
+  {
+    id: 'mod-bd-techniques',
+    sport: 'badminton',
+    level: 'beginner',
+    title: 'High Clear & Deceptive Drop Shots',
+    category: 'techniques',
+    coverImage: 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=600&auto=format&fit=crop&q=80',
+    description: 'Deep baseline high clears disguised with identical preparation as steep soft-slicing drops.',
+    lessonIds: ['bd-beg-tech-1'],
+    tags: ['High Clear', 'Drop Shot', 'Deception', 'Overhead']
+  },
+  {
+    id: 'mod-bd-strategy',
+    sport: 'badminton',
+    level: 'beginner',
+    title: '4-Corner Shuttle Manipulation Strategy',
+    category: 'strategy',
+    coverImage: 'https://images.unsplash.com/photo-1613918108466-292b78a8ef95?w=600&auto=format&fit=crop&q=80',
+    description: 'Holding shots to freeze opponent split step, diagonal corner shifts, and tempo management.',
+    lessonIds: ['bd-beg-strat-1'],
+    tags: ['Tactics', '4-Corners', 'Holding Shot', 'Pacing']
+  },
+  {
+    id: 'mod-bd-advanced',
+    sport: 'badminton',
+    level: 'beginner',
+    title: 'Jump Smash & Net Kill Reflexes',
+    category: 'advanced',
+    coverImage: 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=600&auto=format&fit=crop&q=80',
+    description: 'Scissor kick jump smash timing, steep angle court penetration, and lightning net tap reflexes.',
+    lessonIds: ['bd-beg-adv-1'],
+    tags: ['Jump Smash', 'Net Kill', 'Scissor Kick', 'Power']
+  },
+
+  // =========================================================================
+  // VOLLEYBALL MODULES
+  // =========================================================================
+  {
+    id: 'mod-vb-rules',
+    sport: 'volleyball',
+    level: 'beginner',
+    title: 'Volleyball Rotation & Net Rules',
+    category: 'rules',
+    coverImage: 'https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=600&auto=format&fit=crop&q=80',
+    description: '6-player rotation, 3-touch limits, back-row attack rules, libero laws, and center line penetration.',
+    lessonIds: ['vb-beg-rules-1'],
+    tags: ['Rotation', '3-Touch Limit', 'Libero', 'Net Violations']
+  },
+  {
+    id: 'mod-vb-fundamentals',
+    sport: 'volleyball',
+    level: 'beginner',
+    title: 'Forearm Passing (Bump) & Overhead Setting',
+    category: 'fundamentals',
+    coverImage: 'https://images.unsplash.com/photo-1592656094267-764a45160876?w=600&auto=format&fit=crop&q=80',
+    description: 'Flat forearm platform, leg-powered serve absorption, and triangular soft-finger overhead sets.',
+    lessonIds: ['vb-beg-fund-1'],
+    tags: ['Bump Pass', 'Setting', 'Platform', 'Leg Drive']
+  },
+  {
+    id: 'mod-vb-techniques',
+    sport: 'volleyball',
+    level: 'beginner',
+    title: '3-Step Approach & Wrist Snap',
+    category: 'techniques',
+    coverImage: 'https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=600&auto=format&fit=crop&q=80',
+    description: 'Left-Right-Left spike approach, double-arm backswing, bow-and-arrow arm draw, and topspin snap.',
+    lessonIds: ['vb-beg-tech-1'],
+    tags: ['Spike Approach', 'Vertical Leap', 'Wrist Snap', 'Arm Swing']
+  },
+  {
+    id: 'mod-vb-strategy',
+    sport: 'volleyball',
+    level: 'beginner',
+    title: 'Defensive Perimeter & 5-1 Formation',
+    category: 'strategy',
+    coverImage: 'https://images.unsplash.com/photo-1592656094267-764a45160876?w=600&auto=format&fit=crop&q=80',
+    description: 'Middle-middle defensive positioning, seam calls in receive, and running the single-setter 5-1.',
+    lessonIds: ['vb-beg-strat-1'],
+    tags: ['5-1 System', 'Perimeter Defense', 'Seams', 'Transition']
+  },
+  {
+    id: 'mod-vb-advanced',
+    sport: 'volleyball',
+    level: 'beginner',
+    title: 'Jump Float Serve & Block Penetration',
+    category: 'advanced',
+    coverImage: 'https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=600&auto=format&fit=crop&q=80',
+    description: 'Knuckleball jump float serve with late diving turbulence, and over-the-net block penetration.',
+    lessonIds: ['vb-beg-adv-1'],
+    tags: ['Float Serve', 'Blocking', 'Net Penetration', 'Timing']
+  }
+];
+
 export const STRUCTURED_LESSONS = [
   // =========================================================================
   // BASKETBALL (Complete 5-Stage Path + Level Differentiation)
@@ -37,9 +500,12 @@ export const STRUCTURED_LESSONS = [
     channel: 'Ninh Ly Sports Guide',
     duration: '8 mins',
     difficulty: 'Beginner',
-    youtubeId: 'w4S8jW9L0w0', // Real Basketball Rules Explained
+    videoId: 'w4S8jW9L0w0', // Real Basketball Rules
+    youtubeId: 'w4S8jW9L0w0',
+    module: 'Basketball Rules & Court Officiating',
+    skills: ['Court Boundaries', 'Foul Classifications', 'Travelling', 'Shot Clock'],
     weakAreasCovered: ['rules', 'game-regulations', 'court-awareness', 'fouls'],
-    description: 'Master the fundamental rules of basketball including travelling, double-dribble, backcourt violation, shot clock, and personal foul classifications.',
+    description: 'Master boundary lines, travelling, double-dribble, backcourt violation, and shot clock mechanics.',
     recommendationReason: 'Addresses your identified weakness in Basketball Rules from your initial Sports IQ Assessment.',
     learningOutcomes: [
       'Understand key boundary lines: key, three-point arc, baseline, and sideline.',
@@ -61,9 +527,12 @@ export const STRUCTURED_LESSONS = [
     channel: 'Pure Sweat Basketball',
     duration: '11 mins',
     difficulty: 'Beginner',
-    youtubeId: '0mPZ3oI0T3k', // Real Ball Handling & Dribbling drills
+    videoId: '0mPZ3oI0T3k', // Real Ball Handling & Dribbling drills
+    youtubeId: '0mPZ3oI0T3k',
+    module: 'Basketball Fundamentals & Ball Mastery',
+    skills: ['Fingertip Sensitivity', 'Triple Threat Stance', 'Ball Protection', 'Eyes-Up Posture'],
     weakAreasCovered: ['ball-handling', 'dribbling', 'finger-control', 'ball-security'],
-    description: 'Build fingertip sensitivity, protect the ball with your off-arm in a low athletic stance, and eliminate looking down while dribbling.',
+    description: 'Build fingertip sensitivity, protect the ball with your off-arm in a low stance, and eliminate looking down.',
     recommendationReason: 'Targeted drill to address Ball Handling and posture weaknesses identified in your Technical Skills Assessment.',
     learningOutcomes: [
       'Pound dribble mechanics utilizing finger pads instead of palms.',
@@ -85,9 +554,12 @@ export const STRUCTURED_LESSONS = [
     channel: 'Drew Hanlen Skills Academy',
     duration: '13 mins',
     difficulty: 'Beginner',
-    youtubeId: 'm4XgK0J9G5o', // Real Crossover & Dribbling Drills
+    videoId: 'm4XgK0J9G5o', // Real Crossover & Dribbling Drills
+    youtubeId: 'm4XgK0J9G5o',
+    module: 'Dribbling Separation & First-Step Footwork',
+    skills: ['Knee-Level Crossover', 'Body Weight Shift', 'Acceleration Burst', 'Cone Drills'],
     weakAreasCovered: ['ball-handling', 'crossover', 'dribbling', 'footwork', 'agility'],
-    description: 'Learn how to execute a crisp, below-the-knee crossover dribble combined with acceleration bursts to blow past perimeter defenders.',
+    description: 'Execute a crisp below-the-knee crossover dribble combined with rapid acceleration bursts to blow past defenders.',
     recommendationReason: 'Essential technical progression to sharpen your dynamic ball handling and first-step explosiveness.',
     learningOutcomes: [
       'Snap crossover below knee level to prevent ball strips.',
@@ -109,9 +581,12 @@ export const STRUCTURED_LESSONS = [
     channel: 'BBALLBREAKDOWN',
     duration: '10 mins',
     difficulty: 'Beginner',
-    youtubeId: '3uK41W1nEek', // Real Basketball Offense Spacing
+    videoId: '3uK41W1nEek', // Real Basketball Offense Spacing
+    youtubeId: '3uK41W1nEek',
+    module: 'Offensive Spacing & Tactical Defense',
+    skills: ['5-Out Spacing', 'On-Ball Screens', 'Drive & Kick', 'Roll Reads'],
     weakAreasCovered: ['strategy', 'spacing', 'court-awareness', 'tactics', 'pick-and-roll'],
-    description: 'Understand 5-out floor spacing, drive-and-kick reads, and how to set solid on-ball screens to create open scoring looks.',
+    description: 'Understand 5-out floor spacing, drive-and-kick reads, and how to set solid on-ball screens to create open scoring.',
     recommendationReason: 'Enhances tactical understanding of offensive spacing and team play after completing core mechanics.',
     learningOutcomes: [
       'Maintain 15-to-18-foot perimeter spacing to prevent defensive packing.',
@@ -133,9 +608,12 @@ export const STRUCTURED_LESSONS = [
     channel: 'Hoop Study',
     duration: '15 mins',
     difficulty: 'Beginner',
-    youtubeId: 'Z6b7bB0-M-Y', // Real Eurostep and Rim Finishing
+    videoId: 'Z6b7bB0-M-Y', // Real Eurostep and Rim Finishing
+    youtubeId: 'Z6b7bB0-M-Y',
+    module: 'Rim Scoring & Elite Game Execution',
+    skills: ['Teardrop Floater', 'Eurostep Gather', 'Reverse Layup', 'Contact Absorption'],
     weakAreasCovered: ['finishing', 'layups', 'floater', 'footwork', 'advanced-skills'],
-    description: 'High-level finishing techniques over taller rim protectors including high-arching teardrop floaters, decelerated eurosteps, and reverse layups.',
+    description: 'High-level finishing techniques over rim protectors including teardrop floaters and decelerated eurosteps.',
     recommendationReason: 'Crown jewel lesson to complete the Beginner Basketball Learning Path with rim scoring finesse.',
     learningOutcomes: [
       'Two-step gather footwork to sidestep rotating help defenders.',
@@ -159,9 +637,12 @@ export const STRUCTURED_LESSONS = [
     channel: 'Hoops Official Clinic',
     duration: '9 mins',
     difficulty: 'Intermediate',
+    videoId: 'w4S8jW9L0w0',
     youtubeId: 'w4S8jW9L0w0',
+    module: 'Basketball Rules & Court Officiating',
+    skills: ['Defensive 3 Seconds', 'Verticality Cylinder', 'Charge/Block Rules', 'Screen Legality'],
     weakAreasCovered: ['rules', 'defensive-rules', 'tactics'],
-    description: 'Comprehensive breakdown of intermediate competitive rules: defensive 3-in-the-key, verticality cylinder rule, and charge/block interpretations.',
+    description: 'Breakdown of intermediate rules: defensive 3-in-the-key, verticality cylinder rule, and charge/block interpretations.',
     recommendationReason: 'Crucial for intermediate competitive matches to avoid defensive lane penalties.',
     learningOutcomes: [
       'Master the defensive 3-second reset timing when guarding off-ball.',
@@ -183,7 +664,10 @@ export const STRUCTURED_LESSONS = [
     channel: 'ShotMechanics',
     duration: '14 mins',
     difficulty: 'Intermediate',
+    videoId: 'sF1xY1w_gBw',
     youtubeId: 'sF1xY1w_gBw',
+    module: 'Basketball Fundamentals & Ball Mastery',
+    skills: ['Shot Pocket Dip', 'Guide Hand Discipline', '1-2 Step-In', 'Arc Elevation'],
     weakAreasCovered: ['shooting', 'release-speed', 'footwork', 'fundamentals'],
     description: 'Refine your shot dip, guide-hand discipline, and 1-2 step-in footwork to shoot consistently over contesting defenders.',
     recommendationReason: 'Targeted drill based on your Shooting & Release consistency assessment score.',
@@ -207,9 +691,12 @@ export const STRUCTURED_LESSONS = [
     channel: 'By Any Means Basketball',
     duration: '16 mins',
     difficulty: 'Intermediate',
-    youtubeId: 'k7WqXbJ8s9E',
+    videoId: 'm4XgK0J9G5o',
+    youtubeId: 'm4XgK0J9G5o',
+    module: 'Dribbling Separation & First-Step Footwork',
+    skills: ['In-and-Out Fake', 'Hang Hesitation', 'Snatch-Back Brake', 'Pull-Up Transition'],
     weakAreasCovered: ['ball-handling', 'separation', 'hesitation', 'techniques'],
-    description: 'Learn pro-level deceleration moves: the hard in-and-out fake, hang dribble hesitation, and snatch-back crossover to create instant space.',
+    description: 'Pro deceleration moves: the hard in-and-out fake, hang dribble hesitation, and snatch-back crossover to create instant space.',
     recommendationReason: 'Expands your one-on-one shot creation toolkit for competitive league matches.',
     learningOutcomes: [
       'Eyes and shoulder drop commitment on in-and-out counter fakes.',
@@ -231,9 +718,12 @@ export const STRUCTURED_LESSONS = [
     channel: 'Thinking Basketball',
     duration: '18 mins',
     difficulty: 'Intermediate',
-    youtubeId: 'X9T8e6k0b7g',
+    videoId: '3uK41W1nEek',
+    youtubeId: '3uK41W1nEek',
+    module: 'Offensive Spacing & Tactical Defense',
+    skills: ['High Post Flashes', 'Short Roll Passes', 'Ghost Screens', 'Backdoor Cuts'],
     weakAreasCovered: ['strategy', 'tactics', 'zone-defense', 'game-iq'],
-    description: 'Systematic approach to defeating 2-3 and 1-3-1 zone defenses through high-post flashes, overload cuts, and mismatch switch targeting.',
+    description: 'Defeating 2-3 and 1-3-1 zone defenses through high-post flashes, overload cuts, and mismatch switch targeting.',
     recommendationReason: 'Sharpens your game IQ against organized club defenses.',
     learningOutcomes: [
       'Operating in the high post free-throw line pocket against 2-3 zone.',
@@ -255,9 +745,12 @@ export const STRUCTURED_LESSONS = [
     channel: 'Pure Sweat Pro',
     duration: '15 mins',
     difficulty: 'Intermediate',
-    youtubeId: '4D7y1W9Vz1k',
+    videoId: 'Z6b7bB0-M-Y',
+    youtubeId: 'Z6b7bB0-M-Y',
+    module: 'Rim Scoring & Elite Game Execution',
+    skills: ['Lateral Chest Containment', 'Hand Mirror Contests', '2-for-1 Clock Play', 'Screen Communication'],
     weakAreasCovered: ['defense', 'clutch', 'game-iq', 'advanced-skills'],
-    description: 'Execute textbook perimeter defensive containment without fouling, contest angles, and late-game possession clock management.',
+    description: 'Execute textbook perimeter containment without fouling, contest angles, and late-game possession clock management.',
     recommendationReason: 'Prepares you for varsity/district team selection trials and crunch-time execution.',
     learningOutcomes: [
       'Lateral slide footwork and chest containment on driving guards.',
@@ -281,9 +774,12 @@ export const STRUCTURED_LESSONS = [
     channel: 'Elite Hoops Trainer',
     duration: '18 mins',
     difficulty: 'Advanced',
+    videoId: 'sF1xY1w_gBw',
     youtubeId: 'sF1xY1w_gBw',
+    module: 'Basketball Fundamentals & Ball Mastery',
+    skills: ['Fadeaway Balance', 'High Release Calibration', 'Post Turnarounds', 'Kinetic Transfer'],
     weakAreasCovered: ['shooting', 'biomechanics', 'advanced-skills'],
-    description: 'Fine-tuning micro-biomechanics for high-pressure contested shots, Dirk fadeaways, and step-back jumpers over athletic length.',
+    description: 'Fine-tuning micro-biomechanics for high-pressure contested shots, fadeaways, and step-back jumpers over athletic length.',
     recommendationReason: 'Recommended for elite shot creators aiming for state/national combine trials.',
     learningOutcomes: [
       'Leg kick-out calibration to counter backwards momentum on fadeaways.',
@@ -304,9 +800,12 @@ export const STRUCTURED_LESSONS = [
     channel: 'Half Court Hoops',
     duration: '22 mins',
     difficulty: 'Advanced',
+    videoId: '3uK41W1nEek',
     youtubeId: '3uK41W1nEek',
+    module: 'Offensive Spacing & Tactical Defense',
+    skills: ['Drop Coverage Reads', 'Snake Dribbles', 'Split Double Teams', 'Skip Passes'],
     weakAreasCovered: ['tactics', 'film-study', 'strategy', 'game-iq'],
-    description: 'Pro-level film breakdown on dissecting defensive drop coverage, trap blitzes, and ice ball screen coverages in transition.',
+    description: 'Film breakdown on dissecting defensive drop coverage, trap blitzes, and ice ball screen coverages in transition.',
     recommendationReason: 'Elite sports IQ study for starting point guards and offensive facilitators.',
     learningOutcomes: [
       'Snake dribble technique to put the drop big in conflict.',
@@ -331,9 +830,12 @@ export const STRUCTURED_LESSONS = [
     channel: 'Ninh Ly Soccer Clinic',
     duration: '10 mins',
     difficulty: 'Beginner',
-    youtubeId: 'fI5s7nQo6dE', // Real Soccer Rules & Offsides
+    videoId: 'fI5s7nQo6dE', // Real Soccer Rules & Offsides
+    youtubeId: 'fI5s7nQo6dE',
+    module: 'Football Regulations & Tactical Offside Rules',
+    skills: ['Offside Line Mechanics', 'Direct vs Indirect Kicks', 'Throw-In Rules', 'Back-Pass Laws'],
     weakAreasCovered: ['rules', 'offside', 'game-regulations', 'positioning'],
-    description: 'Understand pitch layout, referee signals, direct vs indirect free kicks, penalty box rules, and the precise mechanics of the offside rule.',
+    description: 'Pitch layout, referee signals, direct vs indirect free kicks, penalty box rules, and offside line mechanics.',
     recommendationReason: 'Builds vital baseline match rules awareness identified in your football diagnostic test.',
     learningOutcomes: [
       'Master the second-to-last defender offside positioning line.',
@@ -355,9 +857,12 @@ export const STRUCTURED_LESSONS = [
     channel: 'AllAttack Soccer',
     duration: '12 mins',
     difficulty: 'Beginner',
-    youtubeId: 'Kz1JjHk4tFw', // Real First touch and passing drills
+    videoId: 'Kz1JjHk4tFw', // Real First touch and passing drills
+    youtubeId: 'Kz1JjHk4tFw',
+    module: 'Football Fundamentals: First Touch & Passing',
+    skills: ['Inside Instep Pass', 'Half-Turn Receiving', 'Pass Weight Calibration', 'Body Orientation'],
     weakAreasCovered: ['first-touch', 'passing', 'ball-control', 'fundamentals'],
-    description: 'Master crisp ground passing with the inside instep and cushion receiving into open space away from opponent pressure.',
+    description: 'Master crisp ground passing with the inside instep and cushion receiving into open space away from pressure.',
     recommendationReason: 'Identified weakness in First Touch and Passing Accuracy from your Skills Assessment.',
     learningOutcomes: [
       'Locking the ankle and pointing the plant foot towards target.',
@@ -379,9 +884,12 @@ export const STRUCTURED_LESSONS = [
     channel: '7mlc Soccer Skills',
     duration: '15 mins',
     difficulty: 'Beginner',
-    youtubeId: 'n_Xg4B2nN7s', // Real cone dribbling
+    videoId: 'n_Xg4B2nN7s', // Real cone dribbling
+    youtubeId: 'n_Xg4B2nN7s',
+    module: 'Close Dribbling & 1v1 Feints',
+    skills: ['Micro Touches', 'Sole Rolls & V-Cuts', 'Head-Up Posture', 'Directional Bursts'],
     weakAreasCovered: ['dribbling', 'ball-control', 'agility', 'techniques'],
-    description: 'Sharpen close-control dribbling using inside/outside foot cuts, sole rolls, and rapid directional shifts through staggered cones.',
+    description: 'Sharpen close-control dribbling using inside/outside foot cuts, sole rolls, and rapid directional shifts through cones.',
     recommendationReason: 'Develops agility, close ball security, and bilateral foot confidence.',
     learningOutcomes: [
       'Micro-touches with every stride to keep ball within 1-foot radius.',
@@ -403,9 +911,12 @@ export const STRUCTURED_LESSONS = [
     channel: 'Tifo Football',
     duration: '11 mins',
     difficulty: 'Beginner',
-    youtubeId: '3m_q4Z1r8bM', // Real tactics and formations
+    videoId: '3m_q4Z1r8bM', // Real tactics and formations
+    youtubeId: '3m_q4Z1r8bM',
+    module: 'Tactical Positioning & Pressing Systems',
+    skills: ['Passing Triangles', 'Line Compaction', 'Overlapping Runs', 'Zonal Marking'],
     weakAreasCovered: ['tactics', 'positioning', 'spatial-iq', 'strategy'],
-    description: 'Learn the core responsibilities of defenders, midfielders, and forwards, and how team lines shift cohesively with ball movement.',
+    description: 'Responsibilities of defenders, midfielders, and forwards, and how team lines shift cohesively with ball movement.',
     recommendationReason: 'Enhances positional awareness and tactical discipline on the pitch.',
     learningOutcomes: [
       'Understanding positional triangles and passing angles.',
@@ -427,9 +938,12 @@ export const STRUCTURED_LESSONS = [
     channel: 'Unisport Football',
     duration: '14 mins',
     difficulty: 'Beginner',
-    youtubeId: 'E_h3K1b_9e0', // Real shooting tutorial
+    videoId: 'E_h3K1b_9e0', // Real shooting tutorial
+    youtubeId: 'E_h3K1b_9e0',
+    module: 'Shooting Biomechanics & Curled Finishing',
+    skills: ['Plant Foot Alignment', 'Chest-Over-Ball Drive', 'Striking Foot Landing', '1v1 Composure'],
     weakAreasCovered: ['shooting', 'finishing', 'weak-foot', 'advanced-skills'],
-    description: 'Master shooting biomechanics: striking through the center with laces for power, and wrapping inside instep for curled far-post finishes.',
+    description: 'Striking through the center with laces for power, and wrapping inside instep for curled far-post finishes.',
     recommendationReason: 'Final stage module to convert technical mastery into decisive match-winning finishes.',
     learningOutcomes: [
       'Plant foot placement alongside the ball pointing at the goal corner.',
@@ -453,7 +967,10 @@ export const STRUCTURED_LESSONS = [
     channel: 'Progressive Soccer',
     duration: '16 mins',
     difficulty: 'Intermediate',
+    videoId: 'Kz1JjHk4tFw',
     youtubeId: 'Kz1JjHk4tFw',
+    module: 'Football Fundamentals: First Touch & Passing',
+    skills: ['Driven Diagonal Switches', 'Chest Trapping on Run', 'Backspin Strike', 'Scan Timing'],
     weakAreasCovered: ['first-touch', 'long-passing', 'fundamentals'],
     description: 'Execute crisp 40-yard diagonal switches and absorb dipping lofted passes with chest, thigh, and foot cushion.',
     recommendationReason: 'Elevates your passing range and aerial control for competitive 11v11 matches.',
@@ -476,9 +993,12 @@ export const STRUCTURED_LESSONS = [
     channel: 'Tifo Football Tactics',
     duration: '18 mins',
     difficulty: 'Intermediate',
+    videoId: '3m_q4Z1r8bM',
     youtubeId: '3m_q4Z1r8bM',
+    module: 'Tactical Positioning & Pressing Systems',
+    skills: ['Pressing Triggers', 'Cover Shadows', 'Vertical Outlet Passes', 'Sideline Traps'],
     weakAreasCovered: ['tactics', 'pressing', 'counter-attack', 'strategy'],
-    description: 'Learn how modern squads initiate coordinated pressing traps when opponents play backward passes or receive with back to goal.',
+    description: 'Learn how modern squads initiate coordinated pressing traps when opponents play backward passes or receive facing goal.',
     recommendationReason: 'Critical tactical study based on your Tactical Positioning assessment results.',
     learningOutcomes: [
       'Recognizing pressing triggers: poor touch, backward pass, sideline trap.',
@@ -503,9 +1023,12 @@ export const STRUCTURED_LESSONS = [
     channel: 'Ninh Ly Cricket Guide',
     duration: '10 mins',
     difficulty: 'Beginner',
-    youtubeId: 'AqtpNkMvj58', // Real Cricket Rules
+    videoId: 'AqtpNkMvj58', // Real Cricket Rules
+    youtubeId: 'AqtpNkMvj58',
+    module: 'Cricket Laws, Dismissals & Powerplays',
+    skills: ['LBW Zones', 'Powerplay Field Caps', 'Dead Ball Laws', 'No-Ball Warnings'],
     weakAreasCovered: ['rules', 'lbw', 'game-regulations', 'cricket-iq'],
-    description: 'Learn the essential rules of cricket including the 10 methods of dismissal, LBW pitch zones, no-balls, wide deliveries, and powerplay field limits.',
+    description: 'Learn the 10 methods of dismissal, LBW pitch zones, no-balls, wide deliveries, and powerplay field limits.',
     recommendationReason: 'Foundational module to master cricket match rules and umpire signaling.',
     learningOutcomes: [
       'Understanding LBW criteria: pitching, impact in line, and hitting wickets.',
@@ -527,9 +1050,12 @@ export const STRUCTURED_LESSONS = [
     channel: 'Cricket Masterclass',
     duration: '13 mins',
     difficulty: 'Beginner',
-    youtubeId: 'u4Z9X0b7Y6Q', // Real batting fundamentals
+    videoId: 'u4Z9X0b7Y6Q', // Real batting fundamentals
+    youtubeId: 'u4Z9X0b7Y6Q',
+    module: 'Batting Stance, Grip & Backlift Mechanics',
+    skills: ['V-Grip Alignment', 'Shoulder-Width Base', 'Slip Backlift', 'Stationary Head Position'],
     weakAreasCovered: ['batting', 'stance', 'grip', 'fundamentals'],
-    description: 'Establish a rock-solid batting foundation with the classic top-hand dominant V-grip, side-on balanced stance, and high backlift.',
+    description: 'Establish a rock-solid batting foundation with the classic top-hand V-grip, side-on balanced stance, and high backlift.',
     recommendationReason: 'Targeted drill to correct balance and bat speed identified in your Batting Assessment.',
     learningOutcomes: [
       'Forming both Vs on the bat handle pointing between splice and outside edge.',
@@ -551,9 +1077,12 @@ export const STRUCTURED_LESSONS = [
     channel: 'Pro Cricket Coaching',
     duration: '15 mins',
     difficulty: 'Beginner',
+    videoId: 'd6y8Q1w4m9E',
     youtubeId: 'd6y8Q1w4m9E',
+    module: 'Front-Foot Driving & Footwork Mastery',
+    skills: ['Front-Toe Step', 'High Leading Elbow', 'Front-Knee Bend', 'Sweet Spot Contact'],
     weakAreasCovered: ['batting', 'front-foot', 'drive', 'techniques'],
-    description: 'Learn the signature front-foot drives: transferring weight forward, bending the front knee, and presenting the full bat face.',
+    description: 'Signature front-foot drives: transferring weight forward, bending the front knee, and presenting the full bat face.',
     recommendationReason: 'Essential technical shot development to dominate over-pitched deliveries.',
     learningOutcomes: [
       'Stepping forward with front toe pointing toward the ball trajectory.',
@@ -575,9 +1104,12 @@ export const STRUCTURED_LESSONS = [
     channel: 'Cricket IQ Breakdown',
     duration: '12 mins',
     difficulty: 'Beginner',
+    videoId: 'e2k8R9w4n1L',
     youtubeId: 'e2k8R9w4n1L',
+    module: 'Strike Rotation, Running & Field Placements',
+    skills: ['Crease Bat Extension', 'Yes/No Calling', 'Gap Placement', 'Innings Run Rate Pacing'],
     weakAreasCovered: ['strategy', 'running-between-wickets', 'tactics', 'cricket-iq'],
-    description: 'Master calling systems (Yes/No/Wait), turning sharply at the crease with bat sliding, and dropping the ball into gaps for quick singles.',
+    description: 'Master calling systems (Yes/No/Wait), turning sharply at the crease with bat sliding, and dropping the ball into gaps.',
     recommendationReason: 'Improves match situation awareness and partnership building.',
     learningOutcomes: [
       'Crisp, loud calls on single opportunities to prevent run-outs.',
@@ -599,9 +1131,12 @@ export const STRUCTURED_LESSONS = [
     channel: 'Pace Bowling Academy',
     duration: '16 mins',
     difficulty: 'Beginner',
+    videoId: 'h5Y3q1w9P0e',
     youtubeId: 'h5Y3q1w9P0e',
+    module: 'Pace Bowling: Seam Position & Yorkers',
+    skills: ['Upright Seam Lock', '15-Pace Approach', 'Base-of-Stump Yorker', 'Late In-Drift'],
     weakAreasCovered: ['bowling', 'yorker', 'seam-position', 'advanced-skills'],
-    description: 'Learn seam alignment, wrist position behind the ball, repeatable run-up rhythm, and executing the toe-crushing death-over yorker.',
+    description: 'Learn seam alignment, wrist position behind the ball, repeatable run-up rhythm, and executing the toe-crushing yorker.',
     recommendationReason: 'Completes the core cricket progression with clinical bowling execution.',
     learningOutcomes: [
       'Upright seam wobble prevention through locked wrist release.',
@@ -627,9 +1162,12 @@ export const STRUCTURED_LESSONS = [
     channel: 'Track & Field Guide',
     duration: '8 mins',
     difficulty: 'Beginner',
+    videoId: '8yq1W4P0m8k',
     youtubeId: '8yq1W4P0m8k',
+    module: 'Sprint Regulations & Block Start Laws',
+    skills: ['Gun Commands & Set Position', 'False Start <0.100s Threshold', 'Curve Stepping Rules', 'Baton Exchange Boxes'],
     weakAreasCovered: ['rules', 'false-start', 'lane-discipline', 'athletics-iq'],
-    description: 'Learn official track & field sprint rules: "On your marks" and "Set" commands, reaction time threshold (<0.100s), and lane line stepping penalties.',
+    description: 'Learn official sprint rules: "On your marks" / "Set" commands, reaction time threshold, and lane line stepping penalties.',
     recommendationReason: 'Essential regulations baseline for competitive track meets.',
     learningOutcomes: [
       'Master the starting gun commands and steady position requirements.',
@@ -651,9 +1189,12 @@ export const STRUCTURED_LESSONS = [
     channel: 'Sprint Biomechanics Lab',
     duration: '14 mins',
     difficulty: 'Beginner',
+    videoId: '9vX4k8m0P1Q',
     youtubeId: '9vX4k8m0P1Q',
+    module: 'Sprint Posture & Biomechanical Form',
+    skills: ['Neutral Pelvis Posture', 'Hip-to-Chin Arm Drive', 'Ankle Dorsiflexion', 'Under-Hip Ground Strike'],
     weakAreasCovered: ['sprint-mechanics', 'posture', 'arm-swing', 'fundamentals'],
-    description: 'Establish upright sprint posture, relaxed facial muscles, compact 90-degree elbow arm drive from hip to chin, and stiff dorsiflexed ankles.',
+    description: 'Upright sprint posture, relaxed facial muscles, compact 90-degree arm drive, and stiff dorsiflexed ankles.',
     recommendationReason: 'Addresses running form and energy leak weaknesses identified in your Sprint Assessment.',
     learningOutcomes: [
       'Maintaining tall neutral pelvis alignment to prevent anterior tilt.',
@@ -675,9 +1216,12 @@ export const STRUCTURED_LESSONS = [
     channel: 'Speed Academy Elite',
     duration: '16 mins',
     difficulty: 'Beginner',
+    videoId: '3uK41W1nEek',
     youtubeId: '3uK41W1nEek',
+    module: 'Block Starts & Drive Phase Acceleration',
+    skills: ['Block Spacing Setup', 'Dual Leg Drive', 'Low Heel Recovery', 'Posture Unfolding'],
     weakAreasCovered: ['acceleration', 'block-starts', 'drive-phase', 'techniques'],
-    description: 'Master setting block spacing, explosive push-off angle (45 degrees), low heel recovery, and progressive head rise through the first 30 meters.',
+    description: 'Block spacing setup, 45-degree push-off angle, low heel recovery, and progressive head rise over first 30m.',
     recommendationReason: 'Crucial technical drill to cut tenths of a second off your 60m and 100m sprint starts.',
     learningOutcomes: [
       'Setting front block 2 shoe-lengths from line, rear block 3 shoe-lengths.',
@@ -699,9 +1243,12 @@ export const STRUCTURED_LESSONS = [
     channel: 'Speed & Conditioning Lab',
     duration: '12 mins',
     difficulty: 'Beginner',
+    videoId: 'w4S8jW9L0w0',
     youtubeId: 'w4S8jW9L0w0',
+    module: 'Race Modeling & Energy System Distribution',
+    skills: ['100m Phase Modeling', '200m Slingshot Curve', '400m Lactate Pacing', 'Pre-Race Breath Focus'],
     weakAreasCovered: ['pacing', 'energy-distribution', 'strategy', 'athletics-iq'],
-    description: 'Learn race modeling: acceleration, maximum velocity, and speed endurance deceleration management for 100m, 200m, and 400m events.',
+    description: 'Race modeling: acceleration, maximum velocity, and speed endurance deceleration management for 100m-400m events.',
     recommendationReason: 'Teaches strategic pacing to avoid blowing up in the final 50 meters.',
     learningOutcomes: [
       '100m race phases: 0-30m acceleration, 30-60m max velocity, 60-100m maintenance.',
@@ -723,9 +1270,12 @@ export const STRUCTURED_LESSONS = [
     channel: 'ALTIS Track & Field',
     duration: '18 mins',
     difficulty: 'Beginner',
+    videoId: '0mPZ3oI0T3k',
     youtubeId: '0mPZ3oI0T3k',
+    module: 'Max Velocity & High-Speed Resistance',
+    skills: ['Front-Side Knee Punch', 'Ground Contact <0.090s', 'Acidosis Relaxation', 'Finish Line Torso Dip'],
     weakAreasCovered: ['max-velocity', 'stride-frequency', 'speed-endurance', 'advanced-skills'],
-    description: 'Achieve peak stride frequency and force output over the final 40 meters while resisting postural breakdown and fatigue collapse.',
+    description: 'Peak stride frequency and force output over the final 40 meters while resisting postural breakdown and fatigue.',
     recommendationReason: 'Capstone lesson to reach elite track performance standards.',
     learningOutcomes: [
       'Front-side mechanics dominance with aggressive knee punch.',
@@ -751,9 +1301,12 @@ export const STRUCTURED_LESSONS = [
     channel: 'Ninh Ly Tennis Clinic',
     duration: '9 mins',
     difficulty: 'Beginner',
+    videoId: '5-mR5cWn8wM',
     youtubeId: '5-mR5cWn8wM',
+    module: 'Tennis Scoring System & Court Lines',
+    skills: ['Game-Set-Match Scoring', 'Super Tiebreak Format', 'Service Box Limits', 'Singles vs Doubles Lines'],
     weakAreasCovered: ['rules', 'scoring', 'court-lines', 'tennis-iq'],
-    description: 'Understand love-15-30-40 scoring, deuce and advantage, tiebreak regulations, singles vs doubles sidelines, and foot fault rules.',
+    description: 'Understand love-15-30-40 scoring, deuce and advantage, tiebreak regulations, and singles vs doubles sidelines.',
     recommendationReason: 'Essential foundation to understand official match play and tournament scoring.',
     learningOutcomes: [
       'Master the 15-30-40-game-set scoring structure.',
@@ -775,9 +1328,12 @@ export const STRUCTURED_LESSONS = [
     channel: 'Feel Tennis Lessons',
     duration: '13 mins',
     difficulty: 'Beginner',
+    videoId: 'Kz1JjHk4tFw',
     youtubeId: 'Kz1JjHk4tFw',
+    module: 'Tennis Grips & Dynamic Ready Position',
+    skills: ['8 Bevel Identification', 'Semi-Western Forehand', 'Continental Grip', 'Split Step Timing'],
     weakAreasCovered: ['grip', 'ready-position', 'footwork', 'fundamentals'],
-    description: 'Learn proper bevel placement for Continental, Eastern, and Semi-Western grips, combined with active split-step ready posture.',
+    description: 'Learn proper bevel placement for Continental, Eastern, and Semi-Western grips with split-step ready posture.',
     recommendationReason: 'Corrects grip inconsistencies identified in your Baseline Stroke Assessment.',
     learningOutcomes: [
       'Identifying the 8 bevels on the tennis racket handle.',
@@ -799,9 +1355,12 @@ export const STRUCTURED_LESSONS = [
     channel: 'Total Tennis Academy',
     duration: '16 mins',
     difficulty: 'Beginner',
+    videoId: 'm4XgK0J9G5o',
     youtubeId: 'm4XgK0J9G5o',
+    module: 'Topspin Forehand & Low-to-High Swing',
+    skills: ['Shoulder Unit Turn', 'Low-to-High Racket Drop', 'Windshield Wiper Finish', 'Front Waist Contact'],
     weakAreasCovered: ['forehand', 'topspin', 'swing-path', 'techniques'],
-    description: 'Master unit turn, racket drop below the ball, windshield wiper follow-through, and brushing up the back of the ball for heavy topspin.',
+    description: 'Master unit turn, racket drop below the ball, windshield wiper follow-through, and brushing topspin.',
     recommendationReason: 'Builds deep, consistent baseline rallying power with built-in net clearance.',
     learningOutcomes: [
       'Coiling shoulders in the unit turn prior to forward racket swing.',
@@ -823,9 +1382,12 @@ export const STRUCTURED_LESSONS = [
     channel: 'Tactical Tennis Lab',
     duration: '11 mins',
     difficulty: 'Beginner',
+    videoId: '3m_q4Z1r8bM',
     youtubeId: '3m_q4Z1r8bM',
+    module: 'Crosscourt Baseline Rally Patterns',
+    skills: ['Lowest Net Clearance', 'Angle Bisect Recovery', 'Short Ball Transitions', 'Backhand Wing Targeting'],
     weakAreasCovered: ['strategy', 'crosscourt', 'shot-selection', 'tactics'],
-    description: 'Learn why crosscourt rallies give you the lowest net height and longest court distance, reducing unforced errors by over 40%.',
+    description: 'Why crosscourt rallies give you the lowest net height and longest court distance, reducing errors by 40%.',
     recommendationReason: 'Transforms frantic shot-making into disciplined, winning point construction.',
     learningOutcomes: [
       'Playing over the lowest part of the net in crosscourt exchanges.',
@@ -847,9 +1409,12 @@ export const STRUCTURED_LESSONS = [
     channel: 'Mouratoglou Tennis Academy',
     duration: '17 mins',
     difficulty: 'Beginner',
+    videoId: 'E_h3K1b_9e0',
     youtubeId: 'E_h3K1b_9e0',
+    module: 'Flat & Kick Serve Biomechanics',
+    skills: ['Trophy Pose Arch', '1 O’Clock Toss Release', 'Forearm Internal Pronation', 'Landing Balance'],
     weakAreasCovered: ['serve', 'kick-serve', 'pronation', 'advanced-skills'],
-    description: 'Master the trophy pose, consistent forward ball toss at 1 o’clock, racket drop into back scratch, and explosive forearm pronation.',
+    description: 'Trophy pose, consistent forward ball toss at 1 o’clock, racket drop into back scratch, and explosive pronation.',
     recommendationReason: 'Complete your tennis journey with a dominant, unreturnable first serve weapon.',
     learningOutcomes: [
       'Consistent ball toss release height with relaxed left arm.',
@@ -875,9 +1440,12 @@ export const STRUCTURED_LESSONS = [
     channel: 'Badminton Insights',
     duration: '8 mins',
     difficulty: 'Beginner',
+    videoId: 'w4S8jW9L0w0',
     youtubeId: 'w4S8jW9L0w0',
+    module: 'Badminton Regulations & Service Rules',
+    skills: ['21-Point Rally Scoring', 'Singles vs Doubles Boxes', '1.15m Service Height', 'Net Invasion Faults'],
     weakAreasCovered: ['rules', 'service-rules', 'court-lines', 'badminton-iq'],
-    description: 'Master rally scoring to 21 points, singles vs doubles service court boundaries, 1.15m service height limit, and net touch faults.',
+    description: 'Master rally scoring to 21 points, singles vs doubles service court boundaries, and 1.15m service height.',
     recommendationReason: 'Essential tournament rules breakdown to avoid costly service faults.',
     learningOutcomes: [
       'Understand singles long-and-narrow vs doubles short-and-wide service boxes.',
@@ -899,7 +1467,10 @@ export const STRUCTURED_LESSONS = [
     channel: 'Lee Jae Bok Badminton',
     duration: '14 mins',
     difficulty: 'Beginner',
+    videoId: '0mPZ3oI0T3k',
     youtubeId: '0mPZ3oI0T3k',
+    module: 'Racket Grips & 6-Corner Footwork',
+    skills: ['Relaxed V-Grip', 'Thumb Bevel Backhand', 'Chassé Corner Steps', 'Central Base Recovery'],
     weakAreasCovered: ['grip', 'footwork', 'corner-recovery', 'fundamentals'],
     description: 'Master the relaxed V-grip, thumb grip for backhand, split step, and chassé step recovery to the center base T.',
     recommendationReason: 'Targeted drill to address footwork agility and grip transitions.',
@@ -923,9 +1494,12 @@ export const STRUCTURED_LESSONS = [
     channel: 'Badminton Racket Skills',
     duration: '15 mins',
     difficulty: 'Beginner',
+    videoId: 'm4XgK0J9G5o',
     youtubeId: 'm4XgK0J9G5o',
+    module: 'High Clear & Deceptive Drop Shots',
+    skills: ['Overhead Body Torque', 'Drop Shot Disguise', 'Skirt Slicing', 'Baseline Tramline Depth'],
     weakAreasCovered: ['clear', 'drop-shot', 'overhead-stroke', 'techniques'],
-    description: 'Execute deep overhead high clears to push opponents to baseline, paired with deceptive soft slicing drop shots to front net.',
+    description: 'Execute deep overhead high clears to push opponents to baseline, paired with deceptive soft slicing drop shots.',
     recommendationReason: 'Builds versatile rear-court shot selection to control rally tempo.',
     learningOutcomes: [
       'Full body rotation and elbow leading on overhead strokes.',
@@ -947,9 +1521,12 @@ export const STRUCTURED_LESSONS = [
     channel: 'Peter Gade Badminton Lab',
     duration: '12 mins',
     difficulty: 'Beginner',
+    videoId: '3m_q4Z1r8bM',
     youtubeId: '3m_q4Z1r8bM',
+    module: '4-Corner Shuttle Manipulation Strategy',
+    skills: ['Half-Second Shot Holding', 'Fast Flat Clears', 'Line Push Placements', 'Rally Energy Management'],
     weakAreasCovered: ['strategy', 'tactics', 'court-movement', 'badminton-iq'],
-    description: 'Learn how to pull opponents out of balance by moving them consecutively between diagonally opposite court corners.',
+    description: 'Pull opponents out of balance by moving them consecutively between diagonally opposite court corners.',
     recommendationReason: 'Develops ruthless tactical point construction for competitive singles matches.',
     learningOutcomes: [
       'Holding your shot half a second to freeze opponent split step.',
@@ -971,9 +1548,12 @@ export const STRUCTURED_LESSONS = [
     channel: 'Super Series Badminton',
     duration: '16 mins',
     difficulty: 'Beginner',
+    videoId: 'E_h3K1b_9e0',
     youtubeId: 'E_h3K1b_9e0',
+    module: 'Jump Smash & Net Kill Reflexes',
+    skills: ['Scissor Kick Jump', 'High Extension Angle', 'Compact Net Tap Snap', 'Landing Recovery'],
     weakAreasCovered: ['smash', 'jump-smash', 'net-kill', 'advanced-skills'],
-    description: 'Learn jump timing, scissor kick leg switch, steep downward angle contact, and lightning-fast net kill tap reflexes.',
+    description: 'Jump timing, scissor kick leg switch, steep downward angle contact, and lightning-fast net kill tap reflexes.',
     recommendationReason: 'Crown jewel lesson for explosive offensive finishing power.',
     learningOutcomes: [
       'Scissor kick footwork in mid-air to generate core torque.',
@@ -999,9 +1579,12 @@ export const STRUCTURED_LESSONS = [
     channel: 'Ninh Ly Volleyball Guide',
     duration: '8 mins',
     difficulty: 'Beginner',
+    videoId: 'w4S8jW9L0w0',
     youtubeId: 'w4S8jW9L0w0',
+    module: 'Volleyball Rotation & Net Rules',
+    skills: ['Clockwise Rotation', 'Back-Row Attack Rules', 'Libero Substitutions', 'Center Line Crossing'],
     weakAreasCovered: ['rules', 'rotation', 'net-violations', 'volleyball-iq'],
-    description: 'Learn 6-player court rotation, back-row attack restrictions, 3-touch maximum rule, double contact, and net touch infractions.',
+    description: 'Learn 6-player court rotation, back-row attack restrictions, 3-touch maximum rule, and net touch infractions.',
     recommendationReason: 'Essential regulations baseline for structured team play and match rotation.',
     learningOutcomes: [
       'Clockwise player rotation upon winning service back.',
@@ -1023,9 +1606,12 @@ export const STRUCTURED_LESSONS = [
     channel: 'Elevate Yourself Volleyball',
     duration: '15 mins',
     difficulty: 'Beginner',
+    videoId: '0mPZ3oI0T3k',
     youtubeId: '0mPZ3oI0T3k',
+    module: 'Forearm Passing (Bump) & Overhead Setting',
+    skills: ['Flat Passing Platform', 'Leg Serve Absorption', 'Soft-Finger Window Setting', '3-Foot Off-Net Target'],
     weakAreasCovered: ['passing', 'bump', 'setting', 'fundamentals'],
-    description: 'Build a flat forearm platform, absorb hard incoming serves with leg extension, and execute soft-finger overhead sets to the setter zone.',
+    description: 'Build a flat forearm platform, absorb hard incoming serves with leg extension, and execute soft-finger overhead sets.',
     recommendationReason: 'Targeted drill based on your Serve-Receive & Passing accuracy assessment score.',
     learningOutcomes: [
       'Locking thumbs and elbows to create a wide, flat passing platform.',
@@ -1047,9 +1633,12 @@ export const STRUCTURED_LESSONS = [
     channel: 'Volleyball Spike Lab',
     duration: '16 mins',
     difficulty: 'Beginner',
+    videoId: 'm4XgK0J9G5o',
     youtubeId: 'm4XgK0J9G5o',
+    module: '3-Step Spike Approach & Wrist Snap',
+    skills: ['Left-Right-Left Approach', 'Double Arm Backswing', 'Bow & Arrow Draw', 'Topspin Wrist Wrap'],
     weakAreasCovered: ['spiking', 'vertical-jump', 'arm-swing', 'techniques'],
-    description: 'Master the Left-Right-Left (for right-handers) 4-step spike approach, high double-arm backswing, and high contact wrist snap on the ball.',
+    description: '4-step spike approach, high double-arm backswing, and high contact wrist snap on the ball.',
     recommendationReason: 'Develops explosive vertical leap and clean downward spike trajectory.',
     learningOutcomes: [
       'Accelerating last two steps (plant and brake) for maximal vertical conversion.',
@@ -1071,9 +1660,12 @@ export const STRUCTURED_LESSONS = [
     channel: 'USA Volleyball Academy',
     duration: '13 mins',
     difficulty: 'Beginner',
+    videoId: '3m_q4Z1r8bM',
     youtubeId: '3m_q4Z1r8bM',
+    module: 'Defensive Perimeter & 5-1 Formation',
+    skills: ['Crosscourt Dig Posture', 'Passer Seam Calls', 'Free Ball Hitter Drops', 'Middle 1-Ball Option'],
     weakAreasCovered: ['strategy', 'defense', 'rotation-systems', 'volleyball-iq'],
-    description: 'Learn middle-middle and rotational defense setups, calling seams in serve-receive, and executing the 5-1 single-setter offense.',
+    description: 'Middle-middle and rotational defense setups, calling seams in serve-receive, and executing the 5-1 single-setter offense.',
     recommendationReason: 'Enhances court communication and team defensive positioning.',
     learningOutcomes: [
       'Perimeter defensive positioning for digging hard crosscourt spikes.',
@@ -1095,9 +1687,12 @@ export const STRUCTURED_LESSONS = [
     channel: 'Pro Volleyball Training',
     duration: '17 mins',
     difficulty: 'Beginner',
+    videoId: 'E_h3K1b_9e0',
     youtubeId: 'E_h3K1b_9e0',
+    module: 'Jump Float Serve & Block Penetration',
+    skills: ['Firm Palm Knuckleball', 'Turbulence Dip Release', 'Net Hand Spread Penetration', 'Line Funnel Angle'],
     weakAreasCovered: ['serve', 'float-serve', 'blocking', 'advanced-skills'],
-    description: 'Master the no-spin knuckleball jump float serve that drops unpredictably, combined with solid over-the-net blocking penetration.',
+    description: 'Knuckleball jump float serve that drops unpredictably, combined with solid over-the-net blocking penetration.',
     recommendationReason: 'Equips you with a dangerous match-opening serve and impenetrable net wall.',
     learningOutcomes: [
       'Striking dead center of ball with firm flat palm and zero follow-through.',
