@@ -1,16 +1,33 @@
 /**
  * Athletex Unified API Client
  * Automatically attaches Bearer JWT authorization tokens and handles standardized responses.
- * Dynamically resolves host IP so team members on the same network connect seamlessly.
+ * Supports cloud production deployments, local LAN IPs, and development fallback.
  */
 
 const resolveApiBaseUrl = () => {
+  // Explicit environment variable takes precedence
   if (import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
+    return import.meta.env.VITE_API_URL.replace(/\/+$/, '');
   }
-  if (typeof window !== 'undefined' && window.location.hostname && window.location.hostname !== 'localhost') {
-    return `http://${window.location.hostname}:5000/api`;
+
+  if (typeof window !== 'undefined' && window.location.hostname) {
+    const host = window.location.hostname;
+    
+    // If deployed to cloud (e.g. Vercel, Netlify, AWS, custom domain)
+    const isLocalhost = host === 'localhost' || host === '127.0.0.1';
+    const isPrivateLanIp = host.match(/^10\.|^192\.168\.|^172\.(1[6-9]|2[0-9]|3[0-1])\./);
+
+    if (!isLocalhost && !isPrivateLanIp) {
+      // Cloud environment with relative /api proxy
+      return '/api';
+    }
+
+    // Local LAN network device access
+    if (isPrivateLanIp) {
+      return `http://${host}:5000/api`;
+    }
   }
+
   return 'http://localhost:5000/api';
 };
 
@@ -32,7 +49,8 @@ export const getStoredAuthToken = () => {
 
 export const apiClient = async (endpoint, options = {}) => {
   const base = resolveApiBaseUrl();
-  const url = `${base}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const url = `${base}${cleanEndpoint}`;
   
   const headers = {
     'Content-Type': 'application/json',
