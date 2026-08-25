@@ -14,7 +14,8 @@ const KEYS = {
   THEME_MODE: 'athletex_theme',
   COMPLETED_LESSONS: 'athletex_completed_lessons',
   IN_PROGRESS_LESSONS: 'athletex_inprogress_lessons',
-  ATHLETE_WEAK_AREAS: 'athletex_weak_areas'
+  ATHLETE_WEAK_AREAS: 'athletex_weak_areas',
+  ASSESSMENT_RESULTS: 'athletex_assessment_results'
 };
 
 // Initial seed demo user
@@ -184,6 +185,29 @@ export const saveAthleteProfile = (profileData, targetUserId) => {
     console.error('Error saving athlete profile to localStorage:', err);
     return profileData;
   }
+};
+
+export const getAssessmentResults = (targetUserId, sport = 'Football', level = 'Beginner') => {
+  try {
+    const raw = localStorage.getItem(KEYS.ASSESSMENT_RESULTS);
+    const all = raw ? JSON.parse(raw) : {};
+    return all[`${targetUserId || getCurrentSession()?.userId || 'demo-user-1'}_${sport.toLowerCase()}_${level}`] || {};
+  } catch {
+    return {};
+  }
+};
+
+export const saveAssessmentResult = (result, targetUserId, sport = 'Football', level = 'Beginner') => {
+  try {
+    const raw = localStorage.getItem(KEYS.ASSESSMENT_RESULTS);
+    const all = raw ? JSON.parse(raw) : {};
+    const key = `${targetUserId || getCurrentSession()?.userId || 'demo-user-1'}_${sport.toLowerCase()}_${level}`;
+    all[key] = { ...(all[key] || {}), [result.slug]: result };
+    localStorage.setItem(KEYS.ASSESSMENT_RESULTS, JSON.stringify(all));
+  } catch (err) {
+    console.error('Error saving assessment result locally:', err);
+  }
+  return result;
 };
 
 /**

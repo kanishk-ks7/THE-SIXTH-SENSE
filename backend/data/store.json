@@ -219,7 +219,7 @@
       "trainingHours": "4 hours/week",
       "trainingHoursNumber": 4,
       "goal": "Improve performance",
-      "readiness": 35,
+      "readiness": 82,
       "bio": "Passionate aspiring athlete striving to build strong technical fundamentals, agility, and tactical vision for high-school and academy selection.",
       "sportsBackground": "School varsity team player for 2 seasons. Community tournament participant with 3 years of recreational play.",
       "strengths": [
@@ -3028,7 +3028,7 @@
       {
         "pillarType": "TECHNICAL_SKILL",
         "pillarName": "Technical Skill",
-        "value": 32,
+        "value": 82,
         "delta": 4,
         "targetValue": 100
       },
@@ -9719,8 +9719,15 @@
         "assessmentId": "skills",
         "title": "Skills Assessment",
         "status": "COMPLETED",
-        "score": 32,
-        "completedAt": "2026-07-08T10:00:00Z"
+        "score": 82,
+        "completedAt": "2026-08-25T06:25:55.044Z",
+        "slug": "skills",
+        "breakdown": {
+          "0": "80",
+          "1": "85",
+          "2": "82",
+          "3": "81"
+        }
       },
       {
         "assessmentId": "fitness",
