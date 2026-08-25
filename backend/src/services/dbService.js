@@ -931,6 +931,7 @@ class DatabaseService {
         const updated = await prisma.userSportProfile.upsert({
           where: { user_sport_level_unique: { userId, sportId: sId, difficultyLevelId: lId } },
           update: {
+            isCurrentSelected: true,
             ...profileData,
             ...(strengths ? { strengths: JSON.stringify(strengths) } : {}),
             ...(focusAreas ? { focusAreas: JSON.stringify(focusAreas) } : {}),
@@ -1052,9 +1053,15 @@ class DatabaseService {
     const physicalPillar = pillars.find(p => p.pillarType === 'PHYSICAL_FITNESS') || (databaseAvailable ? emptyPillar : { value: baseTelemetry.physicalFitness.value, delta: baseTelemetry.physicalFitness.delta });
     const sportIqPillar = pillars.find(p => p.pillarType === 'SPORT_IQ') || (databaseAvailable ? emptyPillar : { value: baseTelemetry.sportIQ.value, delta: baseTelemetry.sportIQ.delta });
     const consistencyPillar = pillars.find(p => p.pillarType === 'TRAINING_CONSISTENCY') || (databaseAvailable ? emptyPillar : { value: baseTelemetry.trainingConsistency.value, delta: baseTelemetry.trainingConsistency.delta });
-    const overallReadiness = databaseAvailable
-      ? Math.round((technicalPillar.value + physicalPillar.value + sportIqPillar.value + consistencyPillar.value) / 4)
-      : baseTelemetry.overallReadiness;
+    const completedScores = assessmentResults
+      .filter(result => result.status === 'COMPLETED' && result.score !== null)
+      .map(result => Number(result.score))
+      .filter(Number.isFinite);
+    const overallReadiness = completedScores.length
+      ? Math.round(completedScores.reduce((total, score) => total + score, 0) / completedScores.length)
+      : databaseAvailable
+        ? Math.round((technicalPillar.value + physicalPillar.value + sportIqPillar.value + consistencyPillar.value) / 4)
+        : baseTelemetry.overallReadiness;
 
     return {
       sport: sId,
@@ -1281,6 +1288,27 @@ class DatabaseService {
         const result = existing
           ? await prisma.userAssessmentResult.update({ where: { id: existing.id }, data, include: { assessment: true, cycle: true } })
           : await prisma.userAssessmentResult.create({ data: { userId, sportId: sId, difficultyLevelId: lId, assessmentId: assessment.id, ...data }, include: { assessment: true, cycle: true } });
+        const history = await prisma.userAssessmentResult.findMany({
+          where: { userId, sportId: sId, difficultyLevelId: lId, status: 'COMPLETED' },
+          select: { score: true }
+        });
+        const readiness = Math.round(history.reduce((total, item) => total + (item.score || 0), 0) / history.length);
+        const pillarTypeByAssessment = {
+          skills: 'TECHNICAL_SKILL',
+          fitness: 'PHYSICAL_FITNESS',
+          knowledge: 'SPORT_IQ',
+          performance: 'TRAINING_CONSISTENCY'
+        };
+        const pillarType = pillarTypeByAssessment[assessmentSlug];
+        if (pillarType) {
+          const pillarName = { TECHNICAL_SKILL: 'Technical Skill', PHYSICAL_FITNESS: 'Physical Fitness', SPORT_IQ: 'Sport IQ & Tactical', TRAINING_CONSISTENCY: 'Training Consistency' }[pillarType];
+          await prisma.userPillarProgress.upsert({
+            where: { user_sport_level_pillar_unique: { userId, sportId: sId, difficultyLevelId: lId, pillarType } },
+            update: { value: Number(score), delta: 0 },
+            create: { userId, sportId: sId, difficultyLevelId: lId, pillarType, pillarName, value: Number(score), delta: 0, targetValue: 100 }
+          });
+        }
+        await prisma.userSportProfile.updateMany({ where: { userId, sportId: sId, difficultyLevelId: lId }, data: { readiness } });
         return {
           id: result.id,
           assessmentId: result.assessmentId,
@@ -1319,6 +1347,15 @@ class DatabaseService {
     }
 
     this.memoryStore.userAssessmentResults[key] = history;
+    const completed = history.filter(item => item.status === 'COMPLETED' && item.score !== null);
+    const readiness = completed.length
+      ? Math.round(completed.reduce((total, item) => total + Number(item.score), 0) / completed.length)
+      : 0;
+    const pillarTypeByAssessment = { skills: 'TECHNICAL_SKILL', fitness: 'PHYSICAL_FITNESS', knowledge: 'SPORT_IQ', performance: 'TRAINING_CONSISTENCY' };
+    const pillar = this.memoryStore.userPillarProgress[key]?.find(item => item.pillarType === pillarTypeByAssessment[assessmentSlug]);
+    if (pillar) pillar.value = submission.score;
+    const profile = this.memoryStore.userSportProfiles[key];
+    if (profile) profile.readiness = readiness;
     this.persistStore();
     return submission;
   }
