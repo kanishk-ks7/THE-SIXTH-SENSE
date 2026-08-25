@@ -40,7 +40,7 @@ export const AthleteProvider = ({ children }) => {
   const [session, setSession] = useState(() => getCurrentSession());
   const [athlete, setAthlete] = useState(() => getAthleteProfile(session?.userId));
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(() => isOnboardingCompleted());
-  const [savedEvents, setSavedEvents] = useState(() => getSavedEvents());
+  const [savedEvents, setSavedEvents] = useState(() => getSavedEvents(session?.userId));
   const [registeredEvents, setRegisteredEvents] = useState(() => getRegisteredEvents(session?.userId));
   const [competitionResults, setCompetitionResults] = useState(() => getCompetitionResults(session?.userId));
   const [completedLessons, setCompletedLessons] = useState(() => getCompletedLessons(session?.userId));
@@ -376,7 +376,8 @@ export const AthleteProvider = ({ children }) => {
    * Toggle event bookmark
    */
   const handleToggleSaveEvent = (eventId) => {
-    const updated = toggleSaveEvent(eventId);
+    const uid = session?.userId || athlete?.userId || 'demo-user-1';
+    const updated = toggleSaveEvent(eventId, uid);
     setSavedEvents(updated);
     const isSaved = updated.includes(eventId);
     showToast(isSaved ? 'Event saved to your competition calendar' : 'Event removed from saved list', 'info');

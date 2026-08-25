@@ -453,29 +453,36 @@ export const resetDemoProfile = () => {
 };
 
 /**
- * Get list of saved event IDs
+ * Get list of saved event IDs (scoped per-athlete/user)
  */
-export const getSavedEvents = () => {
+export const getSavedEvents = (targetUserId) => {
   try {
+    const session = getCurrentSession();
+    const uid = targetUserId || session?.userId || 'demo-user-1';
+    const rawUserScoped = localStorage.getItem(`${KEYS.SAVED_EVENTS}_${uid}`);
+    if (rawUserScoped) return JSON.parse(rawUserScoped);
     const raw = localStorage.getItem(KEYS.SAVED_EVENTS);
-    return raw ? JSON.parse(raw) : ['evt-2'];
+    return raw ? JSON.parse(raw) : ['evt-cbe-4'];
   } catch {
-    return ['evt-2'];
+    return ['evt-cbe-4'];
   }
 };
 
 /**
- * Toggle saving an event
+ * Toggle saving an event (scoped per-athlete/user)
  */
-export const toggleSaveEvent = (eventId) => {
+export const toggleSaveEvent = (eventId, targetUserId) => {
   try {
-    const current = getSavedEvents();
+    const session = getCurrentSession();
+    const uid = targetUserId || session?.userId || 'demo-user-1';
+    const current = getSavedEvents(uid);
     let updated;
     if (current.includes(eventId)) {
       updated = current.filter(id => id !== eventId);
     } else {
       updated = [...current, eventId];
     }
+    localStorage.setItem(`${KEYS.SAVED_EVENTS}_${uid}`, JSON.stringify(updated));
     localStorage.setItem(KEYS.SAVED_EVENTS, JSON.stringify(updated));
     return updated;
   } catch (err) {
