@@ -1,9 +1,20 @@
 /**
  * Athletex Unified API Client
  * Automatically attaches Bearer JWT authorization tokens and handles standardized responses.
+ * Dynamically resolves host IP so team members on the same network connect seamlessly.
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const resolveApiBaseUrl = () => {
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  if (typeof window !== 'undefined' && window.location.hostname && window.location.hostname !== 'localhost') {
+    return `http://${window.location.hostname}:5000/api`;
+  }
+  return 'http://localhost:5000/api';
+};
+
+const API_BASE_URL = resolveApiBaseUrl();
 const TOKEN_KEY = 'athletex_session';
 
 export const getStoredAuthToken = () => {
@@ -20,7 +31,8 @@ export const getStoredAuthToken = () => {
 };
 
 export const apiClient = async (endpoint, options = {}) => {
-  const url = `${API_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+  const base = resolveApiBaseUrl();
+  const url = `${base}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
   
   const headers = {
     'Content-Type': 'application/json',
@@ -55,7 +67,6 @@ export const apiClient = async (endpoint, options = {}) => {
 
     return data;
   } catch (error) {
-    // Return friendly error object or bubble
     throw error;
   }
 };

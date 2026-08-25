@@ -12,7 +12,9 @@ import {
   Info, 
   Share2, 
   RotateCcw,
-  ExternalLink
+  ExternalLink,
+  Video,
+  ListVideo
 } from 'lucide-react';
 import Button from '../ui/Button';
 import Badge from '../ui/Badge';
@@ -27,6 +29,7 @@ export const LessonModal = ({
   onNextLesson
 }) => {
   const [justCompleted, setJustCompleted] = useState(false);
+  const [imgError, setImgError] = useState(false);
 
   useEffect(() => {
     if (isOpen && lesson) {
@@ -60,8 +63,13 @@ export const LessonModal = ({
     }
   };
 
-  // Embed URL with sensible parameters
-  const embedUrl = `https://www.youtube.com/embed/${lesson.youtubeId}?rel=0&modestbranding=1&autoplay=1`;
+  const videoId = lesson.videoId || lesson.youtubeId || 'w4S8jW9L0w0';
+  const isPlayableLive = lesson.isPlayableLive !== false; // Live playable enabled for recommended lessons
+  const ytThumbnail = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+  const fallbackCover = 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=600&auto=format&fit=crop&q=80';
+
+  // Real YouTube embed with modest branding and autoplay
+  const embedUrl = `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1&autoplay=1`;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
@@ -76,19 +84,24 @@ export const LessonModal = ({
         
         {/* Top Header Bar */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-dark-border/80 bg-dark-card/50 flex-shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-brand-500/10 text-brand-400 border border-brand-500/20">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="p-2 rounded-xl bg-brand-500/10 text-brand-400 border border-brand-500/20 flex-shrink-0">
               <Play className="w-4 h-4 fill-current" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-brand-400">
-                  athletex Guided Lesson
+                  athletex Coaching Player
                 </span>
                 <span className="text-slate-600">•</span>
                 <Badge variant={isCompleted || justCompleted ? 'volt' : 'primary'} size="sm">
                   {isCompleted || justCompleted ? 'Completed' : 'In Progress'}
                 </Badge>
+                {isPlayableLive && (
+                  <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-volt/20 text-volt border border-volt/30">
+                    Live Stream
+                  </span>
+                )}
               </div>
               <h2 className="text-base sm:text-lg font-bold text-white font-display truncate max-w-lg">
                 {lesson.title}
@@ -99,7 +112,7 @@ export const LessonModal = ({
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 border border-transparent hover:border-dark-border transition-colors"
+            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 border border-transparent hover:border-dark-border transition-colors flex-shrink-0 ml-2"
             aria-label="Close lesson"
           >
             <X className="w-5 h-5" />
@@ -109,15 +122,45 @@ export const LessonModal = ({
         {/* Scrollable Modal Body */}
         <div className="p-6 space-y-6 overflow-y-auto flex-grow">
           
-          {/* Real Embedded YouTube Video Player */}
+          {/* Real Embedded YouTube Video Player or Video Preview */}
           <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-black border border-dark-border shadow-2xl">
-            <iframe
-              src={embedUrl}
-              title={lesson.title}
-              className="w-full h-full border-0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowFullScreen
-            />
+            {isPlayableLive ? (
+              <iframe
+                src={embedUrl}
+                title={lesson.title}
+                className="w-full h-full border-0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
+            ) : (
+              <div className="relative w-full h-full flex items-center justify-center">
+                <img
+                  src={imgError ? fallbackCover : ytThumbnail}
+                  alt={lesson.title}
+                  onError={() => setImgError(true)}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center space-y-3">
+                  <div className="p-4 rounded-2xl bg-brand-500/20 text-brand-300 border border-brand-500/30">
+                    <ListVideo className="w-8 h-8" />
+                  </div>
+                  <div className="space-y-1 max-w-md">
+                    <h3 className="text-base font-bold text-white">Module Library Preview</h3>
+                    <p className="text-xs text-slate-300">
+                      Live interactive playback is active for lessons in <strong className="text-volt">Recommended for You</strong>.
+                    </p>
+                  </div>
+                  <Button
+                    variant="volt"
+                    size="sm"
+                    icon={Check}
+                    onClick={handleComplete}
+                  >
+                    Mark as Studied
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Lesson Metadata Strip */}
@@ -125,7 +168,7 @@ export const LessonModal = ({
             <div className="flex flex-wrap items-center gap-4 text-xs">
               <div className="flex items-center gap-1.5 text-slate-300">
                 <Award className="w-4 h-4 text-brand-400" />
-                <span>Coach / Channel: <strong className="text-white">{lesson.coach}</strong></span>
+                <span>Coach: <strong className="text-white">{lesson.coach || 'athletex Coach'}</strong></span>
                 {lesson.channel && (
                   <span className="text-slate-500">({lesson.channel})</span>
                 )}
@@ -146,7 +189,7 @@ export const LessonModal = ({
             </div>
           </div>
 
-          {/* Why Recommended: Coach Diagnosis Alert */}
+          {/* Why Recommended Alert */}
           {lesson.recommendationReason && (
             <div className="p-4 rounded-2xl bg-brand-500/10 border border-brand-500/30 flex items-start gap-3">
               <div className="p-2 rounded-xl bg-brand-500/20 text-brand-300 flex-shrink-0 mt-0.5">
@@ -154,7 +197,7 @@ export const LessonModal = ({
               </div>
               <div className="space-y-1">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-brand-300">
-                  Why This Lesson Was Recommended For You
+                  Targeted Recommendation Insight
                 </h4>
                 <p className="text-xs text-slate-200 leading-relaxed">
                   {lesson.recommendationReason}
@@ -164,7 +207,7 @@ export const LessonModal = ({
           )}
 
           {/* Short Description */}
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
               Lesson Overview
             </h4>
@@ -173,12 +216,31 @@ export const LessonModal = ({
             </p>
           </div>
 
-          {/* What You Will Learn (Bullet points) */}
+          {/* Skill Badges */}
+          {lesson.skills && lesson.skills.length > 0 && (
+            <div className="space-y-2">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                Target Skills Covered
+              </h4>
+              <div className="flex flex-wrap gap-2">
+                {lesson.skills.map((skill, idx) => (
+                  <span
+                    key={idx}
+                    className="px-2.5 py-1 rounded-xl bg-dark-bg border border-dark-border text-slate-200 text-xs font-medium"
+                  >
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* What You Will Learn */}
           {lesson.learningOutcomes && lesson.learningOutcomes.length > 0 && (
             <div className="space-y-3 p-4 rounded-2xl bg-dark-bg/60 border border-dark-border">
               <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
                 <Target className="w-4 h-4 text-volt" />
-                <span>What You Will Master in this Practice:</span>
+                <span>What You Will Master:</span>
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 {lesson.learningOutcomes.map((item, idx) => (
@@ -191,7 +253,7 @@ export const LessonModal = ({
             </div>
           )}
 
-          {/* Completion Celebration Message */}
+          {/* Completion Celebration Alert */}
           {justCompleted && (
             <div className="p-4 rounded-2xl bg-volt/10 border border-volt/30 flex items-center justify-between gap-4 animate-fade-in">
               <div className="flex items-center gap-3">
@@ -199,8 +261,8 @@ export const LessonModal = ({
                   <Check className="w-5 h-5 stroke-[3]" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-white">Lesson Completed Successfully!</h4>
-                  <p className="text-xs text-slate-300">Your profile progression and recommendations have updated.</p>
+                  <h4 className="text-sm font-bold text-white">Lesson Completed!</h4>
+                  <p className="text-xs text-slate-300">Your progress ring and recommendation trajectory updated.</p>
                 </div>
               </div>
               {onNextLesson && (
@@ -217,7 +279,7 @@ export const LessonModal = ({
         <div className="p-4 sm:p-6 border-t border-dark-border/80 bg-dark-card/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 flex-shrink-0">
           <div className="flex items-center gap-2 text-xs text-slate-400">
             <Info className="w-4 h-4 text-slate-500" />
-            <span>Structured for <strong className="text-white">athletex</strong> skill progression</span>
+            <span>Structured for <strong className="text-white">athletex</strong> sequential coaching</span>
           </div>
 
           <div className="flex items-center gap-3">

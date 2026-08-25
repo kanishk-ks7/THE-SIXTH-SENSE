@@ -453,29 +453,36 @@ export const resetDemoProfile = () => {
 };
 
 /**
- * Get list of saved event IDs
+ * Get list of saved event IDs (scoped per-athlete/user)
  */
-export const getSavedEvents = () => {
+export const getSavedEvents = (targetUserId) => {
   try {
+    const session = getCurrentSession();
+    const uid = targetUserId || session?.userId || 'demo-user-1';
+    const rawUserScoped = localStorage.getItem(`${KEYS.SAVED_EVENTS}_${uid}`);
+    if (rawUserScoped) return JSON.parse(rawUserScoped);
     const raw = localStorage.getItem(KEYS.SAVED_EVENTS);
-    return raw ? JSON.parse(raw) : ['evt-2'];
+    return raw ? JSON.parse(raw) : ['evt-cbe-4'];
   } catch {
-    return ['evt-2'];
+    return ['evt-cbe-4'];
   }
 };
 
 /**
- * Toggle saving an event
+ * Toggle saving an event (scoped per-athlete/user)
  */
-export const toggleSaveEvent = (eventId) => {
+export const toggleSaveEvent = (eventId, targetUserId) => {
   try {
-    const current = getSavedEvents();
+    const session = getCurrentSession();
+    const uid = targetUserId || session?.userId || 'demo-user-1';
+    const current = getSavedEvents(uid);
     let updated;
     if (current.includes(eventId)) {
       updated = current.filter(id => id !== eventId);
     } else {
       updated = [...current, eventId];
     }
+    localStorage.setItem(`${KEYS.SAVED_EVENTS}_${uid}`, JSON.stringify(updated));
     localStorage.setItem(KEYS.SAVED_EVENTS, JSON.stringify(updated));
     return updated;
   } catch (err) {
@@ -555,22 +562,24 @@ const DEFAULT_INITIAL_RESULTS = [
   {
     id: 'res-evt-past-1',
     eventId: 'evt-past-1',
-    eventName: 'Summer Youth Football Classic 2026',
-    sport: 'Football',
-    location: 'Etihad Regional Campus, Manchester',
+    eventName: 'Coimbatore District Monsoon Track Meet 2026',
+    tier: 'District',
+    sport: 'Athletics',
+    location: 'VOC Park Grounds, Coimbatore',
     date: 'Jul 18 - Jul 20, 2026',
     status: 'completed',
     placement: '1st Place (Gold / Champion)',
-    outcome: 'Won final 3-1 • 2 Goals Scored • Match MVP',
-    notes: 'Exceptional link-up play in the final third. Scouted by North West Regional Academy scouts.',
+    outcome: '100m Sprint Gold (10.9s) & 200m Silver (22.4s)',
+    notes: 'Achieved personal best in 100m sprint. Qualified for Tamil Nadu State CM Trophy Zonal Qualifiers.',
     recordedAt: '2026-07-21T14:30:00.000Z'
   },
   {
     id: 'res-evt-past-2',
     eventId: 'evt-past-2',
-    eventName: 'North Regional Athletics Sprint Trials',
-    sport: 'Athletics',
-    location: 'Manchester Regional Arena',
+    eventName: 'Kongu Regional Youth Football Tournament',
+    tier: 'Local',
+    sport: 'Football',
+    location: 'Saravanampatti Turf Arena, Coimbatore',
     date: 'Aug 08, 2026',
     status: 'pending',
     placement: null,

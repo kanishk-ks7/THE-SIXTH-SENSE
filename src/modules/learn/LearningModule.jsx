@@ -17,7 +17,8 @@ import {
   Flame,
   RotateCcw,
   Zap,
-  Info
+  Info,
+  ListVideo
 } from 'lucide-react';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
@@ -29,19 +30,28 @@ import { LEARN_CATEGORIES } from '../../data/learningData';
 import { 
   getRecommendedLessons, 
   getInProgressLessons, 
-  getLearningPath, 
+  getSportModules,
+  getProgressChartData,
+  getMotivationStats,
   searchAndFilterLessons,
   normalizeSport
 } from '../../utils/learningEngine';
 import LessonModal from '../../components/learn/LessonModal';
 import CoachDiagnosticsBar from '../../components/learn/CoachDiagnosticsBar';
-import LearningPathSequence from '../../components/learn/LearningPathSequence';
+import ProgressPathwayChart from '../../components/learn/ProgressPathwayChart';
+import MotivationWidget from '../../components/learn/MotivationWidget';
+import PlaylistModuleCard from '../../components/learn/PlaylistModuleCard';
+import LessonVideoCard from '../../components/learn/LessonVideoCard';
 
 /**
  * =========================================================================
- * ATHLETEX: Personalized Learning & Coaching Module
+ * ATHLETEX: Visual-First Personalized Learning & Coaching Module
  * =========================================================================
- * Level-based, weakness-targeted learning hub with real YouTube practice videos.
+ * - YouTube-playlist-style modules with progress rings and cover thumbnails
+ * - Visual progress chart showing completed, active current, and upcoming topics
+ * - Lightweight motivational streak counter & milestone badges
+ * - Visual-first video cards with 16:9 YouTube thumbnail previews & play overlays
+ * - Live embedded YouTube playback for Recommended lessons
  * =========================================================================
  */
 export const LearningModule = () => {
@@ -65,7 +75,7 @@ export const LearningModule = () => {
   const activeSport = athlete?.sport || 'Basketball';
   const activeLevel = athlete?.level || 'Beginner';
 
-  // 1. Personalized Recommendations (Strictly 2 to 4 lessons matching weaknesses & progression)
+  // 1. Personalized Recommendations (Strictly 2 to 3 targeted lessons with live video playback enabled)
   const recommendedLessons = useMemo(() => {
     return getRecommendedLessons({
       sport: activeSport,
@@ -85,16 +95,35 @@ export const LearningModule = () => {
     });
   }, [activeSport, completedLessons, inProgressLessons]);
 
-  // 3. 5-Stage Learning Path Sequence
-  const pathStages = useMemo(() => {
-    return getLearningPath({
+  // 3. YouTube-Playlist-Style Modules
+  const playlistModules = useMemo(() => {
+    return getSportModules({
       sport: activeSport,
       level: activeLevel,
       completedLessons: completedLessons || []
     });
   }, [activeSport, activeLevel, completedLessons]);
 
-  // 4. Filtered Library for Search & Categories
+  // 4. Visual Progress Chart Data (Completed, Current, Next)
+  const progressChartData = useMemo(() => {
+    return getProgressChartData({
+      sport: activeSport,
+      level: activeLevel,
+      completedLessons: completedLessons || []
+    });
+  }, [activeSport, activeLevel, completedLessons]);
+
+  // 5. Motivational Telemetry (Streak, Milestone Badges, Encouraging Line)
+  const motivationStats = useMemo(() => {
+    return getMotivationStats({
+      sport: activeSport,
+      level: activeLevel,
+      completedLessons: completedLessons || [],
+      inProgressLessons: inProgressLessons || {}
+    });
+  }, [activeSport, activeLevel, completedLessons, inProgressLessons]);
+
+  // 6. Filtered Library for Search & Categories
   const filteredLibrary = useMemo(() => {
     return searchAndFilterLessons({
       sport: activeSport,
@@ -138,8 +167,8 @@ export const LearningModule = () => {
     <ModuleContainer
       moduleName="LearningModule.jsx"
       assignedTo="Learning & Coaching Module"
-      status="Active Personalized Hub"
-      description="Personalized, level-based sports education hub powered by athletex AI coaching diagnostic telemetry."
+      status="Active Visual-First Hub"
+      description="Visual-first, playlist-driven sports education engine with real YouTube coaching previews and live telemetry."
     >
       <div className="space-y-8">
 
@@ -155,7 +184,17 @@ export const LearningModule = () => {
           completedCount={(completedLessons || []).length}
         />
 
-        {/* 2. SECTION: RECOMMENDED FOR YOU (2-4 TARGETED LESSONS) */}
+        {/* 2. Motivational Strip (Streak Counter + Milestone Badges + Encouraging Line) */}
+        <MotivationWidget motivationStats={motivationStats} />
+
+        {/* 3. Visual Progress Chart & Pathway (Topics Completed, Current Topic, What's Coming Next) */}
+        <ProgressPathwayChart
+          chartData={progressChartData}
+          sport={activeSport}
+          onSelectLesson={handleOpenLesson}
+        />
+
+        {/* 4. SECTION: RECOMMENDED FOR YOU (Live Playable YouTube Video Cards) */}
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
@@ -165,15 +204,16 @@ export const LearningModule = () => {
                   Targeted Coaching
                 </span>
                 <span className="text-slate-600">•</span>
-                <span className="text-xs text-slate-400">Based on Weak Areas & Progression</span>
+                <span className="text-xs text-slate-400">Live Demo Videos Based on Weak Areas</span>
               </div>
               <h2 className="text-xl font-bold text-white font-display">
                 Recommended for You
               </h2>
             </div>
 
-            <div className="text-xs text-slate-400 bg-dark-card/60 px-3 py-1.5 rounded-xl border border-dark-border">
-              Displaying <strong className="text-volt">{recommendedLessons.length} targeted lessons</strong> for your current stage
+            <div className="text-xs text-slate-400 bg-dark-card/60 px-3 py-1.5 rounded-xl border border-dark-border flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-volt animate-ping" />
+              <span><strong className="text-volt">{recommendedLessons.length} live interactive lessons</strong> ready for playback</span>
             </div>
           </div>
 
@@ -186,7 +226,7 @@ export const LearningModule = () => {
                 All Recommended Lessons for this Level Completed!
               </h3>
               <p className="text-xs text-slate-400 max-w-md mx-auto mb-4">
-                Great job! You have conquered your primary weak areas. Explore the advanced library below or level up your profile.
+                Great job! You have conquered your primary weak areas. Explore the playlist modules below or level up your profile.
               </p>
               <Button variant="secondary" size="sm" onClick={resetLearningProgress}>
                 Reset for Review
@@ -194,82 +234,23 @@ export const LearningModule = () => {
             </Card>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {recommendedLessons.map((item, idx) => {
+              {recommendedLessons.map((item) => {
                 const isItemCompleted = (completedLessons || []).includes(item.id);
                 return (
-                  <Card
+                  <LessonVideoCard
                     key={item.id}
-                    className="flex flex-col justify-between group hover:border-brand-500/60 transition-all duration-300 relative overflow-hidden bg-gradient-to-b from-dark-surface to-dark-card"
-                  >
-                    {/* Top Accent Stripe */}
-                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-500 via-volt to-brand-400 opacity-60 group-hover:opacity-100 transition-opacity" />
-
-                    <div className="pt-2">
-                      {/* Priority Tag & Recommendation Reason Badge */}
-                      <div className="flex items-center justify-between gap-2 mb-3">
-                        <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border ${
-                          item.isWeaknessMatch
-                            ? 'bg-volt/15 text-volt border-volt/30 shadow-glow-sm'
-                            : 'bg-brand-500/15 text-brand-300 border-brand-500/30'
-                        }`}>
-                          {item.recommendationBadge}
-                        </span>
-
-                        <div className="flex items-center gap-1 text-[11px] text-slate-400">
-                          <Clock className="w-3 h-3" />
-                          <span>{item.duration}</span>
-                        </div>
-                      </div>
-
-                      {/* Lesson Title */}
-                      <h3 className="text-base font-bold text-white font-display group-hover:text-brand-300 transition-colors mb-2 leading-snug">
-                        {idx + 1}. {item.title}
-                      </h3>
-
-                      {/* Description */}
-                      <p className="text-xs text-slate-300 line-clamp-3 mb-4 leading-relaxed">
-                        {item.description}
-                      </p>
-
-                      {/* Key Learning Outcomes Preview */}
-                      {item.learningOutcomes && item.learningOutcomes.length > 0 && (
-                        <div className="p-2.5 rounded-xl bg-dark-bg/60 border border-dark-border/60 mb-5 space-y-1">
-                          <div className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                            <Target className="w-3 h-3 text-volt" />
-                            <span>Core Objective:</span>
-                          </div>
-                          <p className="text-[11px] text-slate-300 truncate">
-                            • {item.learningOutcomes[0]}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Footer Row */}
-                    <div className="pt-3 border-t border-dark-border/40 flex items-center justify-between gap-2">
-                      <div className="truncate">
-                        <span className="text-[11px] text-slate-400 truncate block">
-                          Coach {item.coach}
-                        </span>
-                      </div>
-
-                      <Button
-                        variant={item.isWeaknessMatch ? 'volt' : 'primary'}
-                        size="sm"
-                        icon={Play}
-                        onClick={() => handleOpenLesson(item)}
-                      >
-                        Start Learning
-                      </Button>
-                    </div>
-                  </Card>
+                    lesson={item}
+                    isCompleted={isItemCompleted}
+                    isRecommended={true}
+                    onOpenLesson={handleOpenLesson}
+                  />
                 );
               })}
             </div>
           )}
         </div>
 
-        {/* 3. SECTION: CONTINUE LEARNING (IN-PROGRESS LESSONS) */}
+        {/* 5. SECTION: CONTINUE LEARNING (IN-PROGRESS LESSONS) */}
         {inProgressList.length > 0 && (
           <div className="space-y-4 pt-2">
             <div className="flex items-center gap-2">
@@ -278,7 +259,7 @@ export const LearningModule = () => {
                 Resume Training
               </span>
               <span className="text-slate-600">•</span>
-              <span className="text-xs text-slate-400">Lessons In Progress</span>
+              <span className="text-xs text-slate-400">Videos In Progress</span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -288,19 +269,28 @@ export const LearningModule = () => {
                   className="p-4 rounded-2xl bg-dark-surface border border-dark-border hover:border-brand-500/40 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                 >
                   <div className="flex items-start gap-3">
-                    <div className="p-3 rounded-xl bg-brand-500/10 text-brand-400 border border-brand-500/20 flex-shrink-0 mt-0.5">
-                      <Play className="w-4 h-4 fill-current" />
+                    <div className="relative w-20 aspect-video rounded-xl overflow-hidden bg-dark-bg border border-dark-border flex-shrink-0 mt-0.5">
+                      <img
+                        src={`https://img.youtube.com/vi/${item.videoId || item.youtubeId}/mqdefault.jpg`}
+                        alt={item.title}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                        <Play className="w-4 h-4 fill-white text-white" />
+                      </div>
                     </div>
-                    <div className="space-y-1.5">
+
+                    <div className="space-y-1.5 min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-dark-card border border-dark-border text-slate-300">
                           {item.duration}
                         </span>
                         <span className="text-[10px] text-slate-400">
-                          Last active: {item.lastWatched}
+                          {item.lastWatched}
                         </span>
                       </div>
-                      <h4 className="text-sm font-bold text-white font-display">
+                      <h4 className="text-sm font-bold text-white font-display truncate max-w-xs">
                         {item.title}
                       </h4>
                       <div className="w-48 max-w-full pt-1">
@@ -323,26 +313,55 @@ export const LearningModule = () => {
           </div>
         )}
 
-        {/* 4. SECTION: 5-STAGE LEARNING PATH */}
-        <LearningPathSequence
-          pathStages={pathStages}
-          onSelectLesson={handleOpenLesson}
-        />
+        {/* 6. SECTION: YOUTUBE-PLAYLIST-STYLE MODULES */}
+        <div className="space-y-5 pt-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-brand-400 flex items-center gap-1">
+                  <ListVideo className="w-3.5 h-3.5" />
+                  Curated Modules
+                </span>
+                <span className="text-slate-600">•</span>
+                <span className="text-xs text-slate-400">{activeSport} Sequential Video Playlists</span>
+              </div>
+              <h2 className="text-xl font-bold text-white font-display">
+                Structured Learning Playlists
+              </h2>
+            </div>
 
-        {/* 5. SECTION: COMPLETE SPORT LIBRARY & CATEGORY SEARCH */}
-        <div className="space-y-6 pt-4">
+            <div className="text-xs text-slate-400 bg-dark-card/60 px-3 py-1.5 rounded-xl border border-dark-border">
+              {playlistModules.length} Modules • Ordered video lessons
+            </div>
+          </div>
+
+          {/* Playlist Cards List */}
+          <div className="space-y-4">
+            {playlistModules.map((mod) => (
+              <PlaylistModuleCard
+                key={mod.id}
+                module={mod}
+                onSelectLesson={handleOpenLesson}
+                activeLessonId={activeLesson?.id}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* 7. SECTION: COMPLETE SPORT LIBRARY & VISUAL CARD SEARCH */}
+        <div className="space-y-6 pt-6">
           
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                  Sports Curriculum
+                  Comprehensive Library
                 </span>
                 <span className="text-slate-600">•</span>
-                <span className="text-xs text-brand-400">{activeSport} Education Library</span>
+                <span className="text-xs text-brand-400">{activeSport} Video Catalog</span>
               </div>
               <h2 className="text-xl font-bold text-white font-display">
-                Explore All Topics & Skills
+                Explore All Practice Videos & Skills
               </h2>
             </div>
 
@@ -391,7 +410,7 @@ export const LearningModule = () => {
               <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
-                placeholder={`Search ${activeSport} topics, skills, videos...`}
+                placeholder={`Search ${activeSport} skills, drills, videos...`}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full bg-dark-surface border border-dark-border rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all"
@@ -399,14 +418,14 @@ export const LearningModule = () => {
             </div>
           </div>
 
-          {/* Library Cards Grid */}
+          {/* Library Cards Grid (Visual First with Video Thumbnails) */}
           {filteredLibrary.length === 0 ? (
             <Card className="p-8 text-center bg-dark-card/30">
               <div className="w-12 h-12 rounded-2xl bg-dark-surface border border-dark-border text-slate-400 mx-auto flex items-center justify-center mb-3">
                 <Search className="w-5 h-5" />
               </div>
               <h3 className="text-base font-bold text-white mb-1">
-                No lessons found matching your search
+                No video lessons found matching your search
               </h3>
               <p className="text-xs text-slate-400 max-w-sm mx-auto mb-4">
                 Try searching for a different skill, topic keyword, or switch the category filter.
@@ -420,67 +439,13 @@ export const LearningModule = () => {
               {filteredLibrary.map((item) => {
                 const isCompleted = item.isCompleted;
                 return (
-                  <Card
+                  <LessonVideoCard
                     key={item.id}
-                    className="flex flex-col justify-between group hover:border-brand-500/50 transition-all duration-300"
-                  >
-                    <div>
-                      {/* Card Header Tags */}
-                      <div className="flex items-center justify-between gap-2 mb-3">
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-[11px] px-2.5 py-0.5 rounded-lg bg-brand-500/10 text-brand-300 font-semibold capitalize border border-brand-500/20">
-                            {item.category}
-                          </span>
-                          <span className="text-[10px] text-slate-400 capitalize px-2 py-0.5 rounded-md bg-dark-bg border border-dark-border">
-                            {item.difficulty || item.level}
-                          </span>
-                        </div>
-
-                        <div className="flex items-center gap-1 text-[11px] text-slate-400">
-                          <Clock className="w-3 h-3" />
-                          <span>{item.duration}</span>
-                        </div>
-                      </div>
-
-                      {/* Title & Description */}
-                      <h3 className="text-base font-bold text-white font-display group-hover:text-brand-300 transition-colors mb-2 leading-snug">
-                        {item.title}
-                      </h3>
-                      <p className="text-xs text-slate-400 line-clamp-3 mb-4 leading-relaxed">
-                        {item.description}
-                      </p>
-
-                      {/* Weak areas / Topics tags */}
-                      {item.weakAreasCovered && (
-                        <div className="flex flex-wrap gap-1.5 mb-6">
-                          {item.weakAreasCovered.map((t, idx) => (
-                            <span
-                              key={idx}
-                              className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-dark-bg border border-dark-border/60 text-slate-300 capitalize"
-                            >
-                              {t.replace(/-/g, ' ')}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Card Footer Button */}
-                    <div className="pt-3 border-t border-dark-border/40 flex items-center justify-between gap-2">
-                      <span className="text-[11px] text-slate-400 truncate">
-                        By {item.coach}
-                      </span>
-                      
-                      <Button
-                        variant={isCompleted ? 'secondary' : 'primary'}
-                        size="sm"
-                        icon={isCompleted ? Check : Play}
-                        onClick={() => handleOpenLesson(item)}
-                      >
-                        {isCompleted ? 'Review' : 'Start Learning'}
-                      </Button>
-                    </div>
-                  </Card>
+                    lesson={item}
+                    isCompleted={isCompleted}
+                    isRecommended={false}
+                    onOpenLesson={handleOpenLesson}
+                  />
                 );
               })}
             </div>
@@ -488,7 +453,7 @@ export const LearningModule = () => {
 
         </div>
 
-        {/* 6. Real YouTube Interactive Lesson Modal */}
+        {/* 8. Real YouTube Interactive Lesson Modal */}
         {activeLesson && (
           <LessonModal
             lesson={activeLesson}

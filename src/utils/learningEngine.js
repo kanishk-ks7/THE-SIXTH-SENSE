@@ -1,10 +1,17 @@
 /**
  * athletex - Personalized Learning & Recommendation Engine
  * Computes level-based recommendations, 5-stage learning path progress,
- * and weakness-targeted coaching suggestions.
+ * YouTube-playlist-style modules, progress chart telemetry, and motivational metrics.
  */
 
-import { STRUCTURED_LESSONS, LEARNING_STAGES, DEFAULT_SPORT_WEAK_AREAS } from '../data/learningData.js';
+import { 
+  STRUCTURED_LESSONS, 
+  STRUCTURED_MODULES, 
+  LEARNING_STAGES, 
+  LEARN_CATEGORIES, 
+  LEARN_MILESTONES, 
+  DEFAULT_SPORT_WEAK_AREAS 
+} from '../data/learningData.js';
 
 /**
  * Normalize sport string (e.g. "Football" -> "football")
@@ -61,6 +68,9 @@ export const normalizeWeakAreas = (weakAreas, sport) => {
  * - Assessment Weaknesses
  * - Completed lessons (excluded)
  * - Learning Path Stage Progression
+ * 
+ * Note: Lessons in "Recommended for You" are flagged with isPlayableLive = true
+ * for live embedded YouTube video player demonstrations.
  */
 export const getRecommendedLessons = ({
   sport = 'basketball',
@@ -84,19 +94,17 @@ export const getRecommendedLessons = ({
     candidateLessons = remainingSportLessons;
   }
 
-  // 2. Score candidate lessons based on:
-  // - Weakness match (highest priority)
-  // - Stage order (lower stage first so rules & fundamentals come before advanced)
-  // - In-progress bonus
+  // 2. Score candidate lessons
   const scoredLessons = candidateLessons.map((lesson) => {
     let score = 0;
     let matchedWeakness = null;
 
     // Check match against weak areas
     for (const weak of activeWeakAreas) {
-      const isMatch = lesson.weakAreasCovered.some(tag => 
+      const isMatch = (lesson.weakAreasCovered || []).some(tag => 
         tag.includes(weak) || weak.includes(tag) || lesson.category.includes(weak) || weak.includes(lesson.category)
-      );
+      ) || (lesson.skills || []).some(s => s.toLowerCase().includes(weak));
+
       if (isMatch) {
         score += 50;
         matchedWeakness = weak;
@@ -105,8 +113,7 @@ export const getRecommendedLessons = ({
     }
 
     // Stage hierarchy: Stage 1 (Rules) > Stage 2 (Fundamentals) > Stage 3 > Stage 4 > Stage 5
-    // Stage 1 gives +30, Stage 2 gives +25, etc.
-    const stageBonus = Math.max(0, (6 - lesson.stage) * 6);
+    const stageBonus = Math.max(0, (6 - (lesson.stage || 1)) * 6);
     score += stageBonus;
 
     // Check if prerequisites are satisfied
@@ -135,26 +142,32 @@ export const getRecommendedLessons = ({
 
     return {
       ...lesson,
+      videoId: lesson.videoId || lesson.youtubeId,
+      youtubeId: lesson.youtubeId || lesson.videoId,
       _score: score,
       recommendationBadge,
       isWeaknessMatch,
-      prereqsMet
+      prereqsMet,
+      isPlayableLive: true // Live player enabled for Recommended For You
     };
   });
 
   // 3. Sort by computed score descending
   scoredLessons.sort((a, b) => b._score - a._score);
 
-  // 4. Return strictly 2 to 4 lessons (as mandated in specifications)
+  // 4. Return strictly 2 to 3 recommendations
   const finalRecommendations = scoredLessons.slice(0, 3);
 
-  // Fallback: If athlete completed everything, return the first 2 refresher lessons
+  // Fallback: If athlete completed everything, return first 2 refresher lessons
   if (finalRecommendations.length === 0 && allSportLessons.length > 0) {
     return allSportLessons.slice(0, 2).map(l => ({
       ...l,
+      videoId: l.videoId || l.youtubeId,
+      youtubeId: l.youtubeId || l.videoId,
       recommendationBadge: 'Refresher Review',
       isWeaknessMatch: false,
-      prereqsMet: true
+      prereqsMet: true,
+      isPlayableLive: true
     }));
   }
 
@@ -171,7 +184,6 @@ export const getInProgressLessons = ({
 }) => {
   const normSport = normalizeSport(sport);
   const completedSet = new Set(completedLessons);
-  const sportLessons = getSportLessons(normSport);
 
   const active = [];
 
@@ -181,8 +193,11 @@ export const getInProgressLessons = ({
       if (lesson && (lesson.sport === normSport || active.length < 2)) {
         active.push({
           ...lesson,
+          videoId: lesson.videoId || lesson.youtubeId,
+          youtubeId: lesson.youtubeId || lesson.videoId,
           progressPercent: progressData.percent || 45,
-          lastWatched: progressData.lastWatched || 'Today'
+          lastWatched: progressData.lastWatched || 'Today',
+          isPlayableLive: true
         });
       }
     }
@@ -208,7 +223,6 @@ export const getLearningPath = ({
   let hasFoundCurrent = false;
 
   const pathStages = LEARNING_STAGES.map((stageMeta) => {
-    // Find lesson in this sport and level for this stage
     const stageLessons = sportLessons.filter(l => l.stage === stageMeta.stage);
     const preferredLesson = stageLessons.find(l => l.level === normLevel) || stageLessons[0];
 
@@ -223,7 +237,6 @@ export const getLearningPath = ({
       status = 'current';
       hasFoundCurrent = true;
     } else {
-      // Check if previous stage was completed
       status = 'available';
     }
 
@@ -232,7 +245,11 @@ export const getLearningPath = ({
       category: stageMeta.category,
       title: stageMeta.label,
       shortTitle: stageMeta.shortLabel,
-      lesson: preferredLesson,
+      lesson: preferredLesson ? {
+        ...preferredLesson,
+        videoId: preferredLesson.videoId || preferredLesson.youtubeId,
+        youtubeId: preferredLesson.youtubeId || preferredLesson.videoId
+      } : null,
       status, // 'completed' | 'current' | 'available' | 'locked'
       totalLessons: stageLessons.length,
       completedCount: stageLessons.filter(l => completedSet.has(l.id)).length
@@ -240,6 +257,206 @@ export const getLearningPath = ({
   });
 
   return pathStages;
+};
+
+/**
+ * Computes YouTube-playlist-style modules for the given sport
+ * Each module aggregates lessons with completed counts, progress %, and ordered playlist items.
+ */
+export const getSportModules = ({
+  sport = 'basketball',
+  level = 'beginner',
+  completedLessons = []
+}) => {
+  const normSport = normalizeSport(sport);
+  const normLevel = normalizeLevel(level);
+  const completedSet = new Set(completedLessons);
+
+  // Find defined modules for sport, or fallback to basketball
+  let matchedModules = STRUCTURED_MODULES.filter(m => m.sport === normSport);
+  if (matchedModules.length === 0) {
+    matchedModules = STRUCTURED_MODULES.filter(m => m.sport === 'basketball');
+  }
+
+  const allSportLessons = getSportLessons(normSport);
+  const lessonMap = new Map(allSportLessons.map(l => [l.id, l]));
+
+  return matchedModules.map((mod) => {
+    // Resolve all lesson objects in order
+    const lessonsInModule = (mod.lessonIds || [])
+      .map(id => lessonMap.get(id))
+      .filter(Boolean)
+      .map(l => ({
+        ...l,
+        videoId: l.videoId || l.youtubeId,
+        youtubeId: l.youtubeId || l.videoId,
+        isCompleted: completedSet.has(l.id),
+        prereqsMet: (l.prerequisites || []).every(p => completedSet.has(p))
+      }));
+
+    const totalCount = lessonsInModule.length;
+    const completedCount = lessonsInModule.filter(l => l.isCompleted).length;
+    const progressPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+    const isCompleted = totalCount > 0 && completedCount === totalCount;
+    const isInProgress = completedCount > 0 && completedCount < totalCount;
+
+    // Estimate total playlist duration
+    const totalDurationMinutes = lessonsInModule.reduce((acc, l) => {
+      const match = (l.duration || '').match(/\d+/);
+      return acc + (match ? parseInt(match[0], 10) : 10);
+    }, 0);
+
+    return {
+      ...mod,
+      lessons: lessonsInModule,
+      totalCount,
+      completedCount,
+      progressPercent,
+      isCompleted,
+      isInProgress,
+      totalDuration: `${totalDurationMinutes} mins`
+    };
+  });
+};
+
+/**
+ * Computes visual progress telemetry for the Progress & Pathway Chart
+ * Returns overall completion %, completed topics, current active topic, and what's next.
+ */
+export const getProgressChartData = ({
+  sport = 'basketball',
+  level = 'beginner',
+  completedLessons = []
+}) => {
+  const normSport = normalizeSport(sport);
+  const sportLessons = getSportLessons(normSport);
+  const completedSet = new Set(completedLessons);
+
+  const completedTopics = [];
+  let currentTopic = null;
+  const nextTopics = [];
+
+  sportLessons.forEach((lesson) => {
+    const formatted = {
+      ...lesson,
+      videoId: lesson.videoId || lesson.youtubeId,
+      youtubeId: lesson.youtubeId || lesson.videoId,
+      isCompleted: completedSet.has(lesson.id)
+    };
+
+    if (completedSet.has(lesson.id)) {
+      completedTopics.push(formatted);
+    } else if (!currentTopic) {
+      currentTopic = formatted;
+    } else {
+      nextTopics.push(formatted);
+    }
+  });
+
+  const totalCount = sportLessons.length;
+  const completedCount = completedTopics.length;
+  const overallPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+
+  // Category breakdown
+  const categoryBreakdown = LEARN_CATEGORIES.filter(c => c.id !== 'all').map((cat) => {
+    const catLessons = sportLessons.filter(l => l.category === cat.id);
+    const catCompleted = catLessons.filter(l => completedSet.has(l.id)).length;
+    const catTotal = catLessons.length;
+    return {
+      category: cat.id,
+      label: cat.label,
+      total: catTotal,
+      completed: catCompleted,
+      percent: catTotal > 0 ? Math.round((catCompleted / catTotal) * 100) : 0
+    };
+  });
+
+  return {
+    overallPercent,
+    completedCount,
+    totalCount,
+    completedTopics,
+    currentTopic,
+    nextTopics,
+    categoryBreakdown
+  };
+};
+
+/**
+ * Computes motivational metrics:
+ * - Active Streak counter
+ * - Earned vs In-Progress Milestone Badges
+ * - Dynamic encouraging line tied directly to athlete progress
+ */
+export const getMotivationStats = ({
+  sport = 'basketball',
+  level = 'beginner',
+  completedLessons = [],
+  inProgressLessons = {}
+}) => {
+  const completedCount = (completedLessons || []).length;
+  const normSport = normalizeSport(sport);
+  const modules = getSportModules({ sport, level, completedLessons });
+
+  // Compute simulated streak (base 3 + active completions)
+  const baseStreak = 3;
+  const streak = completedCount > 0 ? baseStreak + Math.min(completedCount, 7) : 2;
+
+  // Evaluate milestone badges
+  const completedModulesCount = modules.filter(m => m.isCompleted).length;
+  const rulesLessons = getSportLessons(normSport).filter(l => l.category === 'rules');
+  const rulesDone = rulesLessons.length > 0 && rulesLessons.every(l => completedLessons.includes(l.id));
+
+  const milestoneBadges = LEARN_MILESTONES.map((badge) => {
+    let isEarned = false;
+    let currentProgress = 0;
+    let target = badge.target || 1;
+
+    if (badge.type === 'count') {
+      currentProgress = completedCount;
+      isEarned = completedCount >= target;
+    } else if (badge.type === 'category') {
+      currentProgress = rulesDone ? 1 : 0;
+      isEarned = rulesDone;
+    } else if (badge.type === 'module') {
+      currentProgress = completedModulesCount;
+      isEarned = completedModulesCount >= 1;
+    }
+
+    return {
+      ...badge,
+      isEarned,
+      currentProgress,
+      target
+    };
+  });
+
+  // Dynamic encouraging line tied to actual module progress
+  let encouragingMessage = 'Start your first lesson to build momentum!';
+  
+  // Find an in-progress module
+  const activeModule = modules.find(m => m.isInProgress) || modules.find(m => !m.isCompleted);
+
+  if (activeModule) {
+    const remaining = activeModule.totalCount - activeModule.completedCount;
+    if (activeModule.completedCount === 0) {
+      encouragingMessage = `Ready to kick off ${activeModule.title}? ${activeModule.totalCount} bite-sized video lessons await.`;
+    } else if (remaining === 1) {
+      encouragingMessage = `Just 1 lesson away from completing ${activeModule.title}! Keep the streak alive!`;
+    } else {
+      encouragingMessage = `${remaining} lessons from mastering ${activeModule.title}. You're on track!`;
+    }
+  } else if (completedCount > 0) {
+    encouragingMessage = `Incredible dedication! You've mastered all core modules for ${sport}. Explore advanced drills!`;
+  }
+
+  return {
+    streak,
+    streakLabel: `${streak}-Day Streak`,
+    milestoneBadges,
+    encouragingMessage,
+    completedCount
+  };
 };
 
 /**
@@ -265,20 +482,23 @@ export const searchAndFilterLessons = ({
     // Level Filter
     const matchesLevel = levelFilter === 'all' || lesson.level.toLowerCase() === levelFilter.toLowerCase();
 
-    // Search Query Match (Title, Coach, Description, Weak Areas, Learning Outcomes)
+    // Search Query Match (Title, Coach, Description, Weak Areas, Skills)
     let matchesSearch = true;
     if (query) {
       const matchTitle = lesson.title.toLowerCase().includes(query);
       const matchCoach = (lesson.coach || '').toLowerCase().includes(query) || (lesson.channel || '').toLowerCase().includes(query);
       const matchDesc = (lesson.description || '').toLowerCase().includes(query);
       const matchTags = (lesson.weakAreasCovered || []).some(t => t.toLowerCase().includes(query));
-      const matchOutcomes = (lesson.learningOutcomes || []).some(o => o.toLowerCase().includes(query));
-      matchesSearch = matchTitle || matchCoach || matchDesc || matchTags || matchOutcomes;
+      const matchSkills = (lesson.skills || []).some(s => s.toLowerCase().includes(query));
+      const matchModule = (lesson.module || '').toLowerCase().includes(query);
+      matchesSearch = matchTitle || matchCoach || matchDesc || matchTags || matchSkills || matchModule;
     }
 
     return matchesCategory && matchesLevel && matchesSearch;
   }).map(lesson => ({
     ...lesson,
+    videoId: lesson.videoId || lesson.youtubeId,
+    youtubeId: lesson.youtubeId || lesson.videoId,
     isCompleted: completedSet.has(lesson.id)
   }));
 };

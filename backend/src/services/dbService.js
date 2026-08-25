@@ -1,5 +1,13 @@
 import prisma, { checkDatabaseConnection } from '../config/db.js';
 import bcrypt from 'bcryptjs';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const DATA_DIR = path.join(__dirname, '../../data');
+const STORE_FILE = path.join(DATA_DIR, 'store.json');
 
 // Central sports catalog corresponding to frontend SPORTS_LIST
 export const INITIAL_SPORTS = [
@@ -466,6 +474,35 @@ class DatabaseService {
 
     this.initDefaultDemoUser();
     this.initDefaultAdminUser();
+    this.loadStore();
+  }
+
+  loadStore() {
+    try {
+      if (fs.existsSync(STORE_FILE)) {
+        const raw = fs.readFileSync(STORE_FILE, 'utf-8');
+        const parsed = JSON.parse(raw);
+        if (parsed && Array.isArray(parsed.users)) {
+          this.memoryStore = {
+            ...this.memoryStore,
+            ...parsed
+          };
+        }
+      }
+    } catch (err) {
+      console.warn('Store load error:', err.message);
+    }
+  }
+
+  persistStore() {
+    try {
+      if (!fs.existsSync(DATA_DIR)) {
+        fs.mkdirSync(DATA_DIR, { recursive: true });
+      }
+      fs.writeFileSync(STORE_FILE, JSON.stringify(this.memoryStore, null, 2), 'utf-8');
+    } catch (err) {
+      console.warn('Store persist error:', err.message);
+    }
   }
 
   initDefaultAdminUser() {
@@ -704,6 +741,7 @@ class DatabaseService {
       }
     }
 
+    this.persistStore();
     return newUser;
   }
 
@@ -943,6 +981,7 @@ class DatabaseService {
 
     const key = `${userId}_${sId}_${lId}`;
     this.memoryStore.userSportProfiles[key] = updated;
+    this.persistStore();
     return updated;
   }
 
@@ -1280,6 +1319,7 @@ class DatabaseService {
     }
 
     this.memoryStore.userAssessmentResults[key] = history;
+    this.persistStore();
     return submission;
   }
 
