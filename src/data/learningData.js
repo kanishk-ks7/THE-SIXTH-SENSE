@@ -372,34 +372,34 @@ export const STRUCTURED_MODULES = [
     id: 'mod-bd-rules',
     sport: 'badminton',
     level: 'beginner',
-    title: 'Badminton Regulations & Service Rules',
+    title: 'Badminton Regulations & Rules',
     category: 'rules',
     coverImage: 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=600&auto=format&fit=crop&q=80',
     description: 'Rally scoring to 21, singles vs doubles boxes, 1.15m service height rule, and net touch fouls.',
     lessonIds: ['bd-beg-rules-1'],
-    tags: ['Service Rules', 'Scoring', 'Boundaries', 'Faults']
+    tags: ['Badminton Rules', 'Service Rules', 'Scoring', 'Boundaries']
   },
   {
     id: 'mod-bd-fundamentals',
     sport: 'badminton',
     level: 'beginner',
-    title: 'Racket Grips & 6-Corner Footwork',
+    title: 'Badminton Basics & Fundamentals',
     category: 'fundamentals',
     coverImage: 'https://images.unsplash.com/photo-1613918108466-292b78a8ef95?w=600&auto=format&fit=crop&q=80',
-    description: 'Relaxed V-grip, thumb grip for backhand, split step, and chassé step recovery to the center T.',
+    description: 'Relaxed V-grip, thumb grip for backhand, ready stance, and court footwork recovery.',
     lessonIds: ['bd-beg-fund-1'],
-    tags: ['V-Grip', 'Backhand Grip', 'Footwork', 'Base Recovery']
+    tags: ['Badminton Basics', 'Racket Grip', 'Ready Stance', 'Footwork']
   },
   {
     id: 'mod-bd-techniques',
     sport: 'badminton',
     level: 'beginner',
-    title: 'High Clear & Deceptive Drop Shots',
+    title: 'Badminton Next Step Skills & Drills',
     category: 'techniques',
     coverImage: 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=600&auto=format&fit=crop&q=80',
-    description: 'Deep baseline high clears disguised with identical preparation as steep soft-slicing drops.',
+    description: 'Next step skills: dynamic shot control, deceptive wrist action, and smooth stroke timing.',
     lessonIds: ['bd-beg-tech-1'],
-    tags: ['High Clear', 'Drop Shot', 'Deception', 'Overhead']
+    tags: ['Next Step Skills', 'Shot Techniques', 'Wrist Action', 'Stroke Timing']
   },
   {
     id: 'mod-bd-strategy',
@@ -1426,7 +1426,7 @@ export const STRUCTURED_LESSONS = [
   },
 
   // =========================================================================
-  // BADMINTON (5-Stage Path)
+  // BADMINTON (3 Primary Real Videos for Recommended Section + 5-Stage Path)
   // =========================================================================
   {
     id: 'bd-beg-rules-1',
@@ -1435,23 +1435,25 @@ export const STRUCTURED_LESSONS = [
     category: 'rules',
     stage: 1,
     order: 1,
-    title: 'Badminton Official Regulations: Service Lines, Faults & Scoring',
-    coach: 'BWF Certified Umpire',
+    title: 'Badminton Rules',
+    coach: 'BWF Official Clinic',
     channel: 'Badminton Insights',
-    duration: '8 mins',
+    duration: '1 min',
     difficulty: 'Beginner',
-    videoId: 'w4S8jW9L0w0',
-    youtubeId: 'w4S8jW9L0w0',
-    module: 'Badminton Regulations & Service Rules',
-    skills: ['21-Point Rally Scoring', 'Singles vs Doubles Boxes', '1.15m Service Height', 'Net Invasion Faults'],
-    weakAreasCovered: ['rules', 'service-rules', 'court-lines', 'badminton-iq'],
-    description: 'Master rally scoring to 21 points, singles vs doubles service court boundaries, and 1.15m service height.',
-    recommendationReason: 'Essential tournament rules breakdown to avoid costly service faults.',
+    url: 'https://youtube.com/shorts/7PCnyBk2O5s?si=7oA8Q70DXUDeDcu1',
+    videoId: '7PCnyBk2O5s', // Real Badminton Rules Shorts
+    youtubeId: '7PCnyBk2O5s',
+    module: 'Badminton Regulations & Rules',
+    skill: 'Badminton Rules',
+    skills: ['Badminton Rules', 'Service Lines', 'Fault Rules', 'Scoring System'],
+    weakAreasCovered: ['rules', 'badminton-rules', 'regulations', 'service-rules', 'scoring', 'court-lines'],
+    description: 'Essential badminton rules breakdown: official service limits, court boundary lines, fault triggers, and match scoring regulations.',
+    recommendationReason: 'Addresses your identified weakness in Badminton Rules from your initial Sports IQ Assessment.',
     learningOutcomes: [
       'Understand singles long-and-narrow vs doubles short-and-wide service boxes.',
       'Comply with the 1.15m fixed service height regulation.',
-      'Shuttlecock boundary line rules (on-the-line is in).',
-      'Over-the-net invasion and racket touch infractions.'
+      'Shuttlecock boundary line rules and net touch infractions.',
+      'Rally scoring up to 21 points and deuce advantage criteria.'
     ],
     prerequisites: []
   },
@@ -1462,23 +1464,25 @@ export const STRUCTURED_LESSONS = [
     category: 'fundamentals',
     stage: 2,
     order: 2,
-    title: 'Basic Racket Grips (Forehand/Backhand) & 6-Corner Footwork',
+    title: 'Badminton Basics',
     coach: 'Coach Lee Jae Bok',
     channel: 'Lee Jae Bok Badminton',
-    duration: '14 mins',
+    duration: '12 mins',
     difficulty: 'Beginner',
-    videoId: '0mPZ3oI0T3k',
-    youtubeId: '0mPZ3oI0T3k',
-    module: 'Racket Grips & 6-Corner Footwork',
-    skills: ['Relaxed V-Grip', 'Thumb Bevel Backhand', 'Chassé Corner Steps', 'Central Base Recovery'],
-    weakAreasCovered: ['grip', 'footwork', 'corner-recovery', 'fundamentals'],
-    description: 'Master the relaxed V-grip, thumb grip for backhand, split step, and chassé step recovery to the center base T.',
-    recommendationReason: 'Targeted drill to address footwork agility and grip transitions.',
+    url: 'https://youtu.be/7Oo98XY0rtA?si=D7kR724CJBmVgJs5',
+    videoId: '7Oo98XY0rtA', // Real Badminton Basics Full Video
+    youtubeId: '7Oo98XY0rtA',
+    module: 'Badminton Basics & Fundamentals',
+    skill: 'Badminton Basics',
+    skills: ['Badminton Basics', 'Forehand/Backhand Grip', 'Ready Stance', '6-Corner Footwork'],
+    weakAreasCovered: ['fundamentals', 'badminton-basics', 'basics', 'grip', 'footwork', 'stance'],
+    description: 'Master foundational badminton basics including essential racket grips, athletic ready stance, and court footwork mechanics.',
+    recommendationReason: 'Targeted fundamental coaching to build core racket grip, ready position, and court balance.',
     learningOutcomes: [
-      'Relaxed grip that tightens only on moment of impact.',
-      'Thumb position along wide bevel for crisp backhand generation.',
-      'Chassé and lunging footwork to reach front corners without knee strain.',
-      'Immediate recovery to the central court base position.'
+      'Master the relaxed V-grip and thumb bevel transition for backhand strokes.',
+      'Establish a dynamic split-step ready stance for explosive multi-directional movement.',
+      'Execute 6-corner court footwork without off-balance overextension.',
+      'Immediate recovery to the central court base position after every hit.'
     ],
     prerequisites: ['bd-beg-rules-1']
   },
@@ -1489,23 +1493,25 @@ export const STRUCTURED_LESSONS = [
     category: 'techniques',
     stage: 3,
     order: 3,
-    title: 'High Clear & Deceptive Drop Shot Mastery from Rear Court',
+    title: 'Badminton Next Step on Skills',
     coach: 'Coach Zhao Jianhua',
     channel: 'Badminton Racket Skills',
-    duration: '15 mins',
+    duration: '1 min',
     difficulty: 'Beginner',
-    videoId: 'm4XgK0J9G5o',
-    youtubeId: 'm4XgK0J9G5o',
-    module: 'High Clear & Deceptive Drop Shots',
-    skills: ['Overhead Body Torque', 'Drop Shot Disguise', 'Skirt Slicing', 'Baseline Tramline Depth'],
-    weakAreasCovered: ['clear', 'drop-shot', 'overhead-stroke', 'techniques'],
-    description: 'Execute deep overhead high clears to push opponents to baseline, paired with deceptive soft slicing drop shots.',
-    recommendationReason: 'Builds versatile rear-court shot selection to control rally tempo.',
+    url: 'https://youtube.com/shorts/j4_8W5tNmD4?si=joz9LEW918TLyp2D',
+    videoId: 'j4_8W5tNmD4', // Real Badminton Next Step on Skills Shorts
+    youtubeId: 'j4_8W5tNmD4',
+    module: 'Badminton Next Step Skills & Drills',
+    skill: 'Next Step Skills',
+    skills: ['Next Step Skills', 'Shot Techniques', 'Wrist Action', 'Stroke Timing'],
+    weakAreasCovered: ['techniques', 'skills', 'next-step-skills', 'stroke', 'wrist-action', 'shot-control', 'drop-shot'],
+    description: 'Elevate your game with next-step badminton skills: dynamic shot control, deceptive wrist action, and smooth stroke execution.',
+    recommendationReason: 'Targeted technical progression to master next-step stroke execution and shot precision.',
     learningOutcomes: [
-      'Full body rotation and elbow leading on overhead strokes.',
-      'Disguising drop shots by using identical swing prep as high clears.',
-      'Slicing the shuttlecock skirt for steep falling trajectories.',
-      'Clearing high and deep to the opponent back double tramlines.'
+      'Pronate forearm and snap wrist at point of impact for rapid shuttle acceleration.',
+      'Disguise overhead clears and steep drop shots using identical preparation.',
+      'Maintain compact stroke mechanics to minimize recovery lag time.',
+      'Execute consistent high-percentage crosscourt and down-the-line returns.'
     ],
     prerequisites: ['bd-beg-fund-1']
   },
@@ -1524,6 +1530,7 @@ export const STRUCTURED_LESSONS = [
     videoId: '3m_q4Z1r8bM',
     youtubeId: '3m_q4Z1r8bM',
     module: '4-Corner Shuttle Manipulation Strategy',
+    skill: 'Match Strategy',
     skills: ['Half-Second Shot Holding', 'Fast Flat Clears', 'Line Push Placements', 'Rally Energy Management'],
     weakAreasCovered: ['strategy', 'tactics', 'court-movement', 'badminton-iq'],
     description: 'Pull opponents out of balance by moving them consecutively between diagonally opposite court corners.',
@@ -1551,6 +1558,7 @@ export const STRUCTURED_LESSONS = [
     videoId: 'E_h3K1b_9e0',
     youtubeId: 'E_h3K1b_9e0',
     module: 'Jump Smash & Net Kill Reflexes',
+    skill: 'Jump Smash & Net Kills',
     skills: ['Scissor Kick Jump', 'High Extension Angle', 'Compact Net Tap Snap', 'Landing Recovery'],
     weakAreasCovered: ['smash', 'jump-smash', 'net-kill', 'advanced-skills'],
     description: 'Jump timing, scissor kick leg switch, steep downward angle contact, and lightning-fast net kill tap reflexes.',
@@ -1708,12 +1716,12 @@ export const STRUCTURED_LESSONS = [
  * Helper to get default weak areas for sports if none configured yet
  */
 export const DEFAULT_SPORT_WEAK_AREAS = {
+  badminton: ['rules', 'fundamentals', 'techniques'],
   basketball: ['rules', 'ball-handling'],
   football: ['first-touch', 'passing', 'rules'],
   cricket: ['batting', 'rules', 'footwork'],
   athletics: ['sprint-mechanics', 'acceleration', 'rules'],
   tennis: ['grip', 'forehand', 'rules'],
-  badminton: ['footwork', 'rules', 'grip'],
   volleyball: ['passing', 'rules', 'spiking'],
   other: ['fundamentals', 'rules', 'techniques']
 };

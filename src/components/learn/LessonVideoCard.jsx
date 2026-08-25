@@ -21,17 +21,19 @@ export const LessonVideoCard = ({
 }) => {
   const [imgError, setImgError] = useState(false);
 
-  const videoId = lesson.videoId || lesson.youtubeId || 'w4S8jW9L0w0';
+  const videoId = lesson.videoId || lesson.youtubeId || '7Oo98XY0rtA';
   // High-res YouTube thumbnail URL
   const ytThumbnail = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
   // Fallback sports cover
-  const fallbackCover = 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=600&auto=format&fit=crop&q=80';
+  const fallbackCover = 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=600&auto=format&fit=crop&q=80';
+
+  const skillName = lesson.skill || (lesson.skills && lesson.skills[0]) || lesson.category;
 
   return (
-    <Card className="flex flex-col justify-between group hover:border-brand-500/60 transition-all duration-300 relative overflow-hidden bg-gradient-to-b from-dark-surface to-dark-card p-0">
+    <Card className="flex flex-col justify-between group hover:border-brand-500/60 transition-all duration-300 relative overflow-hidden bg-gradient-to-b from-dark-surface to-dark-card p-0 shadow-lg">
       
       {/* Top Accent Gradient Border */}
-      <div className={`h-1 w-full ${
+      <div className={`h-1.5 w-full ${
         isRecommended 
           ? 'bg-gradient-to-r from-brand-500 via-volt to-brand-400' 
           : isCompleted 
@@ -39,9 +41,9 @@ export const LessonVideoCard = ({
             : 'bg-dark-border group-hover:bg-brand-500/50'
       } transition-all`} />
 
-      <div className="p-4 sm:p-5 flex flex-col justify-between flex-grow space-y-4">
+      <div className="p-4 sm:p-5 flex flex-col justify-between flex-grow space-y-3.5">
         
-        {/* 1. HERO VIDEO THUMBNAIL PREVIEW (Primary Visual Element) */}
+        {/* 1. HERO VIDEO THUMBNAIL PREVIEW (Main Visual Element) */}
         <div 
           onClick={() => onOpenLesson && onOpenLesson(lesson)}
           className="relative aspect-video w-full rounded-2xl overflow-hidden bg-dark-bg cursor-pointer group/thumb border border-dark-border/80 shadow-md"
@@ -56,23 +58,23 @@ export const LessonVideoCard = ({
           />
 
           {/* Dark Overlay Gradient */}
-          <div className="absolute inset-0 bg-gradient-to-t from-dark-bg/90 via-dark-bg/30 to-black/20 group-hover/thumb:from-dark-bg/80 transition-opacity" />
+          <div className="absolute inset-0 bg-gradient-to-t from-dark-bg/90 via-dark-bg/25 to-black/20 group-hover/thumb:from-dark-bg/80 transition-opacity" />
 
           {/* Top Chips on Thumbnail */}
           <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between gap-2 z-10">
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-dark-bg/90 backdrop-blur-md border border-dark-border text-slate-200 capitalize">
-              {lesson.category}
+            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-lg bg-dark-bg/90 backdrop-blur-md border border-dark-border text-slate-200 capitalize">
+              {lesson.sport || 'Badminton'} • {lesson.category}
             </span>
 
             {isRecommended && (
               <span className="flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-0.5 rounded-lg bg-volt text-dark-bg shadow-glow-volt">
                 <Sparkles className="w-3 h-3" />
-                Live Demo
+                Recommended
               </span>
             )}
 
             {isCompleted && (
-              <span className="flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-lg bg-volt/90 text-dark-bg">
+              <span className="flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-lg bg-volt text-dark-bg">
                 <Check className="w-3 h-3 stroke-[3]" />
                 Completed
               </span>
@@ -94,22 +96,20 @@ export const LessonVideoCard = ({
           <div className="absolute bottom-2.5 right-2.5 z-10">
             <span className="flex items-center gap-1 text-[11px] font-mono font-bold px-2 py-0.5 rounded-md bg-black/80 backdrop-blur-md text-white border border-white/10">
               <Clock className="w-3 h-3 text-slate-300" />
-              {lesson.duration}
+              {lesson.duration || 'Video'}
             </span>
           </div>
 
-          {/* Coach Name on Bottom Left */}
-          {lesson.coach && (
-            <div className="absolute bottom-2.5 left-2.5 z-10 truncate max-w-[65%]">
-              <span className="text-[10px] font-medium text-slate-300 drop-shadow truncate block">
-                Coach: {lesson.coach}
-              </span>
-            </div>
-          )}
+          {/* Level & Skill Badge on Bottom Left */}
+          <div className="absolute bottom-2.5 left-2.5 z-10 truncate max-w-[65%]">
+            <span className="text-[10px] font-semibold text-slate-200 bg-black/70 backdrop-blur-sm px-2 py-0.5 rounded-md border border-white/10 truncate block">
+              {lesson.difficulty || lesson.level || 'Beginner'} • {skillName}
+            </span>
+          </div>
         </div>
 
         {/* 2. LESSON INFO (Short, Scannable Text) */}
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           
           {/* Recommendation Tag / Reason if applicable */}
           {lesson.recommendationBadge && isRecommended && (
@@ -132,25 +132,21 @@ export const LessonVideoCard = ({
             {lesson.description}
           </p>
 
-          {/* Skill Chips */}
-          {lesson.skills && lesson.skills.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 pt-1">
-              {lesson.skills.slice(0, 3).map((skill, idx) => (
-                <span
-                  key={idx}
-                  className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-dark-bg/80 border border-dark-border/60 text-slate-300 truncate"
-                >
-                  {skill}
-                </span>
-              ))}
-            </div>
-          )}
+          {/* Skill Tag */}
+          <div className="flex items-center gap-1.5 pt-1">
+            <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-brand-500/10 border border-brand-500/20 text-brand-300">
+              Skill: {skillName}
+            </span>
+            <span className="text-[10px] text-slate-400 capitalize px-2 py-0.5 rounded-md bg-dark-bg border border-dark-border">
+              {lesson.sport || 'Badminton'} ({lesson.level || 'Beginner'})
+            </span>
+          </div>
         </div>
 
-        {/* 3. CARD FOOTER: Visual Action Button */}
+        {/* 3. CARD FOOTER: "Start Watching" Button */}
         <div className="pt-3 border-t border-dark-border/50 flex items-center justify-between gap-2">
-          <div className="text-[11px] text-slate-400 capitalize">
-            {lesson.difficulty || lesson.level}
+          <div className="text-[11px] text-slate-400 capitalize truncate">
+            {lesson.category}
           </div>
 
           <Button
@@ -159,7 +155,7 @@ export const LessonVideoCard = ({
             icon={isCompleted ? Check : Play}
             onClick={() => onOpenLesson && onOpenLesson(lesson)}
           >
-            {isCompleted ? 'Review' : isRecommended ? 'Watch Live' : 'View Lesson'}
+            {isCompleted ? 'Review' : 'Start Watching'}
           </Button>
         </div>
 
