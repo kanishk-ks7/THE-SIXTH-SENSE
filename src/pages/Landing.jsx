@@ -410,12 +410,7 @@ export const Landing = () => {
             <div className="lg:col-span-7 space-y-8 text-left">
               
               {/* Premium Pill Badge */}
-              <motion.div 
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-gradient-to-r from-dark-surface/90 to-dark-card/90 border border-volt/30 shadow-[0_0_20px_-3px_rgba(204,255,0,0.25)] backdrop-blur-md"
-              >
+              <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-gradient-to-r from-dark-surface/90 to-dark-card/90 border border-volt/30 shadow-[0_0_20px_-3px_rgba(204,255,0,0.25)] backdrop-blur-md hero-anim-badge">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-volt opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-volt"></span>
@@ -424,53 +419,28 @@ export const Landing = () => {
                 <span className="text-xs font-semibold text-slate-200 tracking-wide">
                   The Intelligent Sports Career Platform for Student Athletes
                 </span>
-              </motion.div>
+              </div>
 
               {/* 1. HERO TEXT ANIMATION — Sequential 3 Lines */}
               <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white font-display leading-[1.08]">
-                <motion.span
-                  initial={{ opacity: 0, y: 35 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-                  className="block"
-                >
+                <span className="block hero-anim-line-1">
                   Find your path.
-                </motion.span>
-                <motion.span
-                  initial={{ opacity: 0, y: 35 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.7, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                  className="block bg-gradient-to-r from-cyan-300 via-brand-accent to-volt bg-clip-text text-transparent animate-glow-subtle"
-                >
+                </span>
+                <span className="block bg-gradient-to-r from-cyan-300 via-brand-accent to-volt bg-clip-text text-transparent animate-glow-subtle hero-anim-line-2">
                   Build your skills.
-                </motion.span>
-                <motion.span
-                  initial={{ opacity: 0, y: 35 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.7, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                  className="block"
-                >
+                </span>
+                <span className="block hero-anim-line-3">
                   Reach your potential.
-                </motion.span>
+                </span>
               </h1>
 
               {/* Subtitle Description */}
-              <motion.p 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.75, ease: [0.16, 1, 0.3, 1] }}
-                className="text-base sm:text-lg lg:text-xl text-slate-300 max-w-2xl leading-relaxed font-normal"
-              >
+              <p className="text-base sm:text-lg lg:text-xl text-slate-300 max-w-2xl leading-relaxed font-normal hero-anim-desc">
                 An intelligent sports career companion that helps athletes understand where they are, what they should improve, and what opportunities they can pursue next.
-              </motion.p>
+              </p>
 
               {/* Dual Action Buttons */}
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.85, ease: [0.16, 1, 0.3, 1] }}
-                className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2"
-              >
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2 hero-anim-buttons">
                 <Link to="/signup" className="w-full sm:w-auto">
                   <Button 
                     variant="volt" 
@@ -492,15 +462,10 @@ export const Landing = () => {
                     Explore Platform Demo
                   </Button>
                 </Link>
-              </motion.div>
+              </div>
 
               {/* 4. SUPPORTED SPORTS PILLS (Hover scale, glow & icon translation) */}
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.95, ease: [0.16, 1, 0.3, 1] }}
-                className="pt-6 border-t border-white/[0.06] space-y-3"
-              >
+              <div className="pt-6 border-t border-white/[0.06] space-y-3 hero-anim-pills">
                 <div className="flex items-center gap-2">
                   <Flame className="w-4 h-4 text-volt" />
                   <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
@@ -535,17 +500,12 @@ export const Landing = () => {
                     );
                   })}
                 </div>
-              </motion.div>
+              </div>
 
             </div>
 
             {/* 2. HERO AI ATHLETE DASHBOARD (Number Counter, Progress Bar & Live Status) */}
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.94, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-              className="lg:col-span-5 relative"
-            >
+            <div className="lg:col-span-5 relative hero-anim-card">
               
               {/* Outer Glowing Frame */}
               <div className="relative rounded-3xl p-1 bg-gradient-to-b from-white/15 via-cyan-500/20 to-volt/20 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.8)]">
@@ -671,7 +631,7 @@ export const Landing = () => {
                 </div>
               </motion.div>
 
-            </motion.div>
+            </div>
 
           </div>
 
