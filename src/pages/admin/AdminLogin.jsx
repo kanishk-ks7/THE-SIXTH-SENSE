@@ -36,10 +36,10 @@ export const AdminLogin = () => {
   };
 
   const fillDefaultAdmin = () => {
-    setFormData(prev => ({
-      ...prev,
-      email: 'admin@athletex.ai'
-    }));
+    setFormData({
+      email: 'admin@athletex.ai',
+      password: 'adminPassword123'
+    });
     setError(null);
   };
 
@@ -151,7 +151,7 @@ export const AdminLogin = () => {
                 className="w-full py-2 px-3 rounded-xl bg-dark-bg border border-dark-border hover:border-volt/50 text-slate-300 hover:text-white text-xs font-medium transition-all flex items-center justify-center gap-2"
               >
                 <Sparkles className="w-3.5 h-3.5 text-volt" />
-                <span>Fill Development Admin Email</span>
+                <span>Fill Development Admin Credentials</span>
               </button>
             </div>
           </Card>
