@@ -77,11 +77,12 @@ app.use(errorHandler);
 // -------------------------------------------------------------
 // SERVER BOOTSTRAP
 // -------------------------------------------------------------
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`==================================================`);
   console.log(`  🚀 ATHLETEX BACKEND SERVER RUNNING ON PORT ${PORT}`);
   console.log(`  🌐 Health Check: http://localhost:${PORT}/api/health`);
   console.log(`  📊 Telemetry API: http://localhost:${PORT}/api/progress/telemetry`);
+  console.log(`  👥 LAN Access: http://0.0.0.0:${PORT}`);
   console.log(`==================================================`);
 });
 
