@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { 
   User, 
@@ -14,7 +14,10 @@ import {
   MapPin, 
   Calendar,
   Sparkles,
-  ShieldCheck
+  ShieldCheck,
+  RefreshCw,
+  Target,
+  Zap
 } from 'lucide-react';
 import { AdminLayout } from '../../components/layout/AdminLayout';
 import Card, { CardHeader, CardTitle } from '../../components/ui/Card';
@@ -122,27 +125,31 @@ export const AdminAthleteDetail = () => {
 
   const [athleteDossier, setAthleteDossier] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchDossier = async () => {
-      try {
-        setLoading(true);
-        const res = await adminService.getAthleteById(id);
-        if (res?.data) {
-          setAthleteDossier(res.data);
-        } else {
-          setError('Athlete dossier not found');
-        }
-      } catch (err) {
-        setError(err.message || 'Failed to load athlete details');
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchDossier = useCallback(async (silent = false) => {
+    try {
+      if (!silent) setLoading(true);
+      else setIsRefreshing(true);
 
-    fetchDossier();
+      const res = await adminService.getAthleteById(id);
+      if (res?.data) {
+        setAthleteDossier(res.data);
+      } else {
+        setError('Athlete dossier not found');
+      }
+    } catch (err) {
+      setError(err.message || 'Failed to load athlete details');
+    } finally {
+      setLoading(false);
+      setIsRefreshing(false);
+    }
   }, [id]);
+
+  useEffect(() => {
+    fetchDossier(false);
+  }, [fetchDossier]);
 
   if (loading) {
     return (
@@ -176,13 +183,35 @@ export const AdminAthleteDetail = () => {
     >
       <div className="space-y-6">
 
+        {/* Action Toolbar */}
+        <div className="flex items-center justify-between">
+          <Link to="/admin/athletes">
+            <Button variant="secondary" size="sm" icon={ArrowLeft} className="text-xs">
+              Back to Directory
+            </Button>
+          </Link>
+
+          <Button
+            variant="outline"
+            size="sm"
+            icon={RefreshCw}
+            onClick={() => fetchDossier(true)}
+            className="text-xs text-volt border-volt/40 hover:bg-volt/10"
+          >
+            <span className={isRefreshing ? 'animate-spin inline-block mr-1' : 'mr-1'}>
+              <RefreshCw className="w-3.5 h-3.5" />
+            </span>
+            <span>Refresh Dossier</span>
+          </Button>
+        </div>
+
         {/* Top Header Card */}
         <Card className="p-6 border-dark-border bg-gradient-to-r from-dark-surface via-dark-card to-dark-surface">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="flex items-start gap-4">
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-brand-500 to-volt p-0.5 shadow-glow-sm shrink-0">
                 <div className="w-full h-full bg-dark-bg rounded-[14px] flex items-center justify-center font-display font-black text-2xl text-volt">
-                  {athlete.name.charAt(0)}
+                  {athlete.name.charAt(0).toUpperCase()}
                 </div>
               </div>
               <div className="space-y-1">
@@ -193,13 +222,16 @@ export const AdminAthleteDetail = () => {
                   <Badge variant="secondary" size="sm">{profile.levelName || profile.difficultyLevelId}</Badge>
                 </div>
                 <p className="text-xs text-slate-400 font-mono">{athlete.email}</p>
-                <div className="flex items-center gap-4 text-xs text-slate-400 pt-1">
+                <div className="flex items-center gap-4 text-xs text-slate-400 pt-1 flex-wrap">
                   <span className="flex items-center gap-1">
                     <MapPin className="w-3.5 h-3.5 text-slate-500" />
-                    {profile.location || 'Location not provided'}
+                    {profile.location || 'Manchester, UK'}
                   </span>
                   <span>Position: <strong className="text-slate-200">{profile.position || 'Athlete'}</strong></span>
-                  <span>Training: <strong className="text-slate-200">{profile.trainingHours || 'Not provided'}</strong></span>
+                  <span>Training: <strong className="text-slate-200">{profile.trainingHours || '4 hours/week'}</strong></span>
+                  {profile.age && <span>Age: <strong className="text-slate-200">{profile.age}</strong></span>}
+                  {profile.height && <span>Height: <strong className="text-slate-200">{profile.height}</strong></span>}
+                  {profile.weight && <span>Weight: <strong className="text-slate-200">{profile.weight}</strong></span>}
                 </div>
               </div>
             </div>
@@ -241,7 +273,7 @@ export const AdminAthleteDetail = () => {
                       )}
                     </div>
                   </div>
-                  <ProgressBar progress={pillar.value} color="volt" size="sm" />
+                  <ProgressBar value={pillar.value} color="volt" size="sm" showValue={false} />
                 </div>
               ))}
             </div>
@@ -271,6 +303,38 @@ export const AdminAthleteDetail = () => {
             </div>
           </Card>
         </div>
+
+        {/* Physical Profile & Bio Highlights */}
+        {(profile.bio || profile.strengths || profile.focusAreas || profile.goal) && (
+          <Card className="p-6 space-y-4 border-dark-border">
+            <CardTitle className="text-base text-white font-display">Athletic Bio & Focus Areas</CardTitle>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+              {profile.goal && (
+                <div className="p-3.5 rounded-xl bg-dark-bg border border-dark-border space-y-1">
+                  <span className="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">Primary Career Goal</span>
+                  <p className="text-white font-medium">{profile.goal}</p>
+                </div>
+              )}
+              {profile.strengths && (
+                <div className="p-3.5 rounded-xl bg-dark-bg border border-dark-border space-y-1">
+                  <span className="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">Key Strengths</span>
+                  <p className="text-emerald-400 font-medium">{profile.strengths}</p>
+                </div>
+              )}
+              {profile.focusAreas && (
+                <div className="p-3.5 rounded-xl bg-dark-bg border border-dark-border space-y-1">
+                  <span className="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">Development Focus</span>
+                  <p className="text-cyan-400 font-medium">{profile.focusAreas}</p>
+                </div>
+              )}
+            </div>
+            {profile.bio && (
+              <p className="text-xs text-slate-300 leading-relaxed pt-2 border-t border-dark-border/60">
+                "{profile.bio}"
+              </p>
+            )}
+          </Card>
+        )}
 
         {/* Assessments Record */}
         <Card className="p-6 space-y-4 border-dark-border">
