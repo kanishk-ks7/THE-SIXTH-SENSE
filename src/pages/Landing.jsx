@@ -23,29 +23,21 @@ import {
   Award,
   Layers
 } from 'lucide-react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
 import Card from '../components/ui/Card';
 import TiltCard from '../components/ui/TiltCard';
 import { SPORTS_LIST } from '../data/mockData';
 
-// Reusable 60fps counter animation respecting prefers-reduced-motion
-const AnimatedNumber = ({ value, duration = 1.3, decimals = 1, inView = true, prefix = '', suffix = '' }) => {
+// 60fps Smooth Number Counter Animation
+const AnimatedNumber = ({ value = 94.8, duration = 1.4, decimals = 1, prefix = '', suffix = '' }) => {
   const [displayValue, setDisplayValue] = useState(0);
-  const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
-    if (!inView) return;
     const targetVal = typeof value === 'number' ? value : parseFloat(value) || 0;
-
-    if (shouldReduceMotion) {
-      setDisplayValue(targetVal);
-      return;
-    }
-
     let startTime = null;
-    const startVal = 0;
+    let frameId;
 
     const step = (timestamp) => {
       if (!startTime) startTime = timestamp;
@@ -53,19 +45,19 @@ const AnimatedNumber = ({ value, duration = 1.3, decimals = 1, inView = true, pr
       const progress = Math.min(elapsed, 1);
       // Smooth ease-out cubic
       const eased = 1 - Math.pow(1 - progress, 3);
-      const current = startVal + (targetVal - startVal) * eased;
+      const current = targetVal * eased;
       setDisplayValue(current);
 
       if (progress < 1) {
-        requestAnimationFrame(step);
+        frameId = requestAnimationFrame(step);
       } else {
         setDisplayValue(targetVal);
       }
     };
 
-    const frameId = requestAnimationFrame(step);
+    frameId = requestAnimationFrame(step);
     return () => cancelAnimationFrame(frameId);
-  }, [value, duration, inView, shouldReduceMotion]);
+  }, [value, duration]);
 
   return <span>{prefix}{displayValue.toFixed(decimals)}{suffix}</span>;
 };
@@ -74,42 +66,37 @@ const AnimatedNumber = ({ value, duration = 1.3, decimals = 1, inView = true, pr
 const VerifiedBadgeWidget = () => {
   const [verifiedProgress, setVerifiedProgress] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
-  const shouldReduceMotion = useReducedMotion();
 
   return (
     <motion.div 
       className="mt-6 p-4 rounded-xl bg-[#05070B]/70 border border-white/[0.06] space-y-2.5"
-      initial={{ opacity: 0, y: 10 }}
+      initial={{ opacity: 0, y: 15 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.3 }}
       transition={{ duration: 0.5, delay: 0.2 }}
       onViewportEnter={() => {
-        if (shouldReduceMotion) {
-          setVerifiedProgress(100);
-          setIsComplete(true);
-          return;
-        }
         let startTime = null;
+        let frameId;
         const step = (timestamp) => {
           if (!startTime) startTime = timestamp;
-          const progress = Math.min((timestamp - startTime) / 950, 1);
+          const progress = Math.min((timestamp - startTime) / 1000, 1);
           const current = Math.floor(progress * 100);
           setVerifiedProgress(current);
           if (progress < 1) {
-            requestAnimationFrame(step);
+            frameId = requestAnimationFrame(step);
           } else {
             setIsComplete(true);
           }
         };
-        requestAnimationFrame(step);
+        frameId = requestAnimationFrame(step);
       }}
     >
       <div className="flex justify-between text-xs text-slate-300 font-mono">
         <span>Athletic Passport Status</span>
         <div className="flex items-center gap-1.5 font-bold text-emerald-400">
           <motion.span
-            animate={isComplete && !shouldReduceMotion ? { scale: [1, 1.25, 1] } : {}}
-            transition={{ duration: 0.4 }}
+            animate={isComplete ? { scale: [1, 1.3, 1] } : {}}
+            transition={{ duration: 0.35 }}
             className="inline-flex items-center"
           >
             {isComplete ? (
@@ -132,8 +119,6 @@ const VerifiedBadgeWidget = () => {
 
 // Animated Career Roadmap Widget for Card 2
 const CareerRoadmapWidget = () => {
-  const shouldReduceMotion = useReducedMotion();
-
   return (
     <div className="mt-6 p-4 rounded-xl bg-[#05070B]/70 border border-white/[0.06] space-y-2.5">
       <div className="flex justify-between text-xs text-slate-300 font-mono">
@@ -148,13 +133,13 @@ const CareerRoadmapWidget = () => {
           Stage 3 of 5
         </motion.span>
       </div>
-      <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+      <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
         <motion.div
-          initial={{ width: 0 }}
+          initial={{ width: '0%' }}
           whileInView={{ width: '65%' }}
           viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 1.1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-          className="bg-gradient-to-r from-volt to-emerald-400 h-full rounded-full"
+          transition={{ duration: 1.2, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+          className="bg-gradient-to-r from-volt via-cyan-400 to-emerald-400 h-full rounded-full"
         />
       </div>
     </div>
@@ -191,7 +176,7 @@ const ScoutingProgressionPathway = () => {
           initial={{ scaleX: 0 }}
           whileInView={{ scaleX: 1 }}
           viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 1.3, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 1.4, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
           style={{ transformOrigin: 'left' }}
           className="absolute top-[18px] left-3 right-3 h-[2px] bg-gradient-to-r from-cyan-400 via-brand-accent to-volt z-0 shadow-[0_0_8px_rgba(0,240,255,0.6)]"
         />
@@ -201,10 +186,10 @@ const ScoutingProgressionPathway = () => {
           {stages.map((stage, idx) => (
             <motion.div
               key={stage.name}
-              initial={{ opacity: 0, scale: 0.7 }}
+              initial={{ opacity: 0, scale: 0.6 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.4, delay: 0.2 + idx * 0.14, ease: 'easeOut' }}
+              transition={{ duration: 0.45, delay: 0.2 + idx * 0.15, ease: 'easeOut' }}
               className="flex flex-col items-center group cursor-pointer"
             >
               <div className="w-6 h-6 rounded-full bg-[#090F1C] border border-white/25 flex items-center justify-center group-hover:border-volt group-hover:scale-110 group-hover:shadow-[0_0_12px_#CCFF00] transition-all">
@@ -233,7 +218,6 @@ export const Landing = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSportId, setActiveSportId] = useState('football');
-  const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -427,7 +411,7 @@ export const Landing = () => {
               
               {/* Premium Pill Badge */}
               <motion.div 
-                initial={{ opacity: 0, y: 12 }}
+                initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                 className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-gradient-to-r from-dark-surface/90 to-dark-card/90 border border-volt/30 shadow-[0_0_20px_-3px_rgba(204,255,0,0.25)] backdrop-blur-md"
@@ -442,28 +426,28 @@ export const Landing = () => {
                 </span>
               </motion.div>
 
-              {/* Cinematic Headline - Sequential 3 Lines */}
+              {/* 1. HERO TEXT ANIMATION — Sequential 3 Lines */}
               <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white font-display leading-[1.08]">
                 <motion.span
-                  initial={{ opacity: 0, y: 16 }}
+                  initial={{ opacity: 0, y: 35 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.65, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+                  transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
                   className="block"
                 >
                   Find your path.
                 </motion.span>
                 <motion.span
-                  initial={{ opacity: 0, y: 16 }}
+                  initial={{ opacity: 0, y: 35 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.65, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                  transition={{ duration: 0.7, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
                   className="block bg-gradient-to-r from-cyan-300 via-brand-accent to-volt bg-clip-text text-transparent animate-glow-subtle"
                 >
                   Build your skills.
                 </motion.span>
                 <motion.span
-                  initial={{ opacity: 0, y: 16 }}
+                  initial={{ opacity: 0, y: 35 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.65, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                  transition={{ duration: 0.7, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
                   className="block"
                 >
                   Reach your potential.
@@ -472,9 +456,9 @@ export const Landing = () => {
 
               {/* Subtitle Description */}
               <motion.p 
-                initial={{ opacity: 0, y: 14 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: 0.6, delay: 0.75, ease: [0.16, 1, 0.3, 1] }}
                 className="text-base sm:text-lg lg:text-xl text-slate-300 max-w-2xl leading-relaxed font-normal"
               >
                 An intelligent sports career companion that helps athletes understand where they are, what they should improve, and what opportunities they can pursue next.
@@ -482,16 +466,16 @@ export const Landing = () => {
 
               {/* Dual Action Buttons */}
               <motion.div 
-                initial={{ opacity: 0, y: 14 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: 0.6, delay: 0.85, ease: [0.16, 1, 0.3, 1] }}
                 className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2"
               >
                 <Link to="/signup" className="w-full sm:w-auto">
                   <Button 
                     variant="volt" 
                     size="lg" 
-                    className="w-full text-slate-950 font-black shadow-[0_0_25px_-2px_rgba(204,255,0,0.45)] hover:shadow-[0_0_35px_-2px_rgba(204,255,0,0.65)]" 
+                    className="w-full text-slate-950 font-black shadow-[0_0_25px_-2px_rgba(204,255,0,0.45)] hover:shadow-[0_0_35px_-2px_rgba(204,255,0,0.65)] hover:scale-105 transition-all duration-200" 
                     icon={ArrowRight} 
                     iconPosition="right"
                   >
@@ -502,7 +486,7 @@ export const Landing = () => {
                   <Button 
                     variant="secondary" 
                     size="lg" 
-                    className="w-full border-white/10 hover:border-cyan-400/50 hover:bg-dark-cardHover/80 text-white font-bold" 
+                    className="w-full border-white/10 hover:border-cyan-400/50 hover:bg-dark-cardHover/80 text-white font-bold hover:scale-105 transition-all duration-200" 
                     icon={Activity}
                   >
                     Explore Platform Demo
@@ -510,11 +494,11 @@ export const Landing = () => {
                 </Link>
               </motion.div>
 
-              {/* Supported Sports Strip with Interactive Pills */}
+              {/* 4. SUPPORTED SPORTS PILLS (Hover scale, glow & icon translation) */}
               <motion.div 
-                initial={{ opacity: 0, y: 14 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: 0.6, delay: 0.95, ease: [0.16, 1, 0.3, 1] }}
                 className="pt-6 border-t border-white/[0.06] space-y-3"
               >
                 <div className="flex items-center gap-2">
@@ -532,19 +516,19 @@ export const Landing = () => {
                         key={s.id}
                         type="button"
                         onClick={() => setActiveSportId(s.id)}
-                        whileHover={shouldReduceMotion ? {} : { scale: 1.04, y: -1 }}
-                        whileTap={shouldReduceMotion ? {} : { scale: 0.97 }}
-                        transition={{ duration: 0.2, ease: "easeOut" }}
+                        whileHover={{ scale: 1.06, y: -2 }}
+                        whileTap={{ scale: 0.96 }}
+                        transition={{ duration: 0.18, ease: "easeOut" }}
                         className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 cursor-pointer will-change-transform ${
                           isSelected
-                            ? 'bg-gradient-to-r from-brand-500/20 to-volt/20 text-volt border border-volt/50 shadow-[0_0_14px_-2px_rgba(204,255,0,0.35)]'
-                            : 'bg-dark-card/80 border border-white/[0.08] text-slate-300 hover:text-white hover:border-slate-400/60 hover:bg-dark-cardHover hover:shadow-glow-sm'
+                            ? 'bg-gradient-to-r from-brand-500/20 to-volt/20 text-volt border border-volt/60 shadow-[0_0_16px_rgba(204,255,0,0.45)]'
+                            : 'bg-dark-card/80 border border-white/[0.08] text-slate-300 hover:text-white hover:border-volt/50 hover:bg-dark-cardHover hover:shadow-glow-volt-sm'
                         }`}
                       >
                         <motion.span 
-                          className="w-2 h-2 rounded-full inline-block transition-transform duration-200" 
+                          className="w-2 h-2 rounded-full inline-block" 
                           style={{ backgroundColor: s.color || '#00F0FF' }}
-                          whileHover={shouldReduceMotion ? {} : { x: 2 }}
+                          whileHover={{ x: 3 }}
                         />
                         {s.name}
                       </motion.button>
@@ -555,11 +539,11 @@ export const Landing = () => {
 
             </div>
 
-            {/* Right Column: Cinematic Sports Telemetry Hero Card */}
+            {/* 2. HERO AI ATHLETE DASHBOARD (Number Counter, Progress Bar & Live Status) */}
             <motion.div 
-              initial={{ opacity: 0, scale: 0.96 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              initial={{ opacity: 0, scale: 0.94, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
               className="lg:col-span-5 relative"
             >
               
@@ -583,12 +567,12 @@ export const Landing = () => {
                   <div className="absolute top-0 right-0 w-48 h-48 bg-volt/15 rounded-full blur-3xl pointer-events-none" />
                   <div className="absolute bottom-0 left-0 w-48 h-48 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none" />
 
-                  {/* Top Floating Badge: Live Sports Engine */}
+                  {/* Top Floating Badge: Live Sports Engine with Pulsing Indicator */}
                   <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-20">
                     <div className="glass-panel px-3 py-1.5 rounded-full border border-white/10 flex items-center gap-2 shadow-lg">
-                      <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+                      <span className="relative flex h-2.5 w-2.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-80"></span>
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400"></span>
                       </span>
                       <span className="text-[11px] font-mono font-bold text-slate-200 uppercase tracking-wider">
                         Live AI Diagnostic
@@ -602,13 +586,13 @@ export const Landing = () => {
 
                   {/* Telemetry HUD Floating Card */}
                   <motion.div 
-                    initial={{ opacity: 0, y: 15 }}
+                    initial={{ opacity: 0, y: 25 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                    transition={{ duration: 0.6, delay: 0.45, ease: [0.16, 1, 0.3, 1] }}
                     className="relative z-20 p-5 space-y-3.5 m-3 rounded-2xl glass-card-premium border border-white/15 shadow-2xl"
                   >
                     
-                    {/* Athlete Performance Bar with Animated Counter */}
+                    {/* Athlete Performance Bar with Live Animated Counter 0 -> 94.8 */}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2.5">
                         <div className="w-8 h-8 rounded-lg bg-volt/10 border border-volt/30 flex items-center justify-center text-volt">
@@ -620,25 +604,25 @@ export const Landing = () => {
                         </div>
                       </div>
                       <div className="text-right">
-                        <span className="text-lg font-mono font-black text-volt">
-                          <AnimatedNumber value={94.8} decimals={1} duration={1.4} />
+                        <span className="text-xl font-mono font-black text-volt">
+                          <AnimatedNumber value={94.8} decimals={1} duration={1.5} />
                         </span>
                         <span className="text-[10px] text-slate-400 font-mono"> /100</span>
                       </div>
                     </div>
 
-                    {/* Metric Bars Preview with Animated Fill */}
+                    {/* Metric Progress Bar: Grows 0% -> 88% */}
                     <div className="space-y-1.5 pt-1">
                       <div className="flex justify-between text-[10px] font-mono text-slate-300">
                         <span>Career Milestone Alignment</span>
                         <span className="text-cyan-400 font-bold">State Selection Ready</span>
                       </div>
-                      <div className="w-full bg-dark-bg/80 h-2 rounded-full overflow-hidden p-[1px] border border-white/10">
+                      <div className="w-full bg-dark-bg/80 h-2.5 rounded-full overflow-hidden p-[1px] border border-white/10">
                         <motion.div 
                           initial={{ width: '0%' }}
                           animate={{ width: '88%' }}
-                          transition={{ duration: 1.2, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                          className="bg-gradient-to-r from-brand-500 via-cyan-400 to-volt h-full rounded-full"
+                          transition={{ duration: 1.4, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                          className="bg-gradient-to-r from-brand-500 via-cyan-400 to-volt h-full rounded-full shadow-[0_0_12px_rgba(0,240,255,0.6)]"
                         />
                       </div>
                     </div>
@@ -646,18 +630,18 @@ export const Landing = () => {
                     {/* Bottom Status Tags with Staggered Entrance */}
                     <div className="grid grid-cols-2 gap-2 pt-1">
                       <motion.div 
-                        initial={{ opacity: 0, y: 6 }}
+                        initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: 0.55 }}
+                        transition={{ duration: 0.5, delay: 0.7 }}
                         className="px-2.5 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.06] flex items-center justify-between"
                       >
                         <span className="text-[10px] text-slate-400">Verified Drills</span>
                         <span className="text-[11px] font-mono font-bold text-slate-200">128+</span>
                       </motion.div>
                       <motion.div 
-                        initial={{ opacity: 0, y: 6 }}
+                        initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: 0.65 }}
+                        transition={{ duration: 0.5, delay: 0.8 }}
                         className="px-2.5 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.06] flex items-center justify-between"
                       >
                         <span className="text-[10px] text-slate-400">Scout Tier</span>
@@ -670,11 +654,11 @@ export const Landing = () => {
                 </div>
               </div>
 
-              {/* Decorative Accent Floating Card - Smooth Gentle Floating Loop */}
+              {/* 3. FLOATING ROADMAP CARD — Infinite Gentle 3.5s Float (0 -> -8px -> 0) */}
               <motion.div 
-                animate={shouldReduceMotion ? {} : { y: [0, -8, 0] }}
-                transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
-                className="hidden sm:block absolute -bottom-6 -left-6 glass-card px-4 py-3 rounded-2xl border border-white/10 shadow-2xl z-30"
+                animate={{ y: [0, -8, 0] }}
+                transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+                className="hidden sm:block absolute -bottom-6 -left-6 glass-card px-4 py-3 rounded-2xl border border-white/15 shadow-2xl z-30 animate-float-gentle"
               >
                 <div className="flex items-center gap-3">
                   <div className="p-2 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
@@ -694,7 +678,7 @@ export const Landing = () => {
         </div>
       </section>
 
-      {/* How Athletex Works Section (5 Steps with Viewport Scroll & Drawing Line) */}
+      {/* 5 & 6. HOW ATHLETEX WORKS (Scroll Reveal, 5 Cards Staggered 01->05 & Connecting Line Draw) */}
       <section className="py-24 px-4 sm:px-8 relative bg-gradient-to-b from-[#05070B] via-[#080E1B] to-[#05070B] border-y border-white/[0.06]">
         
         {/* Glow ambient */}
@@ -704,7 +688,7 @@ export const Landing = () => {
           
           {/* Section Header with Viewport Entrance */}
           <motion.div 
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
@@ -729,29 +713,29 @@ export const Landing = () => {
             {/* Background connecting progression line base */}
             <div className="hidden lg:block absolute top-1/2 left-8 right-8 h-[2px] bg-white/[0.06] -translate-y-1/2 z-0" />
 
-            {/* Animated drawing connecting progression line */}
+            {/* 6. CONNECTING LINE: Animated drawing from 01 -> 02 -> 03 -> 04 -> 05 */}
             <motion.div 
               initial={{ scaleX: 0 }}
               whileInView={{ scaleX: 1 }}
-              viewport={{ once: true, amount: 0.25 }}
-              transition={{ duration: 1.1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 1.3, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
               style={{ transformOrigin: 'left' }}
-              className="hidden lg:block absolute top-1/2 left-8 right-8 h-[2px] bg-gradient-to-r from-brand-500/30 via-cyan-400/50 to-volt/50 -translate-y-1/2 z-0 shadow-[0_0_8px_rgba(0,240,255,0.4)]" 
+              className="hidden lg:block absolute top-1/2 left-8 right-8 h-[2px] bg-gradient-to-r from-brand-500 via-cyan-400 to-volt -translate-y-1/2 z-0 shadow-[0_0_12px_rgba(0,240,255,0.6)]" 
             />
 
-            {/* 5 Step Cards with Sequenced Entrance from Left to Right */}
+            {/* 5. 5 Step Cards with Sequenced Staggered Entrance (01 -> 02 -> 03 -> 04 -> 05) */}
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-5 relative z-10">
               {steps.map((s, idx) => {
                 const Icon = s.icon;
                 return (
                   <motion.div
                     key={s.num}
-                    initial={{ opacity: 0, y: 24 }}
+                    initial={{ opacity: 0, y: 40 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, amount: 0.2 }}
-                    transition={{ duration: 0.6, delay: 0.12 + idx * 0.12, ease: [0.16, 1, 0.3, 1] }}
-                    whileHover={shouldReduceMotion ? {} : { y: -6, transition: { duration: 0.25, ease: 'easeOut' } }}
-                    className="relative p-6 rounded-2xl glass-card border border-white/[0.08] hover:border-volt/50 hover:bg-dark-cardHover/90 transition-colors duration-300 flex flex-col justify-between group shadow-sport-card hover:shadow-glow-volt/10 will-change-transform"
+                    transition={{ duration: 0.6, delay: 0.1 + idx * 0.14, ease: [0.16, 1, 0.3, 1] }}
+                    whileHover={{ y: -6, transition: { duration: 0.2, ease: 'easeOut' } }}
+                    className="relative p-6 rounded-2xl glass-card border border-white/[0.08] hover:border-volt/60 hover:bg-dark-cardHover/90 transition-all duration-300 flex flex-col justify-between group shadow-sport-card hover:shadow-glow-volt/20 will-change-transform"
                   >
                     <div>
                       {/* Step Number & Icon Header */}
@@ -776,7 +760,7 @@ export const Landing = () => {
                     {/* Step Card Bottom Visual Pulse Indicator */}
                     <div className="pt-5 mt-4 border-t border-white/[0.06] flex items-center justify-between text-[11px] font-mono text-slate-500 group-hover:text-slate-400">
                       <span>Phase {s.num}</span>
-                      <div className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-volt group-hover:shadow-[0_0_8px_#CCFF00] transition-colors" />
+                      <div className="w-2 h-2 rounded-full bg-slate-700 group-hover:bg-volt group-hover:shadow-[0_0_8px_#CCFF00] transition-colors" />
                     </div>
 
                     {/* Step Arrow for Desktop */}
@@ -795,12 +779,12 @@ export const Landing = () => {
         </div>
       </section>
 
-      {/* Cinematic Sports Visual Feature Area: Grassroots -> Certified Selection */}
+      {/* 9. GRASSROOTS -> CERTIFIED SELECTION (Animated Pipeline Drawing) */}
       <section className="py-24 px-4 sm:px-8 relative overflow-hidden">
         <div className="max-w-7xl mx-auto">
           
           <motion.div 
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 0, y: 35 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.15 }}
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
@@ -844,12 +828,12 @@ export const Landing = () => {
 
                 <div className="flex flex-wrap gap-4 pt-2">
                   <Link to="/signup">
-                    <Button variant="volt" size="md" icon={ArrowRight} iconPosition="right" className="text-slate-950 font-black">
+                    <Button variant="volt" size="md" icon={ArrowRight} iconPosition="right" className="text-slate-950 font-black hover:scale-105 transition-transform">
                       Join The Platform
                     </Button>
                   </Link>
                   <Link to="/dashboard">
-                    <Button variant="secondary" size="md" className="text-white border-white/15">
+                    <Button variant="secondary" size="md" className="text-white border-white/15 hover:scale-105 transition-transform">
                       View Athlete Demo
                     </Button>
                   </Link>
@@ -860,11 +844,11 @@ export const Landing = () => {
               <div className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
                 
                 <motion.div 
-                  initial={{ opacity: 0, y: 16 }}
+                  initial={{ opacity: 0, y: 25 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, amount: 0.2 }}
                   transition={{ duration: 0.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                  className="glass-card-premium p-5 rounded-2xl border border-white/15 space-y-2 hover:border-volt/40 transition-colors"
+                  className="glass-card-premium p-5 rounded-2xl border border-white/15 space-y-2 hover:border-volt/50 hover:shadow-glow-volt-sm transition-all duration-300"
                 >
                   <div className="text-xs font-mono text-slate-400 uppercase">Precision Rating</div>
                   <div className="text-3xl font-black font-mono text-volt">
@@ -874,11 +858,11 @@ export const Landing = () => {
                 </motion.div>
 
                 <motion.div 
-                  initial={{ opacity: 0, y: 16 }}
+                  initial={{ opacity: 0, y: 25 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, amount: 0.2 }}
-                  transition={{ duration: 0.5, delay: 0.32, ease: [0.16, 1, 0.3, 1] }}
-                  className="glass-card-premium p-5 rounded-2xl border border-white/15 space-y-2 hover:border-cyan-400/40 transition-colors"
+                  transition={{ duration: 0.5, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                  className="glass-card-premium p-5 rounded-2xl border border-white/15 space-y-2 hover:border-cyan-400/50 hover:shadow-glow-cyan transition-all duration-300"
                 >
                   <div className="text-xs font-mono text-slate-400 uppercase">Assessment Pillars</div>
                   <div className="text-3xl font-black font-mono text-cyan-400">4-Tier</div>
@@ -886,11 +870,11 @@ export const Landing = () => {
                 </motion.div>
 
                 <motion.div 
-                  initial={{ opacity: 0, y: 16 }}
+                  initial={{ opacity: 0, y: 25 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, amount: 0.2 }}
-                  transition={{ duration: 0.5, delay: 0.44, ease: [0.16, 1, 0.3, 1] }}
-                  className="glass-card-premium p-5 rounded-2xl border border-white/15 space-y-2 sm:col-span-2 hover:border-emerald-400/40 transition-colors"
+                  transition={{ duration: 0.5, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                  className="glass-card-premium p-5 rounded-2xl border border-white/15 space-y-2 sm:col-span-2 hover:border-emerald-400/50 hover:shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all duration-300"
                 >
                   <div className="flex items-center justify-between text-xs font-mono text-slate-400 uppercase">
                     <span>Scouting Pipeline</span>
@@ -909,13 +893,13 @@ export const Landing = () => {
         </div>
       </section>
 
-      {/* Feature Section: Engineered for Aspiring Athletes (Core Architecture Bento Cards with 3D Tilt) */}
+      {/* 7 & 8. CORE ARCHITECTURE BENTO CARDS (3D Tilt, Hover Glow, Icon Rise & Metric Progress Animation) */}
       <section className="py-24 px-4 sm:px-8 relative z-10">
         <div className="max-w-7xl mx-auto space-y-16">
           
           {/* Section Header */}
           <motion.div 
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
@@ -939,17 +923,17 @@ export const Landing = () => {
             
             {/* Feature 1: Large Flagship Bento Card (Personalized Athlete Profile) */}
             <motion.div 
-              initial={{ opacity: 0, y: 24 }}
+              initial={{ opacity: 0, y: 35 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.15 }}
               transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
               className="lg:col-span-3 h-full"
             >
-              <TiltCard maxTilt={3.5} className="h-full">
-                <div className="p-7 sm:p-8 h-full flex flex-col justify-between glass-card-premium border border-white/10 hover:border-cyan-400/50 transition-all duration-300 group rounded-2xl shadow-sport-card hover:shadow-glow-cyan/20">
+              <TiltCard maxTilt={4.5} className="h-full">
+                <div className="p-7 sm:p-8 h-full flex flex-col justify-between glass-card-premium border border-white/10 hover:border-cyan-400/60 transition-all duration-300 group rounded-2xl shadow-sport-card hover:shadow-glow-cyan">
                   <div>
                     <div className="flex items-center justify-between mb-6">
-                      <div className="p-3.5 rounded-2xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/25 group-hover:scale-110 group-hover:bg-cyan-500/20 group-hover:-translate-y-0.5 transition-all duration-300">
+                      <div className="p-3.5 rounded-2xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/25 group-hover:scale-110 group-hover:bg-cyan-500/20 group-hover:-translate-y-1 transition-all duration-300">
                         <UserCheck className="w-6 h-6" />
                       </div>
                       <Badge variant="primary" size="sm" className="font-mono font-semibold">
@@ -968,7 +952,7 @@ export const Landing = () => {
                     <VerifiedBadgeWidget />
                   </div>
 
-                  <div className="pt-6 mt-6 border-t border-white/[0.08] flex items-center gap-2 text-xs text-cyan-400 font-semibold group-hover:translate-x-1.5 transition-transform duration-200">
+                  <div className="pt-6 mt-6 border-t border-white/[0.08] flex items-center gap-2 text-xs text-cyan-400 font-semibold group-hover:translate-x-2 transition-transform duration-200">
                     <span>Feature module preview</span>
                     <ArrowRight className="w-4 h-4" />
                   </div>
@@ -978,17 +962,17 @@ export const Landing = () => {
 
             {/* Feature 2: Large Flagship Bento Card (Structured Career Roadmap) */}
             <motion.div 
-              initial={{ opacity: 0, y: 24 }}
+              initial={{ opacity: 0, y: 35 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.15 }}
-              transition={{ duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.6, delay: 0.22, ease: [0.16, 1, 0.3, 1] }}
               className="lg:col-span-3 h-full"
             >
-              <TiltCard maxTilt={3.5} className="h-full">
-                <div className="p-7 sm:p-8 h-full flex flex-col justify-between glass-card-premium border border-white/10 hover:border-volt/50 transition-all duration-300 group rounded-2xl shadow-sport-card hover:shadow-glow-volt/20">
+              <TiltCard maxTilt={4.5} className="h-full">
+                <div className="p-7 sm:p-8 h-full flex flex-col justify-between glass-card-premium border border-white/10 hover:border-volt/60 transition-all duration-300 group rounded-2xl shadow-sport-card hover:shadow-glow-volt">
                   <div>
                     <div className="flex items-center justify-between mb-6">
-                      <div className="p-3.5 rounded-2xl bg-volt/10 text-volt border border-volt/25 group-hover:scale-110 group-hover:bg-volt/20 group-hover:-translate-y-0.5 transition-all duration-300">
+                      <div className="p-3.5 rounded-2xl bg-volt/10 text-volt border border-volt/25 group-hover:scale-110 group-hover:bg-volt/20 group-hover:-translate-y-1 transition-all duration-300">
                         <Milestone className="w-6 h-6" />
                       </div>
                       <Badge variant="volt" size="sm" className="font-mono font-semibold">
@@ -1007,7 +991,7 @@ export const Landing = () => {
                     <CareerRoadmapWidget />
                   </div>
 
-                  <div className="pt-6 mt-6 border-t border-white/[0.08] flex items-center gap-2 text-xs text-volt font-semibold group-hover:translate-x-1.5 transition-transform duration-200">
+                  <div className="pt-6 mt-6 border-t border-white/[0.08] flex items-center gap-2 text-xs text-volt font-semibold group-hover:translate-x-2 transition-transform duration-200">
                     <span>Feature module preview</span>
                     <ArrowRight className="w-4 h-4" />
                   </div>
@@ -1017,17 +1001,17 @@ export const Landing = () => {
 
             {/* Feature 3: Complementary Row Card (Knowledge / Learning Resources) */}
             <motion.div 
-              initial={{ opacity: 0, y: 24 }}
+              initial={{ opacity: 0, y: 35 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.15 }}
-              transition={{ duration: 0.6, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.6, delay: 0.34, ease: [0.16, 1, 0.3, 1] }}
               className="lg:col-span-2 h-full"
             >
-              <TiltCard maxTilt={3} className="h-full">
-                <div className="p-6 h-full flex flex-col justify-between glass-card border border-white/10 hover:border-brand-400/40 transition-all duration-300 group rounded-2xl shadow-sport-card hover:shadow-glow-brand/15">
+              <TiltCard maxTilt={3.5} className="h-full">
+                <div className="p-6 h-full flex flex-col justify-between glass-card border border-white/10 hover:border-brand-400/60 transition-all duration-300 group rounded-2xl shadow-sport-card hover:shadow-glow-brand">
                   <div>
                     <div className="flex items-center justify-between mb-5">
-                      <div className="p-3 rounded-xl bg-brand-500/10 text-brand-400 border border-brand-500/20 group-hover:scale-110 group-hover:-translate-y-0.5 transition-transform duration-300">
+                      <div className="p-3 rounded-xl bg-brand-500/10 text-brand-400 border border-brand-500/20 group-hover:scale-110 group-hover:-translate-y-1 transition-transform duration-300">
                         <Activity className="w-5 h-5" />
                       </div>
                       <Badge variant="primary" size="sm">{features[2].badge}</Badge>
@@ -1041,7 +1025,7 @@ export const Landing = () => {
                     </p>
                   </div>
 
-                  <div className="pt-4 mt-6 border-t border-white/[0.06] flex items-center gap-1.5 text-xs text-brand-400 font-semibold group-hover:translate-x-1.5 transition-transform duration-200">
+                  <div className="pt-4 mt-6 border-t border-white/[0.06] flex items-center gap-1.5 text-xs text-brand-400 font-semibold group-hover:translate-x-2 transition-transform duration-200">
                     <span>Feature module preview</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </div>
@@ -1051,17 +1035,17 @@ export const Landing = () => {
 
             {/* Feature 4: Complementary Row Card (Conditioning / Training Progress & Drills) */}
             <motion.div 
-              initial={{ opacity: 0, y: 24 }}
+              initial={{ opacity: 0, y: 35 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.15 }}
-              transition={{ duration: 0.6, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.6, delay: 0.46, ease: [0.16, 1, 0.3, 1] }}
               className="lg:col-span-2 h-full"
             >
-              <TiltCard maxTilt={3} className="h-full">
-                <div className="p-6 h-full flex flex-col justify-between glass-card border border-white/10 hover:border-emerald-400/40 transition-all duration-300 group rounded-2xl shadow-sport-card hover:shadow-[0_0_20px_-2px_rgba(16,185,129,0.2)]">
+              <TiltCard maxTilt={3.5} className="h-full">
+                <div className="p-6 h-full flex flex-col justify-between glass-card border border-white/10 hover:border-emerald-400/60 transition-all duration-300 group rounded-2xl shadow-sport-card hover:shadow-[0_0_24px_rgba(16,185,129,0.3)]">
                   <div>
                     <div className="flex items-center justify-between mb-5">
-                      <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 group-hover:scale-110 group-hover:-translate-y-0.5 transition-transform duration-300">
+                      <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 group-hover:scale-110 group-hover:-translate-y-1 transition-transform duration-300">
                         <Dumbbell className="w-5 h-5" />
                       </div>
                       <Badge variant="emerald" size="sm">{features[3].badge}</Badge>
@@ -1075,7 +1059,7 @@ export const Landing = () => {
                     </p>
                   </div>
 
-                  <div className="pt-4 mt-6 border-t border-white/[0.06] flex items-center gap-1.5 text-xs text-emerald-400 font-semibold group-hover:translate-x-1.5 transition-transform duration-200">
+                  <div className="pt-4 mt-6 border-t border-white/[0.06] flex items-center gap-1.5 text-xs text-emerald-400 font-semibold group-hover:translate-x-2 transition-transform duration-200">
                     <span>Feature module preview</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </div>
@@ -1085,17 +1069,17 @@ export const Landing = () => {
 
             {/* Feature 5: Complementary Row Card (Live Events / Competition Opportunities) */}
             <motion.div 
-              initial={{ opacity: 0, y: 24 }}
+              initial={{ opacity: 0, y: 35 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.15 }}
-              transition={{ duration: 0.6, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.6, delay: 0.58, ease: [0.16, 1, 0.3, 1] }}
               className="lg:col-span-2 h-full"
             >
-              <TiltCard maxTilt={3} className="h-full">
-                <div className="p-6 h-full flex flex-col justify-between glass-card border border-white/10 hover:border-amber-400/40 transition-all duration-300 group rounded-2xl shadow-sport-card hover:shadow-[0_0_20px_-2px_rgba(245,158,11,0.2)]">
+              <TiltCard maxTilt={3.5} className="h-full">
+                <div className="p-6 h-full flex flex-col justify-between glass-card border border-white/10 hover:border-amber-400/60 transition-all duration-300 group rounded-2xl shadow-sport-card hover:shadow-[0_0_24px_rgba(245,158,11,0.3)]">
                   <div>
                     <div className="flex items-center justify-between mb-5">
-                      <div className="p-3 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 group-hover:scale-110 group-hover:-translate-y-0.5 transition-transform duration-300">
+                      <div className="p-3 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 group-hover:scale-110 group-hover:-translate-y-1 transition-transform duration-300">
                         <Trophy className="w-5 h-5" />
                       </div>
                       <Badge variant="amber" size="sm">{features[4].badge}</Badge>
@@ -1109,7 +1093,7 @@ export const Landing = () => {
                     </p>
                   </div>
 
-                  <div className="pt-4 mt-6 border-t border-white/[0.06] flex items-center gap-1.5 text-xs text-amber-400 font-semibold group-hover:translate-x-1.5 transition-transform duration-200">
+                  <div className="pt-4 mt-6 border-t border-white/[0.06] flex items-center gap-1.5 text-xs text-amber-400 font-semibold group-hover:translate-x-2 transition-transform duration-200">
                     <span>Feature module preview</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </div>
@@ -1122,7 +1106,7 @@ export const Landing = () => {
         </div>
       </section>
 
-      {/* CTA Footer Banner Section with Slow Subtle Radial Glow Breathing & Arrow Glide */}
+      {/* 10. FINAL CTA SECTION (Breathing Ambient Radial Glow & Arrow Glide) */}
       <section className="py-24 px-4 sm:px-8 relative overflow-hidden border-t border-white/[0.08]">
         
         {/* Stadium Floodlight & Dark Gradient Backdrop */}
@@ -1136,22 +1120,18 @@ export const Landing = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-[#05070B] via-[#05070B]/90 to-[#080E1B]/95" />
           
           {/* Continuous Gentle Breathing Radial Glow */}
-          <motion.div 
-            animate={shouldReduceMotion ? {} : { scale: [1, 1.18, 1], opacity: [0.25, 0.55, 0.25] }}
-            transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-volt/10 rounded-full blur-[140px] pointer-events-none" 
-          />
+          <div className="absolute top-1/2 left-1/2 w-[600px] h-[300px] bg-volt/15 rounded-full blur-[140px] pointer-events-none animate-radial-breathe" />
         </div>
 
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.2 }}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           className="max-w-4xl mx-auto text-center space-y-8 relative z-10"
         >
           
-          <div className="inline-flex p-3 rounded-2xl bg-volt/10 border border-volt/30 text-volt shadow-[0_0_20px_rgba(204,255,0,0.2)]">
+          <div className="inline-flex p-3 rounded-2xl bg-volt/10 border border-volt/30 text-volt shadow-[0_0_20px_rgba(204,255,0,0.3)]">
             <Zap className="w-7 h-7" />
           </div>
 
@@ -1168,10 +1148,10 @@ export const Landing = () => {
               <Button 
                 variant="volt" 
                 size="lg" 
-                className="w-full text-slate-950 font-black text-base px-8 py-4 shadow-[0_0_30px_rgba(204,255,0,0.5)] hover:shadow-[0_0_45px_rgba(204,255,0,0.75)] transition-all duration-300 group"
+                className="w-full text-slate-950 font-black text-base px-8 py-4 shadow-[0_0_30px_rgba(204,255,0,0.5)] hover:shadow-[0_0_45px_rgba(204,255,0,0.75)] hover:scale-105 transition-all duration-300 group"
               >
                 <span>Create My Athlete Profile</span>
-                <ArrowRight className="w-5 h-5 ml-2.5 inline-block group-hover:translate-x-1.5 transition-transform duration-200" />
+                <ArrowRight className="w-5 h-5 ml-2.5 inline-block group-hover:translate-x-2 transition-transform duration-200" />
               </Button>
             </Link>
           </div>

@@ -149,12 +149,33 @@
   }
 }
 
+/* Keyframes */
 @keyframes textGlowSubtle {
   0%, 100% {
-    filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.3)) drop-shadow(0 0 20px rgba(204, 255, 0, 0.2));
+    filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.35)) drop-shadow(0 0 16px rgba(204, 255, 0, 0.2));
   }
   50% {
-    filter: drop-shadow(0 0 18px rgba(0, 240, 255, 0.6)) drop-shadow(0 0 28px rgba(204, 255, 0, 0.45));
+    filter: drop-shadow(0 0 16px rgba(0, 240, 255, 0.65)) drop-shadow(0 0 24px rgba(204, 255, 0, 0.45));
+  }
+}
+
+@keyframes floatGentle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes radialBreathe {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 0.6;
   }
 }
 
@@ -162,12 +183,10 @@
   animation: textGlowSubtle 4s ease-in-out infinite;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  *, ::before, ::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
+.animate-float-gentle {
+  animation: floatGentle 3.5s ease-in-out infinite;
 }
 
-
+.animate-radial-breathe {
+  animation: radialBreathe 6s ease-in-out infinite;
+}

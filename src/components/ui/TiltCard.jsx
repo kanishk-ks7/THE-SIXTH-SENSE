@@ -1,33 +1,34 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { motion, useMotionValue, useSpring, useTransform, useReducedMotion } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 
 export const TiltCard = ({
   children,
   className = '',
-  maxTilt = 3.5,
+  maxTilt = 4.5,
   onClick,
   ...props
 }) => {
   const cardRef = useRef(null);
-  const shouldReduceMotion = useReducedMotion();
   const [isTouchDevice, setIsTouchDevice] = useState(false);
 
   useEffect(() => {
-    setIsTouchDevice(!window.matchMedia('(hover: hover)').matches);
+    setIsTouchDevice(
+      typeof window !== 'undefined' && 
+      ('ontouchstart' in window || navigator.maxTouchPoints > 0 || !window.matchMedia('(hover: hover)').matches)
+    );
   }, []);
 
   const x = useMotionValue(0);
   const y = useMotionValue(0);
 
-  const mouseXSpring = useSpring(x, { stiffness: 260, damping: 25 });
-  const mouseYSpring = useSpring(y, { stiffness: 260, damping: 25 });
+  const mouseXSpring = useSpring(x, { stiffness: 220, damping: 20 });
+  const mouseYSpring = useSpring(y, { stiffness: 220, damping: 20 });
 
   const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], [maxTilt, -maxTilt]);
   const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], [-maxTilt, maxTilt]);
 
   const handleMouseMove = (e) => {
-    if (isTouchDevice || shouldReduceMotion) return;
-    if (!cardRef.current) return;
+    if (isTouchDevice || !cardRef.current) return;
 
     const rect = cardRef.current.getBoundingClientRect();
     const width = rect.width;
@@ -48,10 +49,11 @@ export const TiltCard = ({
     y.set(0);
   };
 
-  const dynamicStyle = shouldReduceMotion || isTouchDevice ? {} : {
+  const dynamicStyle = isTouchDevice ? {} : {
     rotateX,
     rotateY,
     transformStyle: 'preserve-3d',
+    perspective: 1000
   };
 
   return (
@@ -61,8 +63,8 @@ export const TiltCard = ({
       onMouseLeave={handleMouseLeave}
       onClick={onClick}
       style={dynamicStyle}
-      whileHover={shouldReduceMotion ? {} : { y: -4, transition: { duration: 0.25, ease: 'easeOut' } }}
-      className={`relative rounded-2xl ${className}`}
+      whileHover={{ y: -6, transition: { duration: 0.2, ease: 'easeOut' } }}
+      className={`relative rounded-2xl will-change-transform ${className}`}
       {...props}
     >
       {children}
